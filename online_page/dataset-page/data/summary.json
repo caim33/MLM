@@ -1,0 +1,78 @@
+{
+  "generated_from": "DATASET_STATISTICS_20260830.md",
+  "datasets": {
+    "humanml3d": {
+      "label": "HumanML3D",
+      "motion_files": 29228,
+      "video_files": 0,
+      "caption_files": 29232,
+      "size_gb": 4.339,
+      "fps": 20,
+      "length": "64–199 frames (sampled)",
+      "total_frames": 4115010,
+      "duration_hours": 57.15,
+      "frame_stats": {
+        "min": 1,
+        "median": 149,
+        "mean": 140.79,
+        "p95": 199,
+        "max": 468
+      },
+      "coverage": "14,614 original + mirrored base IDs",
+      "quality": "4 captions do not have a matching motion file."
+    },
+    "sonic": {
+      "label": "SONIC",
+      "motion_files": 142216,
+      "video_files": 0,
+      "caption_files": 142220,
+      "size_gb": 32.891,
+      "fps": 30,
+      "length": "67–864 frames (sampled)",
+      "total_frames": 31048704,
+      "duration_hours": 287.49,
+      "frame_stats": {
+        "min": 17,
+        "median": 170,
+        "mean": 218.32,
+        "p95": 472,
+        "max": 5404
+      },
+      "coverage": "Temporal event metadata in JSONL/CSV/Parquet",
+      "quality": "4 caption keys map only to the opposite _M twin."
+    },
+    "motionx": {
+      "label": "MotionX",
+      "motion_files": 64246,
+      "video_files": 115990,
+      "caption_files": 64219,
+      "size_gb": 150.497,
+      "fps": 30,
+      "length": "299 frames",
+      "total_frames": 19130131,
+      "duration_hours": 177.13,
+      "frame_stats": {
+        "min": 1,
+        "median": 299,
+        "mean": 297.76,
+        "p95": 299,
+        "max": 299
+      },
+      "coverage": "Every motion has a video; motion covers 55.39% of videos",
+      "quality": "3 frame captions lack motion; 30 motions lack frame captions."
+    }
+  },
+  "totals": {
+    "motion_files": 235690,
+    "video_files": 115990,
+    "size_gb": 187.727,
+    "feature_dims": 263,
+    "joints": 22
+  },
+  "indexed_samples": {
+    "humanml3d": 29228,
+    "motionx": 64246,
+    "sonic": 142216
+  },
+  "index_build_seconds": 100.71
+}

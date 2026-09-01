@@ -3,26 +3,26 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="MotionLLM/Qwen 重构代码库的安全使用手册">
-  <title>Qwen Codebase 使用手册 — MotionLLM</title>
+  <meta name="description" content="Caimeng Codebase 的环境准备、数据使用、推理、训练与评估文档">
+  <title>Codebase 使用文档 — Caimeng Codebase</title>
   <link rel="stylesheet" href="../styles.css">
   <link rel="stylesheet" href="guide.css">
 </head>
 <body class="guide-page">
   <a class="skip-link" href="#guide-main">跳到正文</a>
   <header class="topbar guide-topbar">
-    <a class="brand" href="../index.html" aria-label="返回 MotionLLM Research Atlas">
-      <span class="brand-mark">M</span>
-      <span><strong>MotionLLM</strong><small>Qwen Codebase Guide</small></span>
+    <a class="brand" href="../../index.html" aria-label="返回 Caimeng Codebase 主网站">
+      <span class="brand-mark">C</span>
+      <span><strong>Caimeng Codebase</strong><small>Usage Documentation</small></span>
     </a>
     <nav class="topnav" aria-label="页面导航">
-      <a href="#status">当前状态</a>
+      <a href="#start">开始使用</a>
       <a href="#dataset">Dataset</a>
-      <a href="dataset-statistics.html">数据统计</a>
       <a href="#inference">推理</a>
       <a href="#training">训练</a>
-      <a href="#evidence">代码索引</a>
-      <a href="../index.html">研究主页</a>
+      <a href="#troubleshooting">排错</a>
+      <a href="../index.html">Paper Reading</a>
+      <a href="../../index.html">主网站</a>
     </nav>
     <button class="theme-toggle" id="themeToggle" type="button" aria-label="切换明暗主题">◐</button>
   </header>
@@ -31,22 +31,21 @@
     <aside class="guide-sidebar" aria-label="使用手册目录">
       <p class="guide-nav-title">使用手册</p>
       <nav>
-        <a href="#status">开始前先看状态</a>
-        <a href="#dataset">数据目录与 QA</a>
-        <a href="#text-contract">文本类型合同</a>
-        <a href="#modality-contract">V / M / VM 模态合同</a>
-        <a href="dataset-statistics.html">完整数据统计报告</a>
-        <a href="#layout">代码目录地图</a>
-        <a href="#environment">环境与完整性</a>
-        <a href="#quickstart">只读快速开始</a>
-        <a href="#inference">Qwen 推理</a>
-        <a href="#training">Full / LoRA SFT</a>
-        <a href="#grpo">Motion-R1 GRPO</a>
-        <a href="#rubric">Rubric RL</a>
-        <a href="#controller">统一评估控制器</a>
-        <a href="#testing">测试与验证</a>
-        <a href="#evidence">现行代码索引</a>
-        <a href="#troubleshooting">排错与安全</a>
+        <a href="#start">01 · 从这里开始</a>
+        <a href="#status">02 · 当前可用范围</a>
+        <a href="#environment">03 · 准备运行环境</a>
+        <a href="#quickstart">04 · 五分钟快速检查</a>
+        <a href="#dataset">05 · 数据与模态</a>
+        <a href="#inference">06 · 运行推理</a>
+        <a href="#training">07 · Full / LoRA SFT</a>
+        <a href="#grpo">08 · Motion-R1 GRPO</a>
+        <a href="#rubric">09 · Rubric RL</a>
+        <a href="#controller">10 · 统一评估</a>
+        <a href="#testing">11 · 测试与验证</a>
+        <a href="#layout">12 · 代码目录</a>
+        <a href="#evidence">13 · 实现索引</a>
+        <a href="#troubleshooting">14 · 排错与安全</a>
+        <a href="../../dataset-page/">数据统计报告 ↗</a>
       </nav>
       <div class="guide-sidebar-note">
         <strong>当前边界</strong>
@@ -56,26 +55,67 @@
 
     <article class="guide-content">
       <header class="guide-hero">
-        <p class="eyebrow">SERVER WORKSPACE · 2026-08-30</p>
-        <h1>Qwen Codebase<br>使用手册</h1>
-        <p>面向 <code>/wangbenyou-sulongjie/caimeng/qwen-codebase</code> 的导航、检查与运行边界。代码库已恢复并重新分层；GPU 与 formal 状态仍单独标注。</p>
+        <p class="eyebrow">CAIMENG CODEBASE · UPDATED 2026-09-02</p>
+        <h1>Codebase<br>使用文档</h1>
+        <p>从登录服务器后的第一条命令开始，逐步说明环境、数据、推理、训练、评估与排错。所有示例都面向 <code>/wangbenyou-sulongjie/caimeng/qwen-codebase</code>。</p>
+        <div class="hero-actions" aria-label="文档快捷入口">
+          <a href="#quickstart">五分钟快速检查</a>
+          <a href="#inference">直接看推理</a>
+          <a href="../../dataset-page/">查看数据统计</a>
+        </div>
       </header>
+
+      <section class="guide-section" id="start">
+        <p class="kicker">START HERE</p>
+        <h2>先确定你现在要做什么</h2>
+        <p>第一次使用建议从“检查代码库”开始。确认基础环境正常后，再进入需要模型权重或 GPU 的流程。</p>
+        <div class="start-paths">
+          <article>
+            <span>01 · RECOMMENDED</span>
+            <h3>检查代码库</h3>
+            <p>不加载模型，不占用 GPU。用于确认路径、Python 包和命令入口正常。</p>
+            <a href="#quickstart">执行五分钟检查 →</a>
+          </article>
+          <article>
+            <span>02 · GPU</span>
+            <h3>运行一条推理</h3>
+            <p>需要本地模型、媒体、VQ-VAE、Mean/Std 和可用 CUDA 环境。</p>
+            <a href="#inference">查看推理清单 →</a>
+          </article>
+          <article>
+            <span>03 · CONTROLLED</span>
+            <h3>训练或正式评估</h3>
+            <p>先做 dry-run / preflight。正式流程仍有安全 gate，不能绕过。</p>
+            <a href="#training">了解训练边界 →</a>
+          </article>
+        </div>
+        <div class="task-checklist" aria-label="推荐操作顺序">
+          <div><b>1</b><span><strong>激活环境</strong><small>使用服务器已有的 activate 脚本</small></span></div>
+          <div><b>2</b><span><strong>检查入口</strong><small>先运行 import 和 --help</small></span></div>
+          <div><b>3</b><span><strong>确认资产</strong><small>数据、模型、Mean/Std 全部用绝对路径</small></span></div>
+          <div><b>4</b><span><strong>执行任务</strong><small>先小样本，再扩大运行规模</small></span></div>
+        </div>
+        <div class="guide-callout note">
+          <strong>如何阅读命令示例</strong>
+          <p><code>/absolute/...</code>、<code>BATCH_ID</code>、<code>TRAIN_ALIAS</code> 等都是占位符，必须换成你自己的真实值。可以复制命令结构，但不要原样执行带占位符的写入或训练命令。</p>
+        </div>
+      </section>
 
       <section class="guide-section" id="status">
         <p class="kicker">STATUS FIRST</p>
         <h2>开始前先看状态</h2>
         <div class="status-grid">
-          <article><strong>954</strong><span>clean codebase 当前通过数</span></article>
-          <article><strong>CLEAN</strong><span>核心数据模块与 Qwen adapter 已恢复</span></article>
-          <article><strong>GPU SMOKE OK</strong><span>真实权重 · 8 / 8 条 VM 样本</span></article>
+          <article><strong>954</strong><span>CPU 基线通过 · 2 skipped</span></article>
+          <article><strong>READY</strong><span>基础环境与命令入口可用</span></article>
+          <article class="status-warning"><strong>HISTORICAL SMOKE</strong><span>真实权重曾完成 1 条功能样本</span></article>
         </div>
         <div class="guide-callout warning">
           <strong>完整性问题已经修复</strong>
-          <p><code>motionllm.data</code>、<code>motion_eval.data</code> 与 <code>motionllm.qwen</code> 已恢复；顶层 <code>qwenvl.data</code> 现在只是兼容 facade。当前本机分层复跑为 <code>954 passed, 2 skipped, 2 warnings</code>。历史 checkpoint 已在 A100 上跑通 8 条真实 Motion + Video 样本，8 / 8 生成合法输出；4 / 8 正确，只证明链路可运行，不作为正式精度。</p>
+          <p><code>motionllm.data</code>、<code>motion_eval.data</code> 与 <code>motionllm.qwen</code> 已恢复；顶层 <code>qwenvl.data</code> 现在只是兼容 facade。当前本机分层复跑为 <code>954 passed, 2 skipped, 2 warnings</code>。历史 A100 真实 checkpoint smoke 只完成过 1 条功能样本，证明过当时的链路可运行，但不代表当前 overlay 可直接使用，也不能作为精度结论。</p>
         </div>
         <div class="guide-callout danger">
           <strong>不要删除 blocker</strong>
-          <p>Formal Qwen SFT 因缺少 external-HMAC 绑定的 pre-spawn snapshot 与 verified in-memory worker bundle 而以 exit 78 拒绝；catalog production finetune / evaluation / verifier 则由 <code>verified-multi-root-bootstrap</code> 主动阻断。允许查看帮助、做本地逻辑检查和明确标注的 preflight；这些产物不能升级为正式结果。</p>
+          <p>Formal Qwen SFT 因缺少 external-HMAC 绑定的 pre-spawn snapshot 与 verified in-memory worker bundle 而以 exit 78 拒绝；catalog production finetune / evaluation / verifier 仍受严格 gate 约束。允许查看帮助、做本地逻辑检查和明确标注的 preflight；这些产物不能升级为正式结果。</p>
         </div>
       </section>
 
@@ -106,7 +146,7 @@
         </div>
         <div class="guide-callout warning">
           <strong>Qwen branch 与文本类型是两条正交轴</strong>
-          <p><code>V / M / VM</code> 只表示非文本输入；<code>QA / Caption / 一句话 / 详细描述</code> 表示监督目标。现有正式 Qwen 清单是 <code>QA</code>，不能把 description 文件直接塞入 question/options 字段。完整定义见 <a href="dataset-statistics.html#text-types">四类文本监督</a>，逐类数量见 <a href="dataset-statistics.html#text-statistics">Text 分类统计</a>。</p>
+          <p><code>V / M / VM</code> 只表示非文本输入；<code>QA / Caption / 一句话 / 详细描述</code> 表示监督目标。现有正式 Qwen 清单是 <code>QA</code>，不能把 description 文件直接塞入 question/options 字段。各数据集的配对任务、覆盖率与统计口径见 <a href="../../dataset-page/#tasks">多模态监督统计</a>。</p>
         </div>
         <h3 id="modality-contract">V / M / VM 是严格输入合同</h3>
         <div class="guide-table-wrap">
@@ -122,7 +162,7 @@
         </div>
         <div class="guide-callout warning">
           <strong>含 M 的 branch 需要额外合同</strong>
-          <p><code>M</code> 与 <code>VM</code> 必须使用 263 维 NPY、显式 Mean/Std 和当前单一 <code>&lt;motion&gt;</code> anchor；<code>V</code> 发现 motion 字段应直接拒绝。完整数据集模态覆盖和交集数量见 <a href="dataset-statistics.html#modalities">数据统计页的模态矩阵</a>。</p>
+          <p><code>M</code> 与 <code>VM</code> 必须使用 263 维 NPY、显式 Mean/Std 和当前单一 <code>&lt;motion&gt;</code> anchor；<code>V</code> 发现 motion 字段应直接拒绝。完整数据集模态覆盖和交集数量见 <a href="../../dataset-page/#tasks">数据统计页的监督矩阵</a>。</p>
         </div>
         <div class="guide-callout warning">
           <strong>默认先用 recommended</strong>
@@ -130,7 +170,7 @@
         </div>
         <div class="guide-callout dataset-success">
           <strong>全量统计与质量实验已完成</strong>
-          <p>规范数据根共有 743,786 个真实文件、189.656 GB，Qwen 10,524 个组织链接无断链。Motion、视频、caption 配对缺口、strict/qtext 泄漏边界和 8 条真实 checkpoint 烟测见 <a href="dataset-statistics.html">数据统计与质量报告</a>。</p>
+          <p>最新静态快照同步自 AIStation 的 <code>dataset/data_page</code>：HumanML3D、SONIC 与 MotionX 共索引 235,690 条动作和 115,990 个视频。规模、配对覆盖与质量缺口见 <a href="../../dataset-page/">数据统计页</a>；GPU 功能验证与数据质量统计应分开解读。</p>
         </div>
         <pre><code>DATASET_ROOT=/wangbenyou-sulongjie/caimeng/dataset
 
@@ -169,43 +209,65 @@ less "$DATASET_ROOT/qwen_qa/QA_FILE_INVENTORY.tsv"</code></pre>
               <tr><td><code>src/motionllm/data/</code></td><td><span class="state good">已恢复</span></td><td>严格 reader、路径、sample 与 collation</td></tr>
               <tr><td><code>src/motionllm/qwen/</code></td><td><span class="state good">已建立</span></td><td>Qwen dataset / processor / collator / RoPE</td></tr>
               <tr><td>服务器运行环境</td><td><span class="state good">独立依赖目录已验证</span></td><td>Torch 2.4 + Transformers 4.57.3 + PEFT 0.18.0 + PyAV 12.3.0</td></tr>
-              <tr><td>GPU 实跑</td><td><span class="state good">8 / 8 已通过</span></td><td>真实 checkpoint、MotionX 视频/motion、Mean/Std；合法 answer 8 / 8</td></tr>
-              <tr><td>GPU 保活</td><td><span class="state good">受管理</span></td><td>GPU 0 · owner caimeng-qwen-clean · UUID/PID/heartbeat 可验证</td></tr>
+              <tr><td>GPU 实跑</td><td><span class="state warn">历史 1 条 smoke</span></td><td>只证明当时链路可运行；不代表当前精度或正式评估</td></tr>
+              <tr><td>GPU 保活</td><td><span class="state warn">当前未运行</span></td><td>容器 PID 与宿主机 PID 无法严格绑定时会安全退出</td></tr>
             </tbody>
           </table>
         </div>
-        <pre><code>export MOTIONLLM_ROOT=/wangbenyou-sulongjie/caimeng/qwen-codebase
-export MOTIONLLM_RUNTIME=/wangbenyou-sulongjie/caimeng/runtime/qwen-codebase-clean-py310
-export PYTHONPATH="$MOTIONLLM_RUNTIME:$MOTIONLLM_ROOT/src:$MOTIONLLM_ROOT"
-cd "$MOTIONLLM_ROOT"
-test -d src/motion_eval/data
-test -d src/motionllm/data
-test -d src/motionllm/qwen
+        <h3>AIStation 已部署环境</h3>
+        <pre data-label="服务器 · Bash"><code>source /wangbenyou-sulongjie/caimeng/runtime/activate_qwen.sh
+cd /wangbenyou-sulongjie/caimeng/qwen-codebase
+
+python3 -c "import motionllm, motion_eval; print('imports ok')"
 python3 -m motion_eval --help</code></pre>
-        <p>项目要求 Python <code>&gt;=3.10</code>。服务器虽缺 <code>python3-venv/ensurepip</code>，但已用独立目录解决，并用 protobuf 3.20.3 隔离兼容旧 ONNX；该目录不包含、也不覆盖系统 Torch。视频已通过 PyAV 12.3.0 回退后端实跑。离线依赖归档在 <code>caimeng/handoff/qwen_py310_wheelhouse_complete_20260830.tar.gz</code>。</p>
-        <pre><code>python3 -m venv .venv
+        <p>激活脚本会指向服务器已有的独立 Python 3.10 依赖目录，不覆盖系统 CUDA/Torch。当前基础环境已验证 Torch 2.4、Transformers 4.57.3、PEFT 0.18.0 与 PyAV 12.3.0；完整 SFT/GRPO 依赖仍需按具体任务补齐。</p>
+        <h3>新机器的 CPU 开发环境</h3>
+        <pre data-label="新环境 · Bash"><code>cd /wangbenyou-sulongjie/caimeng/qwen-codebase
+python3 -m venv .venv
 . .venv/bin/activate
 python -m pip install --upgrade pip
 python -m pip install -e '.[dev]'
 
 # 仅在已匹配 CUDA 工具链的 Linux 环境中：
 python -m pip install -r requirements-sft.txt</code></pre>
+        <div class="guide-callout warning">
+          <strong>不要复制现成的 .venv 到另一台机器</strong>
+          <p>Python、CUDA 和动态库必须在目标机器重新匹配。精简 Ubuntu 如果缺少 <code>python3-venv/ensurepip</code>，应使用已有冻结环境或由管理员补齐系统组件。</p>
+        </div>
       </section>
 
       <section class="guide-section" id="quickstart">
         <p class="kicker">SAFE QUICKSTART</p>
-        <h2>先做只读与本地检查</h2>
-        <p>先检查代码和配置，再进入 Qwen/CUDA 环境。</p>
-        <pre><code>cd /wangbenyou-sulongjie/caimeng/qwen-codebase
+        <h2>五分钟确认代码库可用</h2>
+        <p>下面四步不加载模型、不启动训练，也不会占用 GPU。全部成功后，再选择后续任务。</p>
+        <ol class="runbook-steps">
+          <li><div><strong>进入已有环境</strong><span>确保后续命令使用同一个 Python。</span></div></li>
+          <li><div><strong>确认三个核心模块</strong><span>缺少任何目录都应停止，不要继续补路径。</span></div></li>
+          <li><div><strong>验证 import 与帮助入口</strong><span><code>--help</code> 不应初始化 CUDA、加载权重或打开数据。</span></div></li>
+          <li><div><strong>执行安全扫描</strong><span>确认活动代码没有凭据或私人路径泄漏。</span></div></li>
+        </ol>
+        <pre data-label="安全检查 · 可直接复制"><code>set -euo pipefail
+source /wangbenyou-sulongjie/caimeng/runtime/activate_qwen.sh
+cd /wangbenyou-sulongjie/caimeng/qwen-codebase
+
 python3 --version
 test -d src/motion_eval/data
 test -d src/motionllm/data
 test -d src/motionllm/qwen
-python3 scripts/secret_scan.py</code></pre>
-        <p>基础检查入口：</p>
-        <pre><code>cd /wangbenyou-sulongjie/caimeng/qwen-codebase
-python3 -m motion_eval --help
-python3 scripts/run_checks.py --no-tests</code></pre>
+python3 -c "import motionllm, motion_eval; print('imports ok')"
+python3 -m motion_eval --help >/dev/null
+python3 scripts/secret_scan.py .
+echo "codebase check passed"</code></pre>
+        <div class="success-criteria">
+          <strong>成功标准</strong>
+          <ul>
+            <li>最后显示 <code>codebase check passed</code>；</li>
+            <li>没有 <code>ModuleNotFoundError</code>；</li>
+            <li>没有 CUDA 初始化、模型加载或输出目录创建；</li>
+            <li>secret scan 返回成功。</li>
+          </ul>
+        </div>
+        <p>需要跑完整 CPU 回归时再执行 <code>python3 scripts/run_checks.py</code>。它会运行测试并生成 <code>__pycache__</code>，因此不属于严格只读检查。</p>
       </section>
 
       <section class="guide-section" id="inference">
@@ -215,8 +277,14 @@ python3 scripts/run_checks.py --no-tests</code></pre>
           <strong>Legacy / demo 路径</strong>
           <p>下面是真实源码入口，但不是统一主表 evaluation backend。帮助命令可在 CPU 环境查看；实际运行必须提供本地模型、媒体、VQ-VAE 与 normalization 资产。</p>
         </div>
+        <div class="asset-checklist">
+          <article><span>01</span><strong>模型与 checkpoint</strong><small>使用本地绝对路径，确认配置与 tokenizer 匹配。</small></article>
+          <article><span>02</span><strong>输入数据与媒体</strong><small>JSON/JSONL、video 和 motion 路径必须真实存在。</small></article>
+          <article><span>03</span><strong>Motion 资产</strong><small>VQ-VAE、Mean.npy、Std.npy 与 263 维合同一致。</small></article>
+          <article><span>04</span><strong>输出目录</strong><small>命令会创建父目录，并覆盖同名输出文件。</small></article>
+        </div>
         <h3>Motion + Video</h3>
-        <pre><code>python qwenvl/infer/infer_qwen3_vl_motion.py \
+        <pre data-label="GPU 推理 · 会写输出"><code>python qwenvl/infer/infer_qwen3_vl_motion.py \
   --model_name_or_path /absolute/model-or-checkpoint \
   --checkpoint_path /absolute/checkpoint \
   --vqvae_path /absolute/vqvae.pth \
@@ -230,7 +298,7 @@ python3 scripts/run_checks.py --no-tests</code></pre>
   --num_samples 1 \
   --device cuda</code></pre>
         <h3>Video-only Qwen3-VL-4B-Thinking</h3>
-        <pre><code>python qwenvl/infer/infer_qwen3_vl_4b_thinking_video_only.py \
+        <pre data-label="GPU 推理 · 会写输出"><code>python qwenvl/infer/infer_qwen3_vl_4b_thinking_video_only.py \
   --model_path /absolute/local-model \
   --input_jsonl /absolute/input.jsonl \
   --data_root /absolute/video-root \
@@ -240,8 +308,8 @@ python3 scripts/run_checks.py --no-tests</code></pre>
   --device cuda</code></pre>
         <p>两个入口都会严格拒绝 malformed JSON 和缺失媒体。Motion 推理当前只接受 <code>batch_size=1</code>，placeholder token 和 downsample divisor 均从模型合同绑定。正式评估只接受唯一且完整的 <code>&lt;answer&gt;[A-D]&lt;/answer&gt;</code>，invalid、OOM、timeout 和 runtime error 必须留在分母。</p>
         <div class="guide-callout warning">
-          <strong>真实 GPU smoke 已完成</strong>
-          <p>使用 <code>qa374_sft_step3best_checkpoint-48_merged_full</code> 的非破坏兼容 overlay、真实 MotionX 视频/motion 和显式 Mean/Std，在物理 GPU 1 上完成 strict val VM 分层 8 条推理并返回 0。8 / 8 输出合法，4 / 8 正确；目标分布均衡但预测为 A4/B2/C2/D0，因此不能据此宣称精度。结果位于 <code>/wangbenyou-sulongjie/caimeng/dataset/experiments/20260830_sanity_seed20260830</code>。</p>
+          <strong>历史 GPU smoke 不能直接复跑</strong>
+          <p>历史真实 checkpoint 曾完成 1 条 Motion + Video 功能样本，但当时使用的兼容 overlay 已被删除，当前环境没有伪造恢复。重新实跑前要先恢复并核验 overlay 来源；历史结果只证明当时链路可运行，不证明精度。</p>
         </div>
         <div class="guide-callout danger">
           <strong>历史 motion anchor 不能直接进入当前处理器</strong>
@@ -356,7 +424,7 @@ python -m motion_eval finetune barrier BATCH_ID \
       <section class="guide-section" id="testing">
         <p class="kicker">TESTING</p>
         <h2>当前 clean codebase 分层复跑</h2>
-        <p>本机当前结果为 <code>954 passed, 2 skipped, 2 warnings</code>：unit/contract 729、integration 147、stress 78。两个 skip 是 Windows 无 Bash。服务器对本次 GPU 兼容修复的定向回归为 <code>39 passed</code>；推理、Full SFT、LoRA SFT 的帮助入口均返回 0，真实 GPU 8 条推理也完整返回。</p>
+        <p>本机当前结果为 <code>954 passed, 2 skipped, 2 warnings</code>：unit/contract 729、integration 147、stress 78。两个 skip 是 Windows 无 Bash。服务器基础运行环境、<code>motion_eval --help</code> 与 GPU keepalive 生命周期测试已验证；历史真实 GPU 证据只有 1 条功能样本。</p>
         <pre><code>python scripts/run_checks.py
 
 # 分项执行
@@ -365,7 +433,7 @@ python -m pytest tests/contract -q
 python -m pytest tests/integration -q
 python -m pytest tests/stress -q
 python scripts/secret_scan.py .</code></pre>
-        <p><code>run_checks.py</code> 会执行 compileall 并可能产生 <code>__pycache__</code>，因此不是严格只读。当前 CPU 门禁与 8 条 GPU smoke 都已通过；小样本 smoke 不代表 SFT、GRPO、正式精度或 15 模型 production 已跑通。</p>
+        <p><code>run_checks.py</code> 会执行 compileall 并可能产生 <code>__pycache__</code>，因此不是严格只读。当前 CPU 门禁通过；历史单样本 GPU smoke 不代表 SFT、GRPO、正式精度或 15 模型 production 已跑通。</p>
       </section>
 
       <section class="guide-section" id="evidence">
@@ -417,6 +485,7 @@ python scripts/secret_scan.py .</code></pre>
 
     <aside class="guide-toc" aria-label="本页目录">
       <strong>本页目录</strong>
+      <a href="#start">开始使用</a>
       <a href="#status">当前状态</a>
       <a href="#dataset">Dataset</a>
       <a href="#layout">目录地图</a>
@@ -433,7 +502,7 @@ python scripts/secret_scan.py .</code></pre>
     </aside>
   </main>
 
-  <footer><span>MotionLLM · Qwen Codebase Guide</span><span>先验证，再训练；先全模型 finetune，再评估。</span></footer>
+  <footer><span>Caimeng Codebase · Usage Documentation</span><span>先检查环境，再确认资产；先小样本，再扩大运行。</span></footer>
   <script src="guide.js"></script>
 </body>
 </html>

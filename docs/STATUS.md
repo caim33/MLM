@@ -22,6 +22,8 @@
   并完成仓库外 import 检查。
 - GitHub Pages 已改为发布 `online_page/` Codebase 主网站；数据统计、动作可视化、
   使用说明和 Paper Reading 由统一首页进入，Python 源码不在发布范围。
+- 数据统计入口已同步 AIStation `dataset/data_page/` 的 2026-09-02 汇总快照；公开页
+  仅发布汇总 JSON，内部样本、视频、三维网格和 SQLite 索引仍留在服务器。
 
 ## 本机验证结果
 

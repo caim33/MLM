@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f4f2ec" />
+    <title>Dataset Statistics — Caimeng Codebase</title>
+    <meta
+      name="description"
+      content="HumanML3D、SONIC 与 MotionX 的规模、质量和多模态配对任务统计"
+    />
+    <link rel="stylesheet" href="./styles.css?v=20260902-3" />
+    <script>
+      window.addEventListener("error", (event) => {
+        if ((event.message || "").includes("ResizeObserver loop")) return;
+        queueMicrotask(() => {
+          const status = document.getElementById("indexStatus");
+          if (status) status.textContent = `前端错误：${event.message || "资源加载失败"}`;
+        });
+      });
+      window.addEventListener("unhandledrejection", (event) => {
+        queueMicrotask(() => {
+          const status = document.getElementById("indexStatus");
+          if (status) status.textContent = `前端错误：${event.reason?.message || event.reason || "初始化失败"}`;
+        });
+      });
+    </script>
+  </head>
+  <body data-dataset="humanml3d">
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand-lockup">
+          <div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+          <div>
+            <p class="eyebrow">MOTION DATASET RESEARCH VIEWER</p>
+            <h1>Motion Data Atlas</h1>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          <nav class="project-nav" aria-label="页面导航">
+            <a href="#tasks">任务口径</a>
+            <a href="#audit">审计统计</a>
+            <a href="../motionllm-page/guide/qwen-codebase.html#dataset">使用文档</a>
+            <a href="../">主网站</a>
+          </nav>
+          <div class="header-meta">
+            <span class="status-dot" aria-hidden="true"></span>
+            <span id="indexStatus">正在读取统计快照</span>
+          </div>
+        </div>
+      </header>
+
+      <main>
+        <section class="overview" aria-labelledby="overviewTitle">
+          <div class="project-intro">
+            <p class="eyebrow">OPEN MOTION CORPUS · 2026 AUDIT</p>
+            <h2 id="overviewTitle">三套动作数据，<br />一张统一研究画布。</h2>
+            <p class="overview-lede">HumanML3D、SONIC 与 MotionX 的统一统计快照。按 motion–text、video–text、video–motion–text 等监督关系分别审计规模、配对覆盖与数据缺口。</p>
+            <div class="project-tags" aria-label="数据能力">
+              <span>MOTION–TEXT</span><span>VIDEO–TEXT</span><span>VIDEO–MOTION–TEXT</span>
+            </div>
+          </div>
+          <div class="stat-grid" id="statGrid" aria-live="polite">
+            <article class="stat-card"><span>动作序列</span><strong>—</strong><small>NPY</small></article>
+            <article class="stat-card"><span>视频</span><strong>—</strong><small>MP4</small></article>
+            <article class="stat-card"><span>数据体积</span><strong>—</strong><small>GB</small></article>
+            <article class="stat-card"><span>统一表示</span><strong>263D</strong><small>22 joints</small></article>
+          </div>
+        </section>
+
+        <aside class="snapshot-note" aria-label="数据版本说明">
+          <div><span>STATIC SNAPSHOT</span><strong>同步自 AIStation · 2026-09-02</strong></div>
+          <p>本页固定展示服务器审计后的统计结果，不会从公开网页读取内部数据文件。动作样本、视频和三维网格仍留在 AIStation 的实时浏览器中。</p>
+        </aside>
+
+        <section class="task-section" id="tasks" aria-labelledby="taskTitle">
+          <div class="section-heading task-heading">
+            <div>
+              <p class="eyebrow">SUPERVISION MAP</p>
+              <h2 id="taskTitle">不是一类 caption，<br />而是六种配对任务。</h2>
+            </div>
+            <p>同一个 motion 会出现在多个任务中。这里分别统计标注文档、可训练的对齐样本和对应时长，不做跨行相加。</p>
+          </div>
+          <div class="task-legend" aria-label="统计字段说明">
+            <span><i class="legend-record"></i>标注 / 媒体记录</span>
+            <span><i class="legend-pair"></i>可对齐样本</span>
+            <span><i class="legend-time"></i>对齐时长</span>
+          </div>
+          <div class="task-matrix" id="taskMatrix" aria-live="polite">
+            <div class="task-placeholder">正在读取配对任务统计…</div>
+          </div>
+          <div class="task-method" id="taskMethod"></div>
+        </section>
+
+        <section class="workspace" id="explorer" aria-label="动作样本浏览器" hidden>
+          <aside class="sample-panel">
+            <div class="dataset-tabs" role="tablist" aria-label="选择数据集">
+              <button class="dataset-tab is-active" role="tab" aria-selected="true" data-dataset="humanml3d">HumanML3D</button>
+              <button class="dataset-tab" role="tab" aria-selected="false" data-dataset="sonic">SONIC</button>
+              <button class="dataset-tab" role="tab" aria-selected="false" data-dataset="motionx">MotionX</button>
+            </div>
+
+            <div class="dataset-summary">
+              <div>
+                <span id="datasetKicker">HumanML3D</span>
+                <strong id="datasetCount">—</strong>
+              </div>
+              <p id="datasetDescription">正在读取数据集信息…</p>
+            </div>
+
+            <label class="search-field" for="sampleSearch">
+              <span class="sr-only">搜索样本 ID</span>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.35-4.35m2.35-5.65a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z" /></svg>
+              <input id="sampleSearch" type="search" autocomplete="off" placeholder="搜索样本 ID" />
+            </label>
+
+            <div class="sample-list" id="sampleList" aria-live="polite"></div>
+            <button class="load-more" id="loadMore" type="button">加载更多</button>
+          </aside>
+
+          <div class="viewer-column">
+            <div class="viewer-header">
+              <div>
+                <p class="eyebrow" id="activeDatasetLabel">HUMANML3D · MOTION</p>
+                <h2 id="activeSampleId">选择一个动作样本</h2>
+                <p id="activeSampleMeta">帧数、时长与表示信息会显示在这里</p>
+              </div>
+              <div class="mode-switch" role="group" aria-label="三维显示模式">
+                <button class="mode-button is-active" data-view-mode="skeleton" aria-pressed="true">火柴人</button>
+                <button class="mode-button" data-view-mode="surface" aria-pressed="false">SMPL-H</button>
+              </div>
+            </div>
+
+            <div class="viewer-grid" id="viewerGrid">
+              <section class="viewport-card" aria-label="三维动作视图">
+                <div class="viewport" id="viewport">
+                  <div class="viewport-empty" id="viewportEmpty">
+                    <span class="empty-orbit" aria-hidden="true"></span>
+                    <strong>从左侧选择样本</strong>
+                    <span>载入后可旋转、平移、缩放与逐帧播放</span>
+                  </div>
+                  <div class="axis-legend" aria-hidden="true">
+                    <span class="axis-x">X</span><span class="axis-y">Y</span><span class="axis-z">Z</span>
+                  </div>
+                </div>
+                <div class="interaction-hint">左键旋转 · 右键平移 · 滚轮缩放</div>
+              </section>
+
+              <section class="video-card is-hidden" id="videoCard" aria-label="MotionX 视频">
+                <video id="motionVideo" controls preload="metadata" playsinline></video>
+                <div class="video-empty" id="videoEmpty">该样本没有可用视频</div>
+                <div class="video-caption">MotionX source video</div>
+              </section>
+            </div>
+
+            <div class="timeline-panel">
+              <button class="icon-button" id="playToggle" type="button" aria-label="播放动作">
+                <svg class="play-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 11 7-11 7Z" /></svg>
+                <svg class="pause-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zm6 0h4v14h-4z" /></svg>
+              </button>
+              <span class="frame-counter" id="frameCounter">000 / 000</span>
+              <input id="frameSlider" type="range" min="0" max="0" value="0" aria-label="动作帧" />
+              <label class="speed-select">速度
+                <select id="speedSelect" aria-label="播放速度">
+                  <option value="0.5">0.5×</option>
+                  <option value="1" selected>1×</option>
+                  <option value="1.5">1.5×</option>
+                  <option value="2">2×</option>
+                </select>
+              </label>
+              <button class="text-button" id="resetView" type="button">重置视角</button>
+            </div>
+
+            <div class="sample-info-grid">
+              <article class="caption-panel">
+                <div class="panel-title"><span>语义与时间标注</span><span id="captionCount">—</span></div>
+                <div id="captionContent" class="caption-content">
+                  <p class="muted">选择样本后显示 caption 或 temporal events。</p>
+                </div>
+              </article>
+              <article class="mesh-note" id="meshNote">
+                <div class="mesh-note-icon" aria-hidden="true"></div>
+                <div>
+                  <strong>旋转驱动 SMPL-H · 中性手型与体型</strong>
+                  <p>服务器内部用授权 SMPL-H neutral 模型，将 263D 表示内的 21 组局部旋转和积分后的 root yaw 近似驱动为 6,890 顶点人体。源数据不是原始 SMPL 真值，也不含手指 pose 与 shape betas，因此手型和体型保持中性。</p>
+                </div>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="report-section" id="audit" aria-labelledby="reportTitle">
+          <div class="section-heading compact">
+            <div>
+              <p class="eyebrow">AUDIT NOTES</p>
+              <h2 id="reportTitle">规模与质量概览</h2>
+            </div>
+            <p>容量、配对与变长策略一眼可查。</p>
+          </div>
+          <div class="report-layout">
+            <div class="scale-chart" id="scaleChart" aria-label="数据集体积比较"></div>
+            <div class="quality-list" id="qualityList"></div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="./stats.js?v=20260902-3"></script>
+  </body>
+</html>
