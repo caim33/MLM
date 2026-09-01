@@ -1,0 +1,107 @@
+run:
+  output_dir: /wangbenyou-sulongjie/Motion-r1/qwen-vl-finetune/outputs/grpo/motionx_374_hard_mcq_r6_600_train2270_val100vm_len768_nolengthreward
+  run_name: motion-r1-grpo-r6-600-train2270-val100vm-len768-nolengthreward
+  seed: 42
+  env:
+    MOTION_GRPO_VM_V_BONUS: '0.5'
+    WANDB_INIT_TIMEOUT: '600'
+    WANDB__SERVICE_WAIT: '300'
+  context_expansion_guard: true
+  forbidden_context_limit_env_keys:
+  - VIDEO_MAX_TOKEN_NUM
+  - VIDEO_MIN_TOKEN_NUM
+  - IMAGE_MAX_TOKEN_NUM
+  - IMAGE_MIN_TOKEN_NUM
+  - FPS_MAX_FRAMES
+  - FPS_MIN_FRAMES
+  - MAX_RATIO
+  - FRAME_FACTOR
+  report_to:
+  - tensorboard
+  - wandb
+model:
+  model: /wangbenyou-sulongjie/Motion-r1/model/checkpoint_0426
+  model_type: motion_r1_qwen3_vl_motion
+  torch_dtype: bfloat16
+  max_length: 8192
+  max_pixels: 50176
+  min_pixels: 784
+  new_special_tokens:
+  - <motion_start>
+  - <motion_end>
+  model_kwargs:
+    vqvae_path: /wangbenyou-sulongjie/Motion-r1/model/pretrained/VQVAE/net_best_fid.pth
+    motion_dataname: t2m
+    motion_quantizer: ema
+    vqvae_nb_code: 512
+    vqvae_code_dim: 512
+    vqvae_output_emb_width: 512
+    vqvae_down_t: 2
+    vqvae_stride_t: 2
+    vqvae_width: 512
+    vqvae_depth: 3
+    vqvae_dilation_growth_rate: 3
+    vqvae_activation: relu
+data:
+  dataset:
+  - /wangbenyou-sulongjie/Motion-r1/data/grpo/motionx_374_hard_mcq_prompt_vm_motion_v_video_train_2270qa.jsonl
+  dataset_num_proc: 1
+  load_from_cache_file: false
+  dataset_shuffle: true
+  strict: false
+  remove_unused_columns: false
+  val_dataset:
+  - /wangbenyou-sulongjie/Motion-r1/data/grpo/motionx_374_hard_mcq_prompt_vm_motion_v_video_val_100qa_vm_only.jsonl
+training:
+  tuner_type: full
+  num_train_epochs: 1
+  max_steps: 600
+  per_device_train_batch_size: 3
+  per_device_eval_batch_size: 3
+  gradient_accumulation_steps: 1
+  learning_rate: 1.0e-06
+  logging_steps: 1
+  save_strategy: steps
+  save_steps: 600
+  save_total_limit: 1
+  eval_strategy: steps
+  dataloader_num_workers: 0
+  bf16: true
+  gradient_checkpointing: true
+  deepspeed: scripts/zero2.json
+  save_only_model: true
+  eval_steps: 100
+grpo:
+  use_vllm: false
+  steps_per_generation: 4
+  num_generations: 6
+  num_iterations: 1
+  max_completion_length: 768
+  temperature: 1.0
+  top_p: 1.0
+  top_k: 50
+  repetition_penalty: 1.1
+  stop_words:
+  - </answer>
+  - <|im_end|>
+  beta: 0.001
+  epsilon: 0.2
+  epsilon_high: 0.28
+  advantage_estimator: grpo
+  log_completions: true
+  log_entropy: true
+  top_entropy_quantile: 1.0
+rewards:
+  reward_funcs:
+  - motion_option_accuracy
+  - motion_format
+  - motion_vm_v_bonus
+  reward_weights:
+  - 1.0
+  - 0.2
+  - 1.0
+plugins:
+  external_plugins:
+  - ${REPO_ROOT}/qwenvl/grpo_ms_swift/plugins/swift_external_rewards.py
+  custom_register_path:
+  - ${REPO_ROOT}/qwenvl/grpo_ms_swift/model_register/motion_model.py

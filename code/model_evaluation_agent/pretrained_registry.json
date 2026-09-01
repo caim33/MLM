@@ -1,0 +1,204 @@
+{
+  "schema_version": "1.0",
+  "updated_at": "2026-07-30T01:26:55+08:00",
+  "purpose": "Canonical remote pretrain/base inputs used to start a fresh finetune for every new evaluation batch.",
+  "remote_root": "/absolute/path/to/pretrained-assets",
+  "policy": {
+    "historical_finetune_artifacts_are_pretrain": false,
+    "fresh_finetune_required_per_batch": true,
+    "large_existing_weights_are_linked_not_copied": true,
+    "hash_manifest_required": true,
+    "structure_smoke_required": true,
+    "full_model_load_smoke_required_before_batch_training": true
+  },
+  "models": [
+    {
+      "id": "qwen36_27b_lora",
+      "source": "Qwen/Qwen3.6-27B",
+      "source_revision": "master_snapshot; byte hashes are authoritative",
+      "license": "Apache-2.0",
+      "artifacts": [
+        {"role": "base_and_processor", "path": "by_model/qwen36_27b_lora/base", "kind": "hf_model_dir"}
+      ]
+    },
+    {
+      "id": "motionr1_vm_lora",
+      "source": "Motion-R1 project checkpoint_0426",
+      "source_revision": "checkpoint_0426; byte hashes are authoritative",
+      "license": "project-controlled; verify before redistribution",
+      "artifacts": [
+        {"role": "base_and_processor", "path": "by_model/motionr1_vm_lora/base", "kind": "hf_model_dir"},
+        {"role": "motion_vqvae", "path": "by_model/motionr1_vm_lora/motion_vqvae.pth", "kind": "torch_checkpoint"}
+      ]
+    },
+    {
+      "id": "qwen3vl_8b_lora",
+      "source": "Qwen/Qwen3-VL-8B-Instruct",
+      "source_revision": "master_snapshot; byte hashes are authoritative",
+      "license": "Apache-2.0",
+      "artifacts": [
+        {"role": "base_and_processor", "path": "by_model/qwen3vl_8b_lora/base", "kind": "hf_model_dir"}
+      ]
+    },
+    {
+      "id": "qwen3vl_4b_lora",
+      "source": "Qwen/Qwen3-VL-4B-Instruct",
+      "source_revision": "master_snapshot; byte hashes are authoritative",
+      "license": "Apache-2.0",
+      "artifacts": [
+        {"role": "base_and_processor", "path": "by_model/qwen3vl_4b_lora/base", "kind": "hf_model_dir"}
+      ]
+    },
+    {
+      "id": "qwen35_4b_lora",
+      "source": "Qwen/Qwen3.5-4B",
+      "source_revision": "master_snapshot; byte hashes are authoritative",
+      "license": "Apache-2.0",
+      "artifacts": [
+        {"role": "base_and_processor", "path": "by_model/qwen35_4b_lora/base", "kind": "hf_model_dir"}
+      ]
+    },
+    {
+      "id": "videollava_7b_lora",
+      "source": "LanguageBind/Video-LLaVA-7B",
+      "source_revision": "aecae02b7dee5c249e096dcb0ce546eb6f811806",
+      "license": "Apache-2.0",
+      "code": {
+        "source": "https://github.com/PKU-YuanGroup/Video-LLaVA.git",
+        "revision": "984e65bf8e8fd97072258547c4c8061fdd2416b7",
+        "license": "Apache-2.0"
+      },
+      "artifacts": [
+        {"role": "base_and_processor", "path": "by_model/videollava_7b_lora/base", "kind": "hf_model_dir"},
+        {"role": "video_tower", "path": "by_model/videollava_7b_lora/video_tower", "kind": "hf_model_dir", "revision": "efc40ec6ba6b2081276c11e7e19b24f08a099e79"}
+      ]
+    },
+    {
+      "id": "videochatgpt_lora",
+      "source": "mmaaz60/LLaVA-7B-Lightening-v1-1 plus Video-ChatGPT projector",
+      "source_revision": "base=36c0964cf16a0f7d30b08ca79f393eb99ac4c5a9; projector=1b89a9798219200e88192964a9c5e5f1da750179",
+      "license": "CC-BY-4.0 plus upstream LLaMA terms",
+      "code": {
+        "source": "https://github.com/mbzuai-oryx/Video-ChatGPT.git",
+        "revision": "38c7475f71aebad1dd5cc721ba2ff56dac26fda2",
+        "license": "CC-BY-4.0"
+      },
+      "artifacts": [
+        {"role": "base_and_processor", "path": "by_model/videochatgpt_lora/base", "kind": "hf_model_dir"},
+        {"role": "video_projector", "path": "by_model/videochatgpt_lora/projector.bin", "kind": "torch_checkpoint"}
+      ]
+    },
+    {
+      "id": "videochat2_lora",
+      "source": "OpenGVLab/videochat2 plus lmsys/vicuna-7b-v1.5",
+      "source_revision": "videochat2=c80f1b4dc427c5938a802b63d3a8392792ecc94e; vicuna=3321f76e3f527bd14065daf69dad9344000a201d",
+      "license": "see Ask-Anything and Vicuna upstream terms",
+      "code": {
+        "source": "https://github.com/OpenGVLab/Ask-Anything.git",
+        "revision": "c7f879b10533ba7d030c04ac559374663e35e3a4",
+        "license": "mixed repository; component licenses apply"
+      },
+      "artifacts": [
+        {"role": "vision_qformer", "path": "by_model/videochat2_lora/umt_l16_qformer.pth", "kind": "torch_checkpoint"},
+        {"role": "stage3_model", "path": "by_model/videochat2_lora/stage3.pth", "kind": "torch_checkpoint"},
+        {"role": "llm_and_tokenizer", "path": "by_model/videochat2_lora/vicuna", "kind": "hf_model_dir"}
+      ]
+    },
+    {
+      "id": "videollama_trainables",
+      "source": "DAMO-NLP-SG Video-LLaMA-2-7B-Finetuned",
+      "source_revision": "9d9519ffac4e48ef6510e829b1a1a643771a4dd0",
+      "license": "BSD-3-Clause code; Llama and weight terms also apply",
+      "code": {
+        "source": "https://github.com/DAMO-NLP-SG/Video-LLaMA.git",
+        "revision": "64888c0a77e8e66af606c37629fbbf79c4582959",
+        "license": "BSD-3-Clause"
+      },
+      "artifacts": [
+        {"role": "base_processor_and_towers", "path": "by_model/videollama_trainables/base", "kind": "composite_model_dir"},
+        {"role": "eva_vit_runtime_checkpoint", "path": "downloads/VideoLLaMA-runtime/torch/hub/checkpoints/eva_vit_g.pth", "kind": "torch_checkpoint", "sha256": "99d2bb36c6b52c94fe6e2e12373afb27de57ae81378c3d8c53bf0e83b0f4275f"},
+        {"role": "blip2_qformer_runtime_checkpoint", "path": "downloads/VideoLLaMA-runtime/torch/hub/checkpoints/blip2_pretrained_flant5xxl.pth", "kind": "torch_checkpoint", "sha256": "4b3839ea6c617f315ead9bf4036bbb0f0cf6bf62695ecfc14968ea626af03a29"}
+      ]
+    },
+    {
+      "id": "videollama_lora",
+      "source": "DAMO-NLP-SG Video-LLaMA-2-7B-Finetuned",
+      "source_revision": "9d9519ffac4e48ef6510e829b1a1a643771a4dd0",
+      "license": "BSD-3-Clause code; Llama and weight terms also apply",
+      "code": {
+        "source": "https://github.com/DAMO-NLP-SG/Video-LLaMA.git",
+        "revision": "64888c0a77e8e66af606c37629fbbf79c4582959",
+        "license": "BSD-3-Clause"
+      },
+      "artifacts": [
+        {"role": "base_processor_and_towers", "path": "by_model/videollama_lora/base", "kind": "composite_model_dir"},
+        {"role": "eva_vit_runtime_checkpoint", "path": "downloads/VideoLLaMA-runtime/torch/hub/checkpoints/eva_vit_g.pth", "kind": "torch_checkpoint", "sha256": "99d2bb36c6b52c94fe6e2e12373afb27de57ae81378c3d8c53bf0e83b0f4275f"},
+        {"role": "blip2_qformer_runtime_checkpoint", "path": "downloads/VideoLLaMA-runtime/torch/hub/checkpoints/blip2_pretrained_flant5xxl.pth", "kind": "torch_checkpoint", "sha256": "4b3839ea6c617f315ead9bf4036bbb0f0cf6bf62695ecfc14968ea626af03a29"}
+      ]
+    },
+    {
+      "id": "mplug_owl_video_lora",
+      "source": "MAGAer13/mplug-owl-llama-7b-video",
+      "source_revision": "fe6a4ca53c5a30cfaaf0809c9442d207de641ed7",
+      "license": "upstream model terms; code MIT",
+      "code": {
+        "source": "https://github.com/X-PLUG/mPLUG-Owl.git",
+        "revision": "0f3068fdb47b77aedc71fc39f5735cd7aa35e8f9",
+        "license": "MIT"
+      },
+      "artifacts": [
+        {"role": "base_and_processor", "path": "by_model/mplug_owl_video_lora/base", "kind": "hf_model_dir"}
+      ]
+    },
+    {
+      "id": "otter_video_lora",
+      "source": "luodian/OTTER-Video-LLaMA7B-DenseCaption",
+      "source_revision": "362b44913056b0df528ae5240dc8335e2a336ba7",
+      "license": "MIT model card and code; dependency terms apply",
+      "code": {
+        "source": "https://github.com/EvolvingLMMs-Lab/Otter.git",
+        "revision": "1e7eb9a6fb12ef410082e796c463b99495637b85",
+        "license": "MIT"
+      },
+      "artifacts": [
+        {"role": "base_and_processor", "path": "by_model/otter_video_lora/base", "kind": "hf_model_dir"}
+      ]
+    },
+    {
+      "id": "agcn_official",
+      "source": "lshiwjx/2s-AGCN",
+      "source_revision": "953c14fc10883cd869646328f5d522e9e9282063",
+      "license": "CC-BY-NC-4.0",
+      "pretrained_weight_requirement": "not_required_by_official_training_recipe; initialize official architecture and train on each frozen batch",
+      "artifacts": [
+        {"role": "official_source", "path": "by_model/agcn_official/source", "kind": "git_repo"}
+      ]
+    },
+    {
+      "id": "motionclip_official",
+      "source": "GuyTevet/MotionCLIP official paper model",
+      "source_revision": "code=8eae36d59465711d52bcc14853d1e081022f5056; upstream paper-model download",
+      "license": "MIT code; dependency and dataset terms apply",
+      "artifacts": [
+        {"role": "official_source", "path": "by_model/motionclip_official/source", "kind": "git_repo"},
+        {"role": "pretrained_motionclip", "path": "by_model/motionclip_official/pretrained.pth.tar", "kind": "torch_checkpoint", "sha256": "acafc4bc0d3300ff92a01fc8b75e1a9d129fa253899a2c4648c2260298358e21"}
+      ]
+    },
+    {
+      "id": "motionllm_official",
+      "source": "IDEA-Research/MotionLLM with EvanTHU/MotionLLM-7B public v1.0 weights",
+      "source_revision": "code=6695061aea0e1b8a48004cfea48c72e21ce67b3a; weights=feda751a8c906a0c5d18e241b3140bc6badd5913; vicuna=3321f76e3f527bd14065daf69dad9344000a201d; video_tower=efc40ec6ba6b2081276c11e7e19b24f08a099e79",
+      "license": "IDEA non-commercial research license plus Vicuna/LanguageBind dependency terms",
+      "artifacts": [
+        {"role": "official_source", "path": "by_model/motionllm_official/source", "kind": "git_repo"},
+        {"role": "official_lora", "path": "by_model/motionllm_official/official_lora.pth", "kind": "torch_checkpoint", "sha256": "c28beab8172cab510f6f414bea8bcec1ac27dca8f54d0f0189a7bda0c53e0977"},
+        {"role": "official_projector", "path": "by_model/motionllm_official/official_projector.pth", "kind": "torch_checkpoint", "sha256": "682606481c2724dfc9340257102b746657d2f0ec520695244e55691884608753"},
+        {"role": "vicuna_hf_source", "path": "by_model/motionllm_official/vicuna_hf", "kind": "hf_model_dir"},
+        {"role": "vicuna_lit_base", "path": "by_model/motionllm_official/vicuna_lit", "kind": "lit_gpt_model_dir"},
+        {"role": "video_tower", "path": "by_model/motionllm_official/video_tower", "kind": "hf_model_dir"},
+        {"role": "pinned_runtime_dependencies", "path": "runtime_deps/motionllm", "kind": "python_package_tree"}
+      ],
+      "upstream_training_recipe_state": "official public repository does not release a finetune script; the project-owned runner scripts/finetune_motionllm_lora.py passed a real one-step LoRA-plus-projector smoke on 2026-07-30"
+    }
+  ]
+}

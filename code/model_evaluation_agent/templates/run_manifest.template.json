@@ -1,0 +1,61 @@
+{
+  "schema_version": "1.0",
+  "batch_id": "",
+  "stage": "finetune_or_eval",
+  "model_id": "",
+  "status": "pending",
+  "blocker_reason": "",
+  "modality": "",
+  "official_source": {
+    "repo": "",
+    "revision": "",
+    "license": "",
+    "code_sha256": "",
+    "dirty": null
+  },
+  "base_model": {
+    "identity": "",
+    "revision": "",
+    "sha256": ""
+  },
+  "data": {
+    "train_manifest": "",
+    "train_sha256": "",
+    "validation_manifest": "",
+    "validation_sha256": "",
+    "benchmark_version": "",
+    "benchmark_sha256": "",
+    "leakage_audit": ""
+  },
+  "finetune": {
+    "config": {},
+    "seed": null,
+    "checkpoint_path": "",
+    "checkpoint_sha256": ""
+  },
+  "evaluation": {
+    "finetune_checkpoint_sha256": "",
+    "prompt_sha256": "",
+    "preprocessing": {},
+    "generation": {
+      "do_sample": false,
+      "temperature": 0,
+      "seed": null
+    },
+    "parser_or_adapter": "",
+    "fixed_denominator": null
+  },
+  "environment": {
+    "python": "",
+    "cuda": "",
+    "pytorch": "",
+    "transformers": "",
+    "gpu": ""
+  },
+  "outputs": {
+    "predictions_sha256": "",
+    "summary_sha256": ""
+  },
+  "started_at": "",
+  "finished_at": ""
+}

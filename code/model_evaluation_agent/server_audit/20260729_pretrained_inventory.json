@@ -1,0 +1,1368 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-07-29T16:12:26.525729+00:00",
+  "registry_path": "pretrained_registry.json",
+  "pretrain_root": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/codex_runs/unified_model_eval/shared_assets/pretrained",
+  "model_count": 15,
+  "pretrain_asset_ready_count": 15,
+  "all_pretrain_assets_ready": true,
+  "unique_hashed_file_count": 147,
+  "elapsed_seconds": 307.45250177383423,
+  "models": [
+    {
+      "id": "qwen36_27b_lora",
+      "source": "Qwen/Qwen3.6-27B",
+      "source_revision": "master_snapshot; byte hashes are authoritative",
+      "license": "Apache-2.0",
+      "pretrained_weight_requirement": "required",
+      "pretrain_asset_ready": true,
+      "artifacts": [
+        {
+          "role": "base_and_processor",
+          "path": "by_model/qwen36_27b_lora/base",
+          "kind": "hf_model_dir",
+          "absolute_path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/codex_runs/unified_model_eval/shared_assets/pretrained/by_model/qwen36_27b_lora/base",
+          "is_symlink": true,
+          "status": "valid",
+          "resolved_path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/codex_models/models/Qwen--Qwen3.6-27B/snapshots/master",
+          "selected_file_count": 23,
+          "weight_file_count": 15,
+          "processor_file_count": 8,
+          "selected_file_bytes": 55585912403,
+          "tree_sha256": "80c5fd5d67e5fe42882ee327b343479616ddce6e299f50ed5cfe34293df9d6b7",
+          "files": [
+            {
+              "relative_path": "config.json",
+              "size": 4308,
+              "sha256": "69db4eb7196bc8190813231b3018ca05d8c2e3abc7b1af19d55c157af44a9d9c"
+            },
+            {
+              "relative_path": "generation_config.json",
+              "size": 202,
+              "sha256": "e70c136c1b78ddc1fb0905bac8e733a4dc448d4f852a5dd75143fffc70be550e"
+            },
+            {
+              "relative_path": "merges.txt",
+              "size": 3353259,
+              "sha256": "a9d356d7bdf1ef4949e3e748e95b8e10ad9d4e2e838eddc38a0a7b6b94d1db8d"
+            },
+            {
+              "relative_path": "model-00001-of-00015.safetensors",
+              "size": 3968861352,
+              "sha256": "5f21d4e349aef6c74bedef7b3835dc8c11a16dd5ce72f4437e2284f1e83736e9"
+            },
+            {
+              "relative_path": "model-00002-of-00015.safetensors",
+              "size": 3921677136,
+              "sha256": "03de44dc7e933025498d72f8d7ea32d5cde16eb7a85b35ff1fa49a737f4b2242"
+            },
+            {
+              "relative_path": "model-00003-of-00015.safetensors",
+              "size": 3921677128,
+              "sha256": "5c3a68304dabeaa5a0eb70a5e383d2b8134997ef6d5c1e8afdcd236091c847f2"
+            },
+            {
+              "relative_path": "model-00004-of-00015.safetensors",
+              "size": 3921677128,
+              "sha256": "ba8b0849cb4c4c97e674709bfe56a9c008d7563a68ac57120ceb2855a73a9944"
+            },
+            {
+              "relative_path": "model-00005-of-00015.safetensors",
+              "size": 3921677112,
+              "sha256": "a5abc1d5e9583409193e2cd58a671a4ed98467a6eaf883cd4377e3cc02021c22"
+            },
+            {
+              "relative_path": "model-00006-of-00015.safetensors",
+              "size": 3900710888,
+              "sha256": "160d914e2e4704a401a3eab9e9eec3380e5723a35981c9169bedfb82ea32e6d6"
+            },
+            {
+              "relative_path": "model-00007-of-00015.safetensors",
+              "size": 3994391976,
+              "sha256": "0bcd0ce28c7d2cc6f5ab2c21902cd032fec0cc5f29e0897e3bb0967add388e47"
+            },
+            {
+              "relative_path": "model-00008-of-00015.safetensors",
+              "size": 3879219776,
+              "sha256": "584a0ed8018d3b19ce8e533d08a460454650027901be6323b50b591da143dca6"
+            },
+            {
+              "relative_path": "model-00009-of-00015.safetensors",
+              "size": 3921677136,
+              "sha256": "e7e3e1a17a2673340eb6bba95c3c6f07b12e7746ee738dde56551cbde27656f5"
+            },
+            {
+              "relative_path": "model-00010-of-00015.safetensors",
+              "size": 3921677128,
+              "sha256": "e8934789f4742c11da88f937da84bdbb8764c8a7f7ebe9e7b056bcbd41b14285"
+            },
+            {
+              "relative_path": "model-00011-of-00015.safetensors",
+              "size": 3921677136,
+              "sha256": "44e8fe06d2d609bf20b16b1d2f42348ca2dc99179721f76035ff50db678f9a8a"
+            },
+            {
+              "relative_path": "model-00012-of-00015.safetensors",
+              "size": 3921677136,
+              "sha256": "33c5d7d18e1b3f661334dff736fc7d00561f1f1bb9d2970c669b40d2e582974e"
+            },
+            {
+              "relative_path": "model-00013-of-00015.safetensors",
+              "size": 3995081848,
+              "sha256": "68db2ebb03231238c2a114f3642df967a970a1d96b029adc427838cb5cf7f27a"
+            },
+            {
+              "relative_path": "model-00014-of-00015.safetensors",
+              "size": 3942652952,
+              "sha256": "26c114fb6d5d4131ab227552d489d7a97c8c958a9ed94f6d3d1584f6cfe4b9fb"
+            },
+            {
+              "relative_path": "model-00015-of-00015.safetensors",
+              "size": 508670568,
+              "sha256": "b84b5b1315e865c9a19a444045d422a73e3e2e31ce3766797cffd3507c68c9c9"
+            },
+            {
+              "relative_path": "preprocessor_config.json",
+              "size": 390,
+              "sha256": "27225450ac9c6529872ee1924fcb0962ff5634834f817040f444118116f4e516"
+            },
+            {
+              "relative_path": "tokenizer.json",
+              "size": 12807982,
+              "sha256": "5f9e4d4901a92b997e463c1f46055088b6cca5ca61a6522d1b9f64c4bb81cb42"
+            },
+            {
+              "relative_path": "tokenizer_config.json",
+              "size": 16718,
+              "sha256": "5186f0defcd7f232382c7f0aebcd2252d073bb921ab240e407b7ae8745d2b29b"
+            },
+            {
+              "relative_path": "video_preprocessor_config.json",
+              "size": 385,
+              "sha256": "7768af27c1fafa9cc9011c1dc20067e03f8915e03b63504550e11d5066986d13"
+            },
+            {
+              "relative_path": "vocab.json",
+              "size": 6722759,
+              "sha256": "ce99b4cb2983d118806ce0a8b777a35b093e2000a503ebde25853284c9dfa003"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "motionr1_vm_lora",
+      "source": "Motion-R1 project checkpoint_0426",
+      "source_revision": "checkpoint_0426; byte hashes are authoritative",
+      "license": "project-controlled; verify before redistribution",
+      "pretrained_weight_requirement": "required",
+      "pretrain_asset_ready": true,
+      "artifacts": [
+        {
+          "role": "base_and_processor",
+          "path": "by_model/motionr1_vm_lora/base",
+          "kind": "hf_model_dir",
+          "absolute_path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/codex_runs/unified_model_eval/shared_assets/pretrained/by_model/motionr1_vm_lora/base",
+          "is_symlink": true,
+          "status": "valid",
+          "resolved_path": "/wangbenyou-sulongjie/Motion-r1/model/checkpoint_0426",
+          "selected_file_count": 26,
+          "weight_file_count": 16,
+          "processor_file_count": 10,
+          "selected_file_bytes": 18214515974,
+          "tree_sha256": "d417e5074a7b056e077b9b0dfabca195879179b54951290b6b26d56a32314c1f",
+          "files": [
+            {
+              "relative_path": "added_tokens.json",
+              "size": 761,
+              "sha256": "0d822b606423cef4594bae18cabcf9407ca5649ecd7d147aa94b30843d5732c9"
+            },
+            {
+              "relative_path": "config.json",
+              "size": 2030,
+              "sha256": "3c08e1d35e3a2eb49fcf8286963f00fc37f2ed55ea8c3c24e3eeaf5e6e79f5f2"
+            },
+            {
+              "relative_path": "generation_config.json",
+              "size": 182,
+              "sha256": "4e580cba5ce459a8a53ecd5ae21b48828b35e2f0d904b2a6fc2e26a69dc07efe"
+            },
+            {
+              "relative_path": "global_step440/bf16_zero_pp_rank_0_mp_rank_00_optim_states.pt",
+              "size": 96118469,
+              "sha256": "8ece30751d9e2b1c6ad212777f1a5fa675203bc7936f4d05149a5dc41df44025"
+            },
+            {
+              "relative_path": "global_step440/bf16_zero_pp_rank_1_mp_rank_00_optim_states.pt",
+              "size": 96118469,
+              "sha256": "bcf7528edfb8df84edffddc8f250ebd56ad49b7b9fe211236da163386b4f7717"
+            },
+            {
+              "relative_path": "global_step440/bf16_zero_pp_rank_2_mp_rank_00_optim_states.pt",
+              "size": 96118469,
+              "sha256": "e05fd560e609ef6f7f819e1cd9ffaea5c234deb034ea759bb1c7bb4a9b329bf7"
+            },
+            {
+              "relative_path": "global_step440/bf16_zero_pp_rank_3_mp_rank_00_optim_states.pt",
+              "size": 96118469,
+              "sha256": "bfb2565df11270e31a5bd2504e8aee65d8721501399bb4343348c9cbf4eb6371"
+            },
+            {
+              "relative_path": "global_step440/zero_pp_rank_0_mp_rank_00_model_states.pt",
+              "size": 2219725909,
+              "sha256": "1fd644b2b698401baf1a0139ef21d03ff725cfda53105852a5287d2fa581b9c1"
+            },
+            {
+              "relative_path": "global_step440/zero_pp_rank_1_mp_rank_00_model_states.pt",
+              "size": 2219725781,
+              "sha256": "dc441ab5e53b55df6058f1dae9e853d7c86182bd56af87ac0c1921e712b9436a"
+            },
+            {
+              "relative_path": "global_step440/zero_pp_rank_2_mp_rank_00_model_states.pt",
+              "size": 2219725781,
+              "sha256": "9509ca487bb15e4d1bfb13c5dbad8f04b198e2fd5959d389a601601aabdd8300"
+            },
+            {
+              "relative_path": "global_step440/zero_pp_rank_3_mp_rank_00_model_states.pt",
+              "size": 2219725781,
+              "sha256": "b6766c7674cb1940acc93f1e215c4c4fed604b1427917cb4cd1e1e9d1633e429"
+            },
+            {
+              "relative_path": "merges.txt",
+              "size": 1671853,
+              "sha256": "8831e4f1a044471340f7c0a83d7bd71306a5b867e95fd870f74d0c5308a904d5"
+            },
+            {
+              "relative_path": "model-00001-of-00002.safetensors",
+              "size": 4989141080,
+              "sha256": "bd7bb0179a5daab71cfe229954462fb216514570e49f6e5dcb29b7121b2f5ddb"
+            },
+            {
+              "relative_path": "model-00002-of-00002.safetensors",
+              "size": 3949830158,
+              "sha256": "750c97d6ae97aad24858fac23ea2aefca207e22ad582dc5b07238864cb8228da"
+            },
+            {
+              "relative_path": "preprocessor_config.json",
+              "size": 390,
+              "sha256": "27225450ac9c6529872ee1924fcb0962ff5634834f817040f444118116f4e516"
+            },
+            {
+              "relative_path": "rng_state_0.pth",
+              "size": 15429,
+              "sha256": "14e0114f828a13cb0ca5e64776036e4737fc28bdf952551895db70f4b43b75fb"
+            },
+            {
+              "relative_path": "rng_state_1.pth",
+              "size": 15429,
+              "sha256": "6a1299b80d6a33e2be3e9ef939d892cd00826cf75bf71605c4233c7da79f587c"
+            },
+            {
+              "relative_path": "rng_state_2.pth",
+              "size": 15429,
+              "sha256": "53a7808ab1ff80dd1fb0aa15bd8b839fe93e027e522f673e2233ef780746be2f"
+            },
+            {
+              "relative_path": "rng_state_3.pth",
+              "size": 15429,
+              "sha256": "829ff85ee41653334c647e740ab9be86f7a1e498563365c34f3b1d0c23c443af"
+            },
+            {
+              "relative_path": "scheduler.pt",
+              "size": 1465,
+              "sha256": "0a16dd2ddbbacb93657e3bda081bfe6ee299d83a5ffee98cfb5a575adf9118c7"
+            },
+            {
+              "relative_path": "special_tokens_map.json",
+              "size": 371,
+              "sha256": "4bbd9ac42c078cd166585631971df7dc3d23aea4c99c539ae59777da2267e167"
+            },
+            {
+              "relative_path": "tokenizer.json",
+              "size": 7032403,
+              "sha256": "a5d85b6dcc535e6b93115a9ef287e6132fdbf30270da6218194ba742261173c7"
+            },
+            {
+              "relative_path": "tokenizer_config.json",
+              "size": 5588,
+              "sha256": "08f295f7d77e64904b608eff73e999517117395e513f75de8f1465a4171dfb20"
+            },
+            {
+              "relative_path": "training_args.bin",
+              "size": 7057,
+              "sha256": "95dd2879a2e2d1c5e4d174fca4ef9ba5042f5c40ecc237eccdbc04b5674d0c95"
+            },
+            {
+              "relative_path": "video_preprocessor_config.json",
+              "size": 385,
+              "sha256": "7768af27c1fafa9cc9011c1dc20067e03f8915e03b63504550e11d5066986d13"
+            },
+            {
+              "relative_path": "vocab.json",
+              "size": 3383407,
+              "sha256": "87a257b04b17642a0688c98cd1df89c398bda4fee532d6f88b38a659ecb4ac8d"
+            }
+          ]
+        },
+        {
+          "role": "motion_vqvae",
+          "path": "by_model/motionr1_vm_lora/motion_vqvae.pth",
+          "kind": "torch_checkpoint",
+          "absolute_path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/codex_runs/unified_model_eval/shared_assets/pretrained/by_model/motionr1_vm_lora/motion_vqvae.pth",
+          "is_symlink": true,
+          "status": "valid",
+          "resolved_path": "/wangbenyou-sulongjie/Motion-r1/model/pretrained/VQVAE/net_best_fid.pth",
+          "size": 78826058,
+          "sha256": "fc4336c382cf7ecfcd486e84542cdf63f48f8fa1d4adaf6efd778fa059834950"
+        }
+      ]
+    },
+    {
+      "id": "qwen3vl_8b_lora",
+      "source": "Qwen/Qwen3-VL-8B-Instruct",
+      "source_revision": "master_snapshot; byte hashes are authoritative",
+      "license": "Apache-2.0",
+      "pretrained_weight_requirement": "required",
+      "pretrain_asset_ready": true,
+      "artifacts": [
+        {
+          "role": "base_and_processor",
+          "path": "by_model/qwen3vl_8b_lora/base",
+          "kind": "hf_model_dir",
+          "absolute_path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/codex_runs/unified_model_eval/shared_assets/pretrained/by_model/qwen3vl_8b_lora/base",
+          "is_symlink": true,
+          "status": "valid",
+          "resolved_path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/codex_models/models/Qwen--Qwen3-VL-8B-Instruct/snapshots/master",
+          "selected_file_count": 13,
+          "weight_file_count": 4,
+          "processor_file_count": 9,
+          "selected_file_bytes": 17545839472,
+          "tree_sha256": "f85efad57e1c5f1509608d841e39a4f6f918148351295c988c3bdd3e316d164a",
+          "files": [
+            {
+              "relative_path": "chat_template.json",
+              "size": 5499,
+              "sha256": "5c72a170d2a4a1a3bc5adad2e689ae28138a9700e5b8c96c0266331e86c0acce"
+            },
+            {
+              "relative_path": "config.json",
+              "size": 1474,
+              "sha256": "5cd452860dc1e9c29dd71cc3cef7f39b338b7a40793f7a260655c2d3568f3661"
+            },
+            {
+              "relative_path": "generation_config.json",
+              "size": 269,
+              "sha256": "8469742d1fce0de951c8909b26a2c0c0d8490837ce476efb114da9e0cefc4d44"
+            },
+            {
+              "relative_path": "merges.txt",
+              "size": 1671839,
+              "sha256": "599bab54075088774b1733fde865d5bd747cbcc7a547c5bc12610e874e26f5e3"
+            },
+            {
+              "relative_path": "model-00001-of-00004.safetensors",
+              "size": 4902275944,
+              "sha256": "d5d0aef0eb170fc7453a296c43c0849a56f510555d3588e4fd662bb35490aefa"
+            },
+            {
+              "relative_path": "model-00002-of-00004.safetensors",
+              "size": 4915962496,
+              "sha256": "8be88fb5501e4d5719a6d4cc212e6a13480330e74f3e8c77daa1a68f199106b5"
+            },
+            {
+              "relative_path": "model-00003-of-00004.safetensors",
+              "size": 4999831048,
+              "sha256": "83de00eafe6e0d57ccd009dbcf71c9974d74df2f016c27afb7e95aafd16b2192"
+            },
+            {
+              "relative_path": "model-00004-of-00004.safetensors",
+              "size": 2716270024,
+              "sha256": "0a88b98e9f96270973f567e6a2c103ede6ccdf915ca3075e21c755604d0377a5"
+            },
+            {
+              "relative_path": "preprocessor_config.json",
+              "size": 390,
+              "sha256": "27225450ac9c6529872ee1924fcb0962ff5634834f817040f444118116f4e516"
+            },
+            {
+              "relative_path": "tokenizer.json",
+              "size": 7032403,
+              "sha256": "a5d85b6dcc535e6b93115a9ef287e6132fdbf30270da6218194ba742261173c7"
+            },
+            {
+              "relative_path": "tokenizer_config.json",
+              "size": 10868,
+              "sha256": "c2da771801886ad9ae98181793ffd3dfb7f1af30f6f7c6a4e15d7dbba52e2399"
+            },
+            {
+              "relative_path": "video_preprocessor_config.json",
+              "size": 385,
+              "sha256": "7768af27c1fafa9cc9011c1dc20067e03f8915e03b63504550e11d5066986d13"
+            },
+            {
+              "relative_path": "vocab.json",
+              "size": 2776833,
+              "sha256": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "qwen3vl_4b_lora",
+      "source": "Qwen/Qwen3-VL-4B-Instruct",
+      "source_revision": "master_snapshot; byte hashes are authoritative",
+      "license": "Apache-2.0",
+      "pretrained_weight_requirement": "required",
+      "pretrain_asset_ready": true,
+      "artifacts": [
+        {
+          "role": "base_and_processor",
+          "path": "by_model/qwen3vl_4b_lora/base",
+          "kind": "hf_model_dir",
+          "absolute_path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/codex_runs/unified_model_eval/shared_assets/pretrained/by_model/qwen3vl_4b_lora/base",
+          "is_symlink": true,
+          "status": "valid",
+          "resolved_path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/codex_models/models/Qwen--Qwen3-VL-4B-Instruct/snapshots/master",
+          "selected_file_count": 11,
+          "weight_file_count": 2,
+          "processor_file_count": 9,
+          "selected_file_bytes": 8887219338,
+          "tree_sha256": "1ceaa81bf0ae59a4e4803155851493ff48bd37272075affbb3a4b6fde2e3ac48",
+          "files": [
+            {
+              "relative_path": "chat_template.json",
+              "size": 5502,
+              "sha256": "6f8a6a55027e3da5160105556cda5dd69f6423f1c32645f6730d32de7773d0c4"
+            },
+            {
+              "relative_path": "config.json",
+              "size": 1505,
+              "sha256": "edac7703329133edfc53e46ac0081835144c99d7eebf28b71c732694d435224d"
+            },
+            {
+              "relative_path": "generation_config.json",
+              "size": 269,
+              "sha256": "8469742d1fce0de951c8909b26a2c0c0d8490837ce476efb114da9e0cefc4d44"
+            },
+            {
+              "relative_path": "merges.txt",
+              "size": 1671839,
+              "sha256": "599bab54075088774b1733fde865d5bd747cbcc7a547c5bc12610e874e26f5e3"
+            },
+            {
+              "relative_path": "model-00001-of-00002.safetensors",
+              "size": 4967229296,
+              "sha256": "30a01a0556622645a3cce87b655bbbbbc1f170c196099f1b666c93202c3339a9"
+            },
+            {
+              "relative_path": "model-00002-of-00002.safetensors",
+              "size": 3908490048,
+              "sha256": "046296a2a387efb43b0c997d5833c789604d168834f6e0d3064bf7bb13d002a6"
+            },
+            {
+              "relative_path": "preprocessor_config.json",
+              "size": 390,
+              "sha256": "27225450ac9c6529872ee1924fcb0962ff5634834f817040f444118116f4e516"
+            },
+            {
+              "relative_path": "tokenizer.json",
+              "size": 7032403,
+              "sha256": "a5d85b6dcc535e6b93115a9ef287e6132fdbf30270da6218194ba742261173c7"
+            },
+            {
+              "relative_path": "tokenizer_config.json",
+              "size": 10868,
+              "sha256": "c2da771801886ad9ae98181793ffd3dfb7f1af30f6f7c6a4e15d7dbba52e2399"
+            },
+            {
+              "relative_path": "video_preprocessor_config.json",
+              "size": 385,
+              "sha256": "7768af27c1fafa9cc9011c1dc20067e03f8915e03b63504550e11d5066986d13"
+            },
+            {
+              "relative_path": "vocab.json",
+              "size": 2776833,
+              "sha256": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "qwen35_4b_lora",
+      "source": "Qwen/Qwen3.5-4B",
+      "source_revision": "master_snapshot; byte hashes are authoritative",
+      "license": "Apache-2.0",
+      "pretrained_weight_requirement": "required",
+      "pretrain_asset_ready": true,
+      "artifacts": [
+        {
+          "role": "base_and_processor",
+          "path": "by_model/qwen35_4b_lora/base",
+          "kind": "hf_model_dir",
+          "absolute_path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/codex_runs/unified_model_eval/shared_assets/pretrained/by_model/qwen35_4b_lora/base",
+          "is_symlink": true,
+          "status": "valid",
+          "resolved_path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/codex_models/models/Qwen--Qwen3.5-4B/snapshots/master",
+          "selected_file_count": 9,
+          "weight_file_count": 2,
+          "processor_file_count": 7,
+          "selected_file_bytes": 9342732742,
+          "tree_sha256": "91039d38461a6727150bd87c9739261e21d89847b31fee780c13334d39fc197f",
+          "files": [
+            {
+              "relative_path": "config.json",
+              "size": 3161,
+              "sha256": "ddc63e1c717afa86c865bb5e01313d89d72bb53b97ad4a8a03ba8510c0621670"
+            },
+            {
+              "relative_path": "merges.txt",
+              "size": 3353259,
+              "sha256": "a9d356d7bdf1ef4949e3e748e95b8e10ad9d4e2e838eddc38a0a7b6b94d1db8d"
+            },
+            {
+              "relative_path": "model.safetensors-00001-of-00002.safetensors",
+              "size": 5329398688,
+              "sha256": "26a93f066e1916adb13453dae5a0c707c0fbc71299ed98779571a907b8e74c61"
+            },
+            {
+              "relative_path": "model.safetensors-00002-of-00002.safetensors",
+              "size": 3990429408,
+              "sha256": "cb544bd9bfae93dc59b0f22b292f5933573854a7f9b97835c67060d7d910e188"
+            },
+            {
+              "relative_path": "preprocessor_config.json",
+              "size": 390,
+              "sha256": "27225450ac9c6529872ee1924fcb0962ff5634834f817040f444118116f4e516"
+            },
+            {
+              "relative_path": "tokenizer.json",
+              "size": 12807982,
+              "sha256": "5f9e4d4901a92b997e463c1f46055088b6cca5ca61a6522d1b9f64c4bb81cb42"
+            },
+            {
+              "relative_path": "tokenizer_config.json",
+              "size": 16710,
+              "sha256": "316230d6a809701f4db5ea8f8fc862bc3a6f3229c937c174e674ff3ca0a64ac8"
+            },
+            {
+              "relative_path": "video_preprocessor_config.json",
+              "size": 385,
+              "sha256": "7768af27c1fafa9cc9011c1dc20067e03f8915e03b63504550e11d5066986d13"
+            },
+            {
+              "relative_path": "vocab.json",
+              "size": 6722759,
+              "sha256": "ce99b4cb2983d118806ce0a8b777a35b093e2000a503ebde25853284c9dfa003"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "videollava_7b_lora",
+      "source": "LanguageBind/Video-LLaVA-7B",
+      "source_revision": "aecae02b7dee5c249e096dcb0ce546eb6f811806",
+      "license": "Apache-2.0",
+      "pretrained_weight_requirement": "required",
+      "pretrain_asset_ready": true,
+      "artifacts": [
+        {
+          "role": "base_and_processor",
+          "path": "by_model/videollava_7b_lora/base",
+          "kind": "hf_model_dir",
+          "absolute_path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/codex_runs/unified_model_eval/shared_assets/pretrained/by_model/videollava_7b_lora/base",
+          "is_symlink": true,
+          "status": "valid",
+          "resolved_path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/MVBench_Eval/models/Video-LLaVA-7B",
+          "selected_file_count": 7,
+          "weight_file_count": 2,
+          "processor_file_count": 5,
+          "selected_file_bytes": 14934529492,
+          "tree_sha256": "7d112d032f91457e40158fd6dddbb9cab71da2460c16fe3430fafd7aa9e9b71e",
+          "files": [
+            {
+              "relative_path": "config.json",
+              "size": 1095,
+              "sha256": "d1d786570f8cf3c072a2dfa7fb268d38f60f2dca37a046037b9f20c5e229ad9b"
+            },
+            {
+              "relative_path": "generation_config.json",
+              "size": 162,
+              "sha256": "2b4818acc825ace1ce4a9daed9838645d103990a451adba4bc90696e38d3fc1f"
+            },
+            {
+              "relative_path": "pytorch_model-00001-of-00002.bin",
+              "size": 9976631486,
+              "sha256": "a29e845e426d3b6c1c40fee81a234873c36b9e7b1aebd374055a5ac3e9071a11"
+            },
+            {
+              "relative_path": "pytorch_model-00002-of-00002.bin",
+              "size": 4957395839,
+              "sha256": "0a5a315d504411e4619ff548fe54c721356e838d4b57581ed06d409b4306b96a"
+            },
+            {
+              "relative_path": "special_tokens_map.json",
+              "size": 438,
+              "sha256": "719833ff26ac897a3ec8ed946028a135de2a351470af59b4008744ab1f0ee9b7"
+            },
+            {
+              "relative_path": "tokenizer.model",
+              "size": 499723,
+              "sha256": "9e556afd44213b6bd1be2b850ebbbd98f5481437a8021afaf58ee7fb1818d347"
+            },
+            {
+              "relative_path": "tokenizer_config.json",
+              "size": 749,
+              "sha256": "cf01145c6de57f061991ff871e85d0402c38481f968daea8874c431cd0c7740f"
+            }
+          ]
+        },
+        {
+          "role": "video_tower",
+          "path": "by_model/videollava_7b_lora/video_tower",
+          "kind": "hf_model_dir",
+          "revision": "efc40ec6ba6b2081276c11e7e19b24f08a099e79",
+          "absolute_path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/codex_runs/unified_model_eval/shared_assets/pretrained/by_model/videollava_7b_lora/video_tower",
+          "is_symlink": true,
+          "status": "valid",
+          "resolved_path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/MVBench_Eval/cache_dir/models--LanguageBind--LanguageBind_Video_merge/snapshots/efc40ec6ba6b2081276c11e7e19b24f08a099e79",
+          "selected_file_count": 7,
+          "weight_file_count": 1,
+          "processor_file_count": 6,
+          "selected_file_bytes": 2118445043,
+          "tree_sha256": "44739ed35f2538febd17f21c0e34eb45ecdbfbb8f5f4061c513632b1ad925d10",
+          "files": [
+            {
+              "relative_path": "config.json",
+              "size": 4614,
+              "sha256": "380b5e990751cd804979ce4b90f6f63ddc6b57fb903be73adf5039ce90ae9a93"
+            },
+            {
+              "relative_path": "merges.txt",
+              "size": 524657,
+              "sha256": "f526393189112391ce6f9795d4695f704121ce452c3aad1f5335cc41337eba85"
+            },
+            {
+              "relative_path": "pytorch_model.bin",
+              "size": 2114828105,
+              "sha256": "ef677a2ffe018ff22021dd166bc26ffe9196eb414626cbd9a2ac7231308bd52d"
+            },
+            {
+              "relative_path": "special_tokens_map.json",
+              "size": 472,
+              "sha256": "c4864a9376a8401918425bed71fc14fc0e81f9b59ec45c1cf96cccb2df508eac"
+            },
+            {
+              "relative_path": "tokenizer.json",
+              "size": 2224053,
+              "sha256": "d8b124290bc4bcd18cd3f72747f525e2a1d8c266cf3089e52da38ee417564ac5"
+            },
+            {
+              "relative_path": "tokenizer_config.json",
+              "size": 814,
+              "sha256": "c098282a97423d1c621c4e1e8f30be5d82d6071d90345d437323e85b827e32eb"
+            },
+            {
+              "relative_path": "vocab.json",
+              "size": 862328,
+              "sha256": "5047b556ce86ccaf6aa22b3ffccfc52d391ea4accdab9c2f2407da5b742d4363"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "videochatgpt_lora",
+      "source": "mmaaz60/LLaVA-7B-Lightening-v1-1 plus Video-ChatGPT projector",
+      "source_revision": "base=36c0964cf16a0f7d30b08ca79f393eb99ac4c5a9; projector=1b89a9798219200e88192964a9c5e5f1da750179",
+      "license": "CC-BY-4.0 plus upstream LLaMA terms",
+      "pretrained_weight_requirement": "required",
+      "pretrain_asset_ready": true,
+      "artifacts": [
+        {
+          "role": "base_and_processor",
+          "path": "by_model/videochatgpt_lora/base",
+          "kind": "hf_model_dir",
+          "absolute_path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/codex_runs/unified_model_eval/shared_assets/pretrained/by_model/videochatgpt_lora/base",
+          "is_symlink": true,
+          "status": "valid",
+          "resolved_path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/MVBench_Eval/models/LLaVA-7B-Lightening-v1-1",
+          "selected_file_count": 8,
+          "weight_file_count": 2,
+          "processor_file_count": 6,
+          "selected_file_bytes": 13485898601,
+          "tree_sha256": "3dd916e2feba60988d6905326a3a93fa49f3e5f144a293d7e1290491d58a830c",
+          "files": [
+            {
+              "relative_path": "added_tokens.json",
+              "size": 70,
+              "sha256": "92dbc134300d65c92a4e339719e430143f13839faeb1f65b98765a436be9e9c0"
+            },
+            {
+              "relative_path": "config.json",
+              "size": 839,
+              "sha256": "f6a673987929020648ad691a04e7af08ef119d14f73b288ebc85e0b2372ba0c4"
+            },
+            {
+              "relative_path": "generation_config.json",
+              "size": 137,
+              "sha256": "9b5540cf00c5acd212f843e4a24b2cba5856bd9badfd5c7c4248791eba87c839"
+            },
+            {
+              "relative_path": "pytorch_model-00001-of-00002.bin",
+              "size": 9976659134,
+              "sha256": "fa993064080568a811caffc00662d5425ed2d0d095c1db19350705fc2152b7d6"
+            },
+            {
+              "relative_path": "pytorch_model-00002-of-00002.bin",
+              "size": 3508737527,
+              "sha256": "754dbea0bf47c11fa898ee721dcf824e8a4c74211e2d5aa52ac90af8dd52953f"
+            },
+            {
+              "relative_path": "special_tokens_map.json",
+              "size": 435,
+              "sha256": "2ea88203b955648951a454e73a73967ff77ba4e79ae8ceb4400d4ab2cb040777"
+            },
+            {
+              "relative_path": "tokenizer.model",
+              "size": 499723,
+              "sha256": "9e556afd44213b6bd1be2b850ebbbd98f5481437a8021afaf58ee7fb1818d347"
+            },
+            {
+              "relative_path": "tokenizer_config.json",
+              "size": 736,
+              "sha256": "5ea8935852f70541bdce3b5813bbac4517a79cd8b03776d2d0806c5d465a1ccd"
+            }
+          ]
+        },
+        {
+          "role": "video_projector",
+          "path": "by_model/videochatgpt_lora/projector.bin",
+          "kind": "torch_checkpoint",
+          "absolute_path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/codex_runs/unified_model_eval/shared_assets/pretrained/by_model/videochatgpt_lora/projector.bin",
+          "is_symlink": true,
+          "status": "valid",
+          "resolved_path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/MVBench_Eval/models/Video-ChatGPT/video_chatgpt-7B.bin",
+          "size": 541181308,
+          "sha256": "c5d78b70ca98dd8ae06cfc0f49b3fd7a7057dcfdddb33a19736fea9e7eabaff8"
+        }
+      ]
+    },
+    {
+      "id": "videochat2_lora",
+      "source": "OpenGVLab/videochat2 plus lmsys/vicuna-7b-v1.5",
+      "source_revision": "videochat2=c80f1b4dc427c5938a802b63d3a8392792ecc94e; vicuna=3321f76e3f527bd14065daf69dad9344000a201d",
+      "license": "see Ask-Anything and Vicuna upstream terms",
+      "pretrained_weight_requirement": "required",
+      "pretrain_asset_ready": true,
+      "artifacts": [
+        {
+          "role": "vision_qformer",
+          "path": "by_model/videochat2_lora/umt_l16_qformer.pth",
+          "kind": "torch_checkpoint",
+          "absolute_path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/codex_runs/unified_model_eval/shared_assets/pretrained/by_model/videochat2_lora/umt_l16_qformer.pth",
+          "is_symlink": true,
+          "status": "valid",
+          "resolved_path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/MVBench_Eval/models/VideoChat2/umt_l16_qformer.pth",
+          "size": 949085085,
+          "sha256": "8832669b285c6b90c0996ee94d173d4ac9910e0ab266f3653c97f239d01404ea"
+        },
+        {
+          "role": "stage3_model",
+          "path": "by_model/videochat2_lora/stage3.pth",
+          "kind": "torch_checkpoint",
+          "absolute_path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/codex_runs/unified_model_eval/shared_assets/pretrained/by_model/videochat2_lora/stage3.pth",
+          "is_symlink": true,
+          "status": "valid",
+          "resolved_path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/MVBench_Eval/models/VideoChat2/videochat2_7b_stage3.pth",
+          "size": 1937304775,
+          "sha256": "f5dd7a9f71d6e6b136290ebc31eeba597db10a3500528e5416a73fab71f0c8e5"
+        },
+        {
+          "role": "llm_and_tokenizer",
+          "path": "by_model/videochat2_lora/vicuna",
+          "kind": "hf_model_dir",
+          "absolute_path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/codex_runs/unified_model_eval/shared_assets/pretrained/by_model/videochat2_lora/vicuna",
+          "is_symlink": true,
+          "status": "valid",
+          "resolved_path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/MVBench_Eval/models/vicuna-7b-v1.5",
+          "selected_file_count": 7,
+          "weight_file_count": 2,
+          "processor_file_count": 5,
+          "selected_file_bytes": 13477451784,
+          "tree_sha256": "5a3289d8da01cafdbb3d4c5e9e44094a99b1bbf37fcea3a242eee3bfe0b92832",
+          "files": [
+            {
+              "relative_path": "config.json",
+              "size": 615,
+              "sha256": "e122b598d0734b489590e99e3b3562a11ce67ea13bce390a7868b4f73ae6e615"
+            },
+            {
+              "relative_path": "generation_config.json",
+              "size": 162,
+              "sha256": "2b4818acc825ace1ce4a9daed9838645d103990a451adba4bc90696e38d3fc1f"
+            },
+            {
+              "relative_path": "pytorch_model-00001-of-00002.bin",
+              "size": 9976634558,
+              "sha256": "4133d2fcc5f31286881ea50806d95b721d016b533036a99dedce3f8fe88520e6"
+            },
+            {
+              "relative_path": "pytorch_model-00002-of-00002.bin",
+              "size": 3500315539,
+              "sha256": "d261d3c35e92d3070d1e61ed821ebfca812a847d2a880757d82728acf005c5ac"
+            },
+            {
+              "relative_path": "special_tokens_map.json",
+              "size": 438,
+              "sha256": "719833ff26ac897a3ec8ed946028a135de2a351470af59b4008744ab1f0ee9b7"
+            },
+            {
+              "relative_path": "tokenizer.model",
+              "size": 499723,
+              "sha256": "9e556afd44213b6bd1be2b850ebbbd98f5481437a8021afaf58ee7fb1818d347"
+            },
+            {
+              "relative_path": "tokenizer_config.json",
+              "size": 749,
+              "sha256": "1cbc84c8a5b41e0ec24e0da66677773569fb0ccfa753d5d184e343e2ec3815a0"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "videollama_trainables",
+      "source": "DAMO-NLP-SG Video-LLaMA-2-7B-Finetuned",
+      "source_revision": "9d9519ffac4e48ef6510e829b1a1a643771a4dd0",
+      "license": "BSD-3-Clause code; Llama and weight terms also apply",
+      "pretrained_weight_requirement": "required",
+      "pretrain_asset_ready": true,
+      "artifacts": [
+        {
+          "role": "base_processor_and_towers",
+          "path": "by_model/videollama_trainables/base",
+          "kind": "composite_model_dir",
+          "absolute_path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/codex_runs/unified_model_eval/shared_assets/pretrained/by_model/videollama_trainables/base",
+          "is_symlink": true,
+          "status": "valid",
+          "resolved_path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/MVBench_Eval/models/Video-LLaMA-2-7B-Finetuned",
+          "selected_file_count": 11,
+          "weight_file_count": 5,
+          "processor_file_count": 6,
+          "selected_file_bytes": 18823016298,
+          "tree_sha256": "db20e6ff5e26d320e063f160141f2e8b7d9170ee2855b93397559b2f878b11e4",
+          "files": [
+            {
+              "relative_path": "AL_LLaMA_2_7B_Finetuned.pth",
+              "size": 274578657,
+              "sha256": "1ad66d3e0eb9eaef5392e7b67c4689166f5610088c92652b9ecdae332b8d5b6f"
+            },
+            {
+              "relative_path": "VL_LLaMA_2_7B_Finetuned.pth",
+              "size": 265559201,
+              "sha256": "3cec0e2979ed7656e08ecc5b185c2229a3c577b4b7a4721a94bd461ba0447c6e"
+            },
+            {
+              "relative_path": "imagebind_huge.pth",
+              "size": 4803584173,
+              "sha256": "d6f6c22bedcc90708448d5d2fbb7b2db9c73f505dc89bd0b2e09b23af1b62157"
+            },
+            {
+              "relative_path": "llama-2-7b-chat-hf/config.json",
+              "size": 507,
+              "sha256": "4f0a2c1e65f570a4795cf789b6eb43a8907a0aeacde5b2221194629d3fd8dae4"
+            },
+            {
+              "relative_path": "llama-2-7b-chat-hf/generation_config.json",
+              "size": 137,
+              "sha256": "a23652fc622a27b8863c39f524707796967095b2a85f334561b11422f71445a2"
+            },
+            {
+              "relative_path": "llama-2-7b-chat-hf/pytorch_model-00001-of-00002.bin",
+              "size": 9976634558,
+              "sha256": "8f917a253ef631128743798d284a7e7a5a22ac1ad23ecd6a9da57550348317f5"
+            },
+            {
+              "relative_path": "llama-2-7b-chat-hf/pytorch_model-00002-of-00002.bin",
+              "size": 3500315539,
+              "sha256": "8e8fc22b2c138439c6bafb7331ac139585e683005407e016feb18a4feea18417"
+            },
+            {
+              "relative_path": "llama-2-7b-chat-hf/special_tokens_map.json",
+              "size": 411,
+              "sha256": "ff3b4a612c4e447acb02d40071bddd989fe0da87eb5b7fe0dbadfc4f74de7531"
+            },
+            {
+              "relative_path": "llama-2-7b-chat-hf/tokenizer.json",
+              "size": 1842665,
+              "sha256": "f9ffc4aede0845ab65324ce5dccb823dca2427f9a0710981e5bc2398d73d8162"
+            },
+            {
+              "relative_path": "llama-2-7b-chat-hf/tokenizer.model",
+              "size": 499723,
+              "sha256": "9e556afd44213b6bd1be2b850ebbbd98f5481437a8021afaf58ee7fb1818d347"
+            },
+            {
+              "relative_path": "llama-2-7b-chat-hf/tokenizer_config.json",
+              "size": 727,
+              "sha256": "516c6167c884793a738c440e29ccb80c15e1493ffc965affc69a1a8ddef4572a"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "videollama_lora",
+      "source": "DAMO-NLP-SG Video-LLaMA-2-7B-Finetuned",
+      "source_revision": "9d9519ffac4e48ef6510e829b1a1a643771a4dd0",
+      "license": "BSD-3-Clause code; Llama and weight terms also apply",
+      "pretrained_weight_requirement": "required",
+      "pretrain_asset_ready": true,
+      "artifacts": [
+        {
+          "role": "base_processor_and_towers",
+          "path": "by_model/videollama_lora/base",
+          "kind": "composite_model_dir",
+          "absolute_path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/codex_runs/unified_model_eval/shared_assets/pretrained/by_model/videollama_lora/base",
+          "is_symlink": true,
+          "status": "valid",
+          "resolved_path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/MVBench_Eval/models/Video-LLaMA-2-7B-Finetuned",
+          "selected_file_count": 11,
+          "weight_file_count": 5,
+          "processor_file_count": 6,
+          "selected_file_bytes": 18823016298,
+          "tree_sha256": "db20e6ff5e26d320e063f160141f2e8b7d9170ee2855b93397559b2f878b11e4",
+          "files": [
+            {
+              "relative_path": "AL_LLaMA_2_7B_Finetuned.pth",
+              "size": 274578657,
+              "sha256": "1ad66d3e0eb9eaef5392e7b67c4689166f5610088c92652b9ecdae332b8d5b6f"
+            },
+            {
+              "relative_path": "VL_LLaMA_2_7B_Finetuned.pth",
+              "size": 265559201,
+              "sha256": "3cec0e2979ed7656e08ecc5b185c2229a3c577b4b7a4721a94bd461ba0447c6e"
+            },
+            {
+              "relative_path": "imagebind_huge.pth",
+              "size": 4803584173,
+              "sha256": "d6f6c22bedcc90708448d5d2fbb7b2db9c73f505dc89bd0b2e09b23af1b62157"
+            },
+            {
+              "relative_path": "llama-2-7b-chat-hf/config.json",
+              "size": 507,
+              "sha256": "4f0a2c1e65f570a4795cf789b6eb43a8907a0aeacde5b2221194629d3fd8dae4"
+            },
+            {
+              "relative_path": "llama-2-7b-chat-hf/generation_config.json",
+              "size": 137,
+              "sha256": "a23652fc622a27b8863c39f524707796967095b2a85f334561b11422f71445a2"
+            },
+            {
+              "relative_path": "llama-2-7b-chat-hf/pytorch_model-00001-of-00002.bin",
+              "size": 9976634558,
+              "sha256": "8f917a253ef631128743798d284a7e7a5a22ac1ad23ecd6a9da57550348317f5"
+            },
+            {
+              "relative_path": "llama-2-7b-chat-hf/pytorch_model-00002-of-00002.bin",
+              "size": 3500315539,
+              "sha256": "8e8fc22b2c138439c6bafb7331ac139585e683005407e016feb18a4feea18417"
+            },
+            {
+              "relative_path": "llama-2-7b-chat-hf/special_tokens_map.json",
+              "size": 411,
+              "sha256": "ff3b4a612c4e447acb02d40071bddd989fe0da87eb5b7fe0dbadfc4f74de7531"
+            },
+            {
+              "relative_path": "llama-2-7b-chat-hf/tokenizer.json",
+              "size": 1842665,
+              "sha256": "f9ffc4aede0845ab65324ce5dccb823dca2427f9a0710981e5bc2398d73d8162"
+            },
+            {
+              "relative_path": "llama-2-7b-chat-hf/tokenizer.model",
+              "size": 499723,
+              "sha256": "9e556afd44213b6bd1be2b850ebbbd98f5481437a8021afaf58ee7fb1818d347"
+            },
+            {
+              "relative_path": "llama-2-7b-chat-hf/tokenizer_config.json",
+              "size": 727,
+              "sha256": "516c6167c884793a738c440e29ccb80c15e1493ffc965affc69a1a8ddef4572a"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mplug_owl_video_lora",
+      "source": "MAGAer13/mplug-owl-llama-7b-video",
+      "source_revision": "fe6a4ca53c5a30cfaaf0809c9442d207de641ed7",
+      "license": "upstream model terms; code MIT",
+      "pretrained_weight_requirement": "required",
+      "pretrain_asset_ready": true,
+      "artifacts": [
+        {
+          "role": "base_and_processor",
+          "path": "by_model/mplug_owl_video_lora/base",
+          "kind": "hf_model_dir",
+          "absolute_path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/codex_runs/unified_model_eval/shared_assets/pretrained/by_model/mplug_owl_video_lora/base",
+          "is_symlink": true,
+          "status": "valid",
+          "resolved_path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/MVBench_Eval/models/mplug-owl-llama-7b-video",
+          "selected_file_count": 6,
+          "weight_file_count": 1,
+          "processor_file_count": 5,
+          "selected_file_bytes": 14306094128,
+          "tree_sha256": "a2099baedb0e77fd0bc43600edd212d8cba0b0bab5fa56fc62b27705426b29da",
+          "files": [
+            {
+              "relative_path": "config.json",
+              "size": 9161,
+              "sha256": "0ce5003f46c468d5f568192abb5a7f759a85ea8e6c9690975294790f0a7d139a"
+            },
+            {
+              "relative_path": "generation_config.json",
+              "size": 202,
+              "sha256": "527a24e5a0e76fc278ab1b79ceacd47b5cb9a96a707b1e389eba978dd906ccf4"
+            },
+            {
+              "relative_path": "preprocessor_config.json",
+              "size": 163,
+              "sha256": "226472d7571964d3a8ade3e2d27ad439433907807a9684c9b98535afb7623379"
+            },
+            {
+              "relative_path": "pytorch_model.bin",
+              "size": 14305584703,
+              "sha256": "7bf9c821075524e0ef7692552814a67de82c112d7341a2e7d6603ec51a13421b"
+            },
+            {
+              "relative_path": "tokenizer.model",
+              "size": 499723,
+              "sha256": "9e556afd44213b6bd1be2b850ebbbd98f5481437a8021afaf58ee7fb1818d347"
+            },
+            {
+              "relative_path": "tokenizer_config.json",
+              "size": 176,
+              "sha256": "e49ac46a164d698474af96c1df5137d39d43f18164e2a6e3f8e61762d3869664"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "otter_video_lora",
+      "source": "luodian/OTTER-Video-LLaMA7B-DenseCaption",
+      "source_revision": "362b44913056b0df528ae5240dc8335e2a336ba7",
+      "license": "MIT model card and code; dependency terms apply",
+      "pretrained_weight_requirement": "required",
+      "pretrain_asset_ready": true,
+      "artifacts": [
+        {
+          "role": "base_and_processor",
+          "path": "by_model/otter_video_lora/base",
+          "kind": "hf_model_dir",
+          "absolute_path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/codex_runs/unified_model_eval/shared_assets/pretrained/by_model/otter_video_lora/base",
+          "is_symlink": true,
+          "status": "valid",
+          "resolved_path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/MVBench_Eval/models/OTTER-Video-LLaMA7B-DenseCaption",
+          "selected_file_count": 6,
+          "weight_file_count": 5,
+          "processor_file_count": 1,
+          "selected_file_bytes": 38647443037,
+          "tree_sha256": "6d48ebdff8c3a74bc86380543c3aa751b766d4f134edbf8d279b92d846e995fd",
+          "files": [
+            {
+              "relative_path": "config.json",
+              "size": 4597,
+              "sha256": "094301857fa4cfa3ab5d3635b7400a845c668d7b3fff48437f385519ff9eeee6"
+            },
+            {
+              "relative_path": "final_weights.pt",
+              "size": 5764722113,
+              "sha256": "5e6984d026754bb1d863620b8f69422736c40a6a4379ad820d0d802f18c70a32"
+            },
+            {
+              "relative_path": "pytorch_model-00001-of-00004.bin",
+              "size": 9936881449,
+              "sha256": "85c8e1b116519d0b0950adc825c6a90fd61ca4d6303d2269f3337f0148c1c03b"
+            },
+            {
+              "relative_path": "pytorch_model-00002-of-00004.bin",
+              "size": 9836221972,
+              "sha256": "2a4cb3c309c8ae965a158cfc6b14170102bfaab2907f4d4aba476345c4aa227c"
+            },
+            {
+              "relative_path": "pytorch_model-00003-of-00004.bin",
+              "size": 9773340203,
+              "sha256": "5d90c75f411530acde696381b24bef711d382ef8178186779dd8c3ded167c277"
+            },
+            {
+              "relative_path": "pytorch_model-00004-of-00004.bin",
+              "size": 3336272703,
+              "sha256": "b42121a283e08ce8a9ed26b3042e86d4a8cb3d4dc8b486e559a5a3dfd33c7368"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "agcn_official",
+      "source": "lshiwjx/2s-AGCN",
+      "source_revision": "953c14fc10883cd869646328f5d522e9e9282063",
+      "license": "CC-BY-NC-4.0",
+      "pretrained_weight_requirement": "not_required_by_official_training_recipe; initialize official architecture and train on each frozen batch",
+      "pretrain_asset_ready": true,
+      "artifacts": [
+        {
+          "role": "official_source",
+          "path": "by_model/agcn_official/source",
+          "kind": "git_repo",
+          "absolute_path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/codex_runs/unified_model_eval/shared_assets/pretrained/by_model/agcn_official/source",
+          "is_symlink": true,
+          "status": "valid",
+          "revision": "953c14fc10883cd869646328f5d522e9e9282063",
+          "remote": "https://github.com/lshiwjx/2s-AGCN.git",
+          "tracked_dirty_file_count": 0,
+          "resolved_path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/codex_runs/unified_model_eval/shared_assets/pretrained/sources/2s-AGCN"
+        }
+      ]
+    },
+    {
+      "id": "motionclip_official",
+      "source": "GuyTevet/MotionCLIP official paper model",
+      "source_revision": "code=8eae36d59465711d52bcc14853d1e081022f5056; upstream paper-model download",
+      "license": "MIT code; dependency and dataset terms apply",
+      "pretrained_weight_requirement": "required",
+      "pretrain_asset_ready": true,
+      "artifacts": [
+        {
+          "role": "official_source",
+          "path": "by_model/motionclip_official/source",
+          "kind": "git_repo",
+          "absolute_path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/codex_runs/unified_model_eval/shared_assets/pretrained/by_model/motionclip_official/source",
+          "is_symlink": true,
+          "status": "valid",
+          "revision": "8eae36d59465711d52bcc14853d1e081022f5056",
+          "remote": "https://github.com/GuyTevet/MotionCLIP.git",
+          "tracked_dirty_file_count": 0,
+          "resolved_path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/codex_runs/unified_model_eval/shared_assets/pretrained/sources/MotionCLIP"
+        },
+        {
+          "role": "pretrained_motionclip",
+          "path": "by_model/motionclip_official/pretrained.pth.tar",
+          "kind": "torch_checkpoint",
+          "sha256": "acafc4bc0d3300ff92a01fc8b75e1a9d129fa253899a2c4648c2260298358e21",
+          "absolute_path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/codex_runs/unified_model_eval/shared_assets/pretrained/by_model/motionclip_official/pretrained.pth.tar",
+          "is_symlink": true,
+          "status": "valid",
+          "resolved_path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/codex_runs/unified_model_eval/shared_assets/pretrained/downloads/MotionCLIP/paper-model/checkpoint_0100.pth.tar",
+          "size": 189423984
+        }
+      ]
+    },
+    {
+      "id": "motionllm_official",
+      "source": "IDEA-Research/MotionLLM with EvanTHU/MotionLLM-7B public v1.0 weights",
+      "source_revision": "code=6695061aea0e1b8a48004cfea48c72e21ce67b3a; weights=feda751a8c906a0c5d18e241b3140bc6badd5913; vicuna=3321f76e3f527bd14065daf69dad9344000a201d; video_tower=efc40ec6ba6b2081276c11e7e19b24f08a099e79",
+      "license": "IDEA non-commercial research license plus Vicuna/LanguageBind dependency terms",
+      "pretrained_weight_requirement": "required",
+      "pretrain_asset_ready": true,
+      "artifacts": [
+        {
+          "role": "official_source",
+          "path": "by_model/motionllm_official/source",
+          "kind": "git_repo",
+          "absolute_path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/codex_runs/unified_model_eval/shared_assets/pretrained/by_model/motionllm_official/source",
+          "is_symlink": true,
+          "status": "valid",
+          "revision": "6695061aea0e1b8a48004cfea48c72e21ce67b3a",
+          "remote": "https://github.com/IDEA-Research/MotionLLM.git",
+          "tracked_dirty_file_count": 0,
+          "resolved_path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/codex_runs/unified_model_eval/shared_assets/pretrained/sources/MotionLLM"
+        },
+        {
+          "role": "official_lora",
+          "path": "by_model/motionllm_official/official_lora.pth",
+          "kind": "torch_checkpoint",
+          "sha256": "c28beab8172cab510f6f414bea8bcec1ac27dca8f54d0f0189a7bda0c53e0977",
+          "absolute_path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/codex_runs/unified_model_eval/shared_assets/pretrained/by_model/motionllm_official/official_lora.pth",
+          "is_symlink": true,
+          "status": "valid",
+          "resolved_path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/codex_runs/unified_model_eval/shared_assets/pretrained/downloads/EvanTHU--MotionLLM-7B/motionllm-ckpt/lora.pth",
+          "size": 67129238
+        },
+        {
+          "role": "official_projector",
+          "path": "by_model/motionllm_official/official_projector.pth",
+          "kind": "torch_checkpoint",
+          "sha256": "682606481c2724dfc9340257102b746657d2f0ec520695244e55691884608753",
+          "absolute_path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/codex_runs/unified_model_eval/shared_assets/pretrained/by_model/motionllm_official/official_projector.pth",
+          "is_symlink": true,
+          "status": "valid",
+          "resolved_path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/codex_runs/unified_model_eval/shared_assets/pretrained/downloads/EvanTHU--MotionLLM-7B/motionllm-ckpt/linear.pth",
+          "size": 83920656
+        },
+        {
+          "role": "vicuna_hf_source",
+          "path": "by_model/motionllm_official/vicuna_hf",
+          "kind": "hf_model_dir",
+          "absolute_path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/codex_runs/unified_model_eval/shared_assets/pretrained/by_model/motionllm_official/vicuna_hf",
+          "is_symlink": true,
+          "status": "valid",
+          "resolved_path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/MVBench_Eval/models/vicuna-7b-v1.5",
+          "selected_file_count": 7,
+          "weight_file_count": 2,
+          "processor_file_count": 5,
+          "selected_file_bytes": 13477451784,
+          "tree_sha256": "5a3289d8da01cafdbb3d4c5e9e44094a99b1bbf37fcea3a242eee3bfe0b92832",
+          "files": [
+            {
+              "relative_path": "config.json",
+              "size": 615,
+              "sha256": "e122b598d0734b489590e99e3b3562a11ce67ea13bce390a7868b4f73ae6e615"
+            },
+            {
+              "relative_path": "generation_config.json",
+              "size": 162,
+              "sha256": "2b4818acc825ace1ce4a9daed9838645d103990a451adba4bc90696e38d3fc1f"
+            },
+            {
+              "relative_path": "pytorch_model-00001-of-00002.bin",
+              "size": 9976634558,
+              "sha256": "4133d2fcc5f31286881ea50806d95b721d016b533036a99dedce3f8fe88520e6"
+            },
+            {
+              "relative_path": "pytorch_model-00002-of-00002.bin",
+              "size": 3500315539,
+              "sha256": "d261d3c35e92d3070d1e61ed821ebfca812a847d2a880757d82728acf005c5ac"
+            },
+            {
+              "relative_path": "special_tokens_map.json",
+              "size": 438,
+              "sha256": "719833ff26ac897a3ec8ed946028a135de2a351470af59b4008744ab1f0ee9b7"
+            },
+            {
+              "relative_path": "tokenizer.model",
+              "size": 499723,
+              "sha256": "9e556afd44213b6bd1be2b850ebbbd98f5481437a8021afaf58ee7fb1818d347"
+            },
+            {
+              "relative_path": "tokenizer_config.json",
+              "size": 749,
+              "sha256": "1cbc84c8a5b41e0ec24e0da66677773569fb0ccfa753d5d184e343e2ec3815a0"
+            }
+          ]
+        },
+        {
+          "role": "vicuna_lit_base",
+          "path": "by_model/motionllm_official/vicuna_lit",
+          "kind": "lit_gpt_model_dir",
+          "absolute_path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/codex_runs/unified_model_eval/shared_assets/pretrained/by_model/motionllm_official/vicuna_lit",
+          "is_symlink": true,
+          "status": "valid",
+          "resolved_path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/codex_runs/unified_model_eval/shared_assets/pretrained/downloads/MotionLLM-vicuna-7b-v1.5-lit",
+          "selected_file_count": 8,
+          "weight_file_count": 3,
+          "processor_file_count": 5,
+          "selected_file_bytes": 26954357066,
+          "tree_sha256": "8b7a8d70ae2a8a9ef8a0706f7e4c6e67cc4c3f8481bd60aed4d70a353a5656ea",
+          "files": [
+            {
+              "relative_path": "config.json",
+              "size": 615,
+              "sha256": "e122b598d0734b489590e99e3b3562a11ce67ea13bce390a7868b4f73ae6e615"
+            },
+            {
+              "relative_path": "generation_config.json",
+              "size": 162,
+              "sha256": "2b4818acc825ace1ce4a9daed9838645d103990a451adba4bc90696e38d3fc1f"
+            },
+            {
+              "relative_path": "lit_model.pth",
+              "size": 13476905282,
+              "sha256": "192d2e8dddcd5314522745d392a47839da0270bb644a133003bae0e4cd904b8d"
+            },
+            {
+              "relative_path": "pytorch_model-00001-of-00002.bin",
+              "size": 9976634558,
+              "sha256": "4133d2fcc5f31286881ea50806d95b721d016b533036a99dedce3f8fe88520e6"
+            },
+            {
+              "relative_path": "pytorch_model-00002-of-00002.bin",
+              "size": 3500315539,
+              "sha256": "d261d3c35e92d3070d1e61ed821ebfca812a847d2a880757d82728acf005c5ac"
+            },
+            {
+              "relative_path": "special_tokens_map.json",
+              "size": 438,
+              "sha256": "719833ff26ac897a3ec8ed946028a135de2a351470af59b4008744ab1f0ee9b7"
+            },
+            {
+              "relative_path": "tokenizer.model",
+              "size": 499723,
+              "sha256": "9e556afd44213b6bd1be2b850ebbbd98f5481437a8021afaf58ee7fb1818d347"
+            },
+            {
+              "relative_path": "tokenizer_config.json",
+              "size": 749,
+              "sha256": "1cbc84c8a5b41e0ec24e0da66677773569fb0ccfa753d5d184e343e2ec3815a0"
+            }
+          ]
+        },
+        {
+          "role": "video_tower",
+          "path": "by_model/motionllm_official/video_tower",
+          "kind": "hf_model_dir",
+          "absolute_path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/codex_runs/unified_model_eval/shared_assets/pretrained/by_model/motionllm_official/video_tower",
+          "is_symlink": true,
+          "status": "valid",
+          "resolved_path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/MVBench_Eval/cache_dir/models--LanguageBind--LanguageBind_Video_merge/snapshots/efc40ec6ba6b2081276c11e7e19b24f08a099e79",
+          "selected_file_count": 7,
+          "weight_file_count": 1,
+          "processor_file_count": 6,
+          "selected_file_bytes": 2118445043,
+          "tree_sha256": "44739ed35f2538febd17f21c0e34eb45ecdbfbb8f5f4061c513632b1ad925d10",
+          "files": [
+            {
+              "relative_path": "config.json",
+              "size": 4614,
+              "sha256": "380b5e990751cd804979ce4b90f6f63ddc6b57fb903be73adf5039ce90ae9a93"
+            },
+            {
+              "relative_path": "merges.txt",
+              "size": 524657,
+              "sha256": "f526393189112391ce6f9795d4695f704121ce452c3aad1f5335cc41337eba85"
+            },
+            {
+              "relative_path": "pytorch_model.bin",
+              "size": 2114828105,
+              "sha256": "ef677a2ffe018ff22021dd166bc26ffe9196eb414626cbd9a2ac7231308bd52d"
+            },
+            {
+              "relative_path": "special_tokens_map.json",
+              "size": 472,
+              "sha256": "c4864a9376a8401918425bed71fc14fc0e81f9b59ec45c1cf96cccb2df508eac"
+            },
+            {
+              "relative_path": "tokenizer.json",
+              "size": 2224053,
+              "sha256": "d8b124290bc4bcd18cd3f72747f525e2a1d8c266cf3089e52da38ee417564ac5"
+            },
+            {
+              "relative_path": "tokenizer_config.json",
+              "size": 814,
+              "sha256": "c098282a97423d1c621c4e1e8f30be5d82d6071d90345d437323e85b827e32eb"
+            },
+            {
+              "relative_path": "vocab.json",
+              "size": 862328,
+              "sha256": "5047b556ce86ccaf6aa22b3ffccfc52d391ea4accdab9c2f2407da5b742d4363"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+[
+  {
+    "video": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/codex_runs/video_model_sources/video-llama/examples/skateboarding_dog.mp4",
+    "conversations": [
+      {
+        "from": "human",
+        "value": "<video>\nWhat is the dog doing?"
+      },
+      {
+        "from": "gpt",
+        "value": "The dog is riding a skateboard."
+      }
+    ]
+  }
+]

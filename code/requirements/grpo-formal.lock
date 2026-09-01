@@ -1,0 +1,13 @@
+# Critical GRPO API lock. Install PyTorch from the CUDA 12.8 wheel index, then
+# install the remaining exact pins. Capture the complete resulting environment
+# with `python -m pip freeze --all` for provenance.environment_path.
+torch==2.7.0
+accelerate==1.13.0
+ms-swift==4.2.2
+transformers==4.57.3
+peft==0.18.0
+safetensors==0.8.0
+datasets==4.8.4
+trl==0.26.2
+qwen-vl-utils==0.0.14
+PyYAML==6.0.2

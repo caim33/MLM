@@ -1,0 +1,53 @@
+# Python caches and local environments
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+
+# Editors and operating systems
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Secrets and machine-local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+known_hosts
+
+# Runtime outputs
+*.log
+*.tmp
+*.partial
+/wandb/
+/outputs/
+/runs/
+/predictions/
+/checkpoints/
+/artifacts/
+
+# Large assets that belong on the server, not in Git
+/dataset/
+/runtime/
+/handoff/
+*.ckpt
+*.pth
+*.pt
+*.safetensors
+*.npy
+*.npz
+
+# Build artifacts
+build/
+dist/
+*.egg-info/

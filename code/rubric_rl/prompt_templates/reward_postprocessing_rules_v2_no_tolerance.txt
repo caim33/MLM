@@ -1,0 +1,117 @@
+Rubric V2 Deterministic Reward Post-Processing Rules
+
+Purpose:
+Qwen online judge returns criterion ID buckets, observed numeric values, coarse temporal/language scores, and a hallucination/source contradiction penalty.
+Python computes all final scores deterministically.
+Qwen must not compute the final reward.
+
+Criteria normalization:
+1. ensure_criteria_ids(criteria) adds stable IDs when missing:
+   - global_activity: g1, g2, ...
+   - basic_action_facts: s{segment}_a{index}
+   - body_configuration: s{segment}_b{index}
+   - numeric_kinematics: s{segment}_n{index}
+   - laterality: s{segment}_l{index}
+   - camera_relative_orientation: s{segment}_o{index}
+   - reasoning_criteria: s{segment}_r{index}
+   - negative_criteria: neg{index}
+2. Empty criteria strings are removed.
+3. Numeric policy fields are removed from criteria:
+   - strict_tolerance
+   - loose_tolerance
+   - tolerance
+   - margin
+   - score
+   - points
+   - reward
+   - penalty
+4. The standard criteria JSON should contain motion facts, not scoring policy metadata.
+
+Numeric tolerance policy:
+Numeric tolerance is applied internally by reward post-processing, not stored in the standard criteria JSON.
+
+Default tolerance by unit:
+- degrees: strict +/-10, loose +/-20
+- deg: strict +/-10, loose +/-20
+- m: strict +/-0.05, loose +/-0.10
+- meter/meters: strict +/-0.05, loose +/-0.10
+- s/sec/second/seconds: strict +/-0.20, loose +/-0.50
+- unknown unit: strict 0, loose 0
+
+Numeric matching:
+1. Candidate observed_values are parsed deterministically.
+2. For each numeric criterion:
+   - strict match gives 1.0 unit credit.
+   - loose match gives 0.7 unit credit.
+   - semantic-only mention gives 0.25 unit credit.
+   - wrong value gives 0 unit credit.
+   - omission gives 0 unit credit.
+3. The five numeric buckets must be a pairwise-disjoint, exhaustive partition. Conflicting or incomplete judgments are rejected.
+4. Strict/loose evidence must be an exact, assertive candidate substring with the correct body part/quantity, unit, and value. Quoted, negated, hypothetical, uncertain, meta-level, immediately corrected, or otherwise unverifiable evidence receives no strict, loose, or semantic credit.
+5. Numeric score is 10 * numeric_credit_sum / numeric_criteria_count.
+
+Final motion answer score: 70 points
+- global_activity: 5
+  global_activity_score = 5 * satisfied / total
+- basic_action_facts / description: 25
+  basic_action_score = 25 * (0.3 * present / total + 0.7 * aligned / total)
+- temporal_structure: 10
+  Qwen returns one of 0, 3, 6, 10. Python snaps to the nearest allowed value.
+- body_configuration: 10
+  body_configuration_score = 10 * (0.3 * present / total + 0.7 * aligned / total)
+- motion-grounded details: 20
+  - numeric_kinematics: 10
+  - laterality: 5
+    laterality_score = 5 * correct / total
+  - camera_relative_orientation: 5
+    camera_orientation_score = 5 * correct / total
+
+Reasoning process score: 20 points
+Reasoning is judged only from visible reasoning/think content.
+Reasoning exists only inside exactly one non-empty, lowercase `<think>...</think>` block. If it is absent or malformed, every reasoning criterion is treated as missed regardless of judge output.
+
+Reasoning type weights:
+- source_separation: 4
+- conflict_detection: 4
+- trust_hierarchy_application: 6
+- numeric_evidence_use: 4
+- reasoning_answer_consistency: 2
+
+For each reasoning type:
+type_score = type_weight * satisfied_ids_for_type / total_ids_for_type
+
+reasoning_score = 20 * sum(type_score) / sum(active_type_weights)
+
+Language format score: 10 points
+- Qwen returns an integer from 0 to 10.
+- The validator rejects values outside [0, 10].
+
+Hallucination/source contradiction penalty:
+- Allowed values: 0, -5, -10, -15, -20, -25
+- The validator rejects values outside the allowed set.
+- This penalty is added to the raw score.
+- Python derives an adverse minimum penalty from triggered negative criteria, wrong numeric/laterality/orientation buckets, and reasoning contradictions, then takes the more adverse of that value and the judge scalar.
+
+Final total:
+raw_score =
+  global_activity_score
++ basic_action_score
++ temporal_structure_score
++ body_configuration_score
++ numeric_kinematics_score
++ laterality_score
++ camera_orientation_score
++ reasoning_score
++ language_score
++ hallucination_or_source_contradiction_penalty
+
+total_score = clamp(raw_score, 0, 100)
+reward = total_score / 100
+
+Edge cases:
+1. If an optional category has zero criteria, that category receives zero points.
+2. Only IDs that exist in the normalized criteria are counted.
+3. Missing numeric values are omissions, not hallucinations.
+4. Wrong numeric values, wrong laterality, and wrong camera-relative orientation are contradictions and should be reflected in Qwen's penalty field.
+5. Every judgment bucket is validated as a disjoint exhaustive partition; conflicts and omissions fail closed.
+6. Every stored judgment carries an exact sample ID, canonical criteria SHA-256, candidate SHA-256, and nonce binding.

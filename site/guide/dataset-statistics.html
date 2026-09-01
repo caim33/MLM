@@ -1,0 +1,497 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="caimeng MotionX、HumanML3D、SONIC 与 Qwen QA 数据统计、质量检查和 GPU 烟测报告">
+  <title>数据统计与质量报告 — MotionLLM</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="guide.css">
+</head>
+<body class="guide-page dataset-page">
+  <a class="skip-link" href="#guide-main">跳到正文</a>
+  <header class="topbar guide-topbar">
+    <a class="brand" href="../index.html" aria-label="返回 MotionLLM Research Atlas">
+      <span class="brand-mark">M</span>
+      <span><strong>MotionLLM</strong><small>Dataset Observatory</small></span>
+    </a>
+    <nav class="topnav" aria-label="页面导航">
+      <a href="#overview">总览</a>
+      <a href="#modalities">模态</a>
+      <a href="#inventory">规模</a>
+      <a href="#quality">质量</a>
+      <a href="#qwen">Qwen QA</a>
+      <a href="#experiment">GPU 实验</a>
+      <a href="qwen-codebase.html">Codebase 手册</a>
+      <a href="../index.html">研究主页</a>
+    </nav>
+    <button class="theme-toggle" id="themeToggle" type="button" aria-label="切换明暗主题">◐</button>
+  </header>
+
+  <main class="guide-shell" id="guide-main">
+    <aside class="guide-sidebar" aria-label="数据报告目录">
+      <p class="guide-nav-title">数据报告</p>
+      <nav>
+        <a href="#overview">结论与统计口径</a>
+        <a href="#modalities">模态定义与覆盖</a>
+        <a href="#text-types">四类文本监督</a>
+        <a href="#text-statistics">Text 分类统计</a>
+        <a href="#inventory">全量规模</a>
+        <a href="#motion">Motion 数组</a>
+        <a href="#video">视频解码</a>
+        <a href="#quality">Caption 与配对</a>
+        <a href="#qwen">Qwen QA 分层</a>
+        <a href="#experiment">Checkpoint 烟测</a>
+        <a href="#issues">问题与处理建议</a>
+        <a href="#workspace">工作区与产物</a>
+        <a href="qwen-codebase.html">返回 Qwen 使用手册</a>
+      </nav>
+      <div class="guide-sidebar-note dataset-note">
+        <strong>当前判断</strong>
+        <span>数据整体可用，但 motion anchor、少量配对缺口和 qtext 协议必须显式处理。</span>
+      </div>
+    </aside>
+
+    <article class="guide-content">
+      <header class="guide-hero dataset-hero">
+        <p class="eyebrow">FULL INVENTORY × SEEDED AUDIT × GPU SMOKE · 2026-08-30</p>
+        <h1>数据统计<br>与质量报告</h1>
+        <p>覆盖 <code>/wangbenyou-sulongjie/caimeng/dataset</code> 中的 MotionX、HumanML3D、SONIC 与 Qwen QA。全量盘点文件、容量和配对关系；固定种子抽查二进制内容，并用真实 checkpoint 验证端到端链路。</p>
+      </header>
+
+      <section class="guide-section" id="overview">
+        <p class="kicker">EXECUTIVE OVERVIEW</p>
+        <h2>数据可用，但不是“零问题”</h2>
+        <div class="data-kpis" aria-label="数据集关键统计">
+          <article><span>REAL FILES</span><strong>743,786</strong><small>不跟随软链接</small></article>
+          <article><span>LOGICAL SIZE</span><strong>189.656 GB</strong><small>176.631 GiB</small></article>
+          <article><span>DATA LINKS</span><strong>10,524</strong><small>断链 0</small></article>
+          <article><span>GPU SMOKE</span><strong>8 / 8</strong><small>兼容视图完整推理</small></article>
+        </div>
+        <div class="guide-callout dataset-success">
+          <strong>已经确认正常</strong>
+          <p>抽样 motion 没有 NaN/Inf、全零或 263 维错误；三个视频池固定抽样全部成功解码；Qwen strict 数据没有缺失媒体、重复 sample ID 或 train/val/benchmark 泄漏；两个 Qwen 媒体池内部完整配对。</p>
+        </div>
+        <div class="guide-callout warning">
+          <strong>训练前必须处理</strong>
+          <p>历史 VM/M 文本仍使用 <code>&lt;motion_start&gt;&lt;motion&gt;&lt;motion_end&gt;</code>，而重构处理器要求单一 <code>&lt;motion&gt;</code>。原文件保持只读，新训练与推理应生成带 SHA/receipt 的兼容派生视图。</p>
+        </div>
+        <h3>统计口径</h3>
+        <ul class="safety-list compact-list">
+          <li>文件数、字节数、扩展名、链接状态和文件名配对为全量扫描。</li>
+          <li>容量为 regular file logical bytes；兼容链接和 Qwen views 不重复计入。</li>
+          <li>NPY 数值检查每个主数据集固定抽 32 个；视频每个池固定抽 12 个。</li>
+          <li>固定种子为 <code>20260830</code>；扫描时间为 2026-08-30 03:26–03:30。</li>
+        </ul>
+      </section>
+
+      <section class="guide-section" id="modalities">
+        <p class="kicker">MODALITY CONTRACT</p>
+        <h2>先分清 V、M、VM，再细分文本监督</h2>
+        <p>这里的“模态”描述的是单条模型样本实际输入什么，不等同于目录里有哪些文件。Qwen 的每条记录都包含文本，但 branch 名只描述视觉/运动输入组合；文本不能再统一写成一个含糊的 <code>T</code>。</p>
+        <div class="modality-legend" aria-label="模态定义">
+          <article class="modality-v">
+            <span>V · VIDEO</span>
+            <strong>视频模态</strong>
+            <p>输入 MP4 + 文本问题。记录不得携带 motion 路径或 motion anchor；用于测纯视觉能力。</p>
+          </article>
+          <article class="modality-m">
+            <span>M · MOTION</span>
+            <strong>运动模态</strong>
+            <p>输入 263 维 motion NPY + 文本问题。必须绑定 Mean/Std，并使用当前单一 <code>&lt;motion&gt;</code> anchor。</p>
+          </article>
+          <article class="modality-vm">
+            <span>VM · VIDEO + MOTION</span>
+            <strong>视频运动联合模态</strong>
+            <p>同一 logical group 的 MP4 与 NPY 同时输入；两者必须指向同一动作，不能随机拼接。</p>
+          </article>
+          <article class="modality-t">
+            <span>T · TEXT UMBRELLA</span>
+            <strong>文本监督总类</strong>
+            <p><code>T</code> 只是上位概念，不是一个可直接混合的文本类型，也不是 Qwen branch 名；实际必须继续标注为 QA、Caption、Short 或 Long。</p>
+          </article>
+        </div>
+
+        <h3 id="text-types">T 不是一种文本：必须拆成四类</h3>
+        <p>本项目从现在起使用下面的语义合同。历史目录名仍可能叫 <code>captions/</code>，但目录名不决定训练语义；生成 manifest 时应写入明确的 <code>text_type</code>。</p>
+        <div class="modality-legend text-taxonomy" aria-label="文本监督类型定义">
+          <article class="text-qa">
+            <span>T-QA · QUESTION ANSWERING</span>
+            <strong>问答 / 选择题</strong>
+            <p>结构是 question + options + answer，目标是回答问题。当前 Qwen strict、extended_qtext 和 benchmark 都属于这一类。</p>
+          </article>
+          <article class="text-caption">
+            <span>T-CAP · LOCAL CAPTION</span>
+            <strong>逐帧 / 分段 Caption</strong>
+            <p>带 frame、时间戳或 event 边界，描述局部时刻或片段。它不是整段动作的一句话摘要。</p>
+          </article>
+          <article class="text-short">
+            <span>T-SHORT · ONE-SENTENCE</span>
+            <strong>一句话描述</strong>
+            <p>序列级的一句或短语义摘要，不含问题、选项和答案，也不要求逐帧时间对齐。</p>
+          </article>
+          <article class="text-long">
+            <span>T-LONG · DETAILED</span>
+            <strong>详细描述</strong>
+            <p>多句或结构化长文本，可包含整体概览、动作阶段、身体部位、交互对象与时序细节。</p>
+          </article>
+        </div>
+
+        <div class="guide-table-wrap">
+          <table class="guide-table text-contract">
+            <thead><tr><th>文本类型</th><th>粒度 / 结构</th><th>当前数据来源与规模</th><th>适合任务</th><th>不能直接当作</th></tr></thead>
+            <tbody>
+              <tr><td><span class="text-pill text-pill-qa">QA</span></td><td>问题 + A/B/C/D 选项 + 答案</td><td>Qwen strict：train 813、val 86、benchmark 500 groups；另有 extended_qtext</td><td>选择题 SFT、GRPO、benchmark</td><td>Caption 或自由描述生成</td></tr>
+              <tr><td><span class="text-pill text-pill-caption">Caption</span></td><td>逐帧、时间戳或 temporal event 对齐</td><td>MotionX frame 64,219 TXT；SONIC 142,220 temporal rows</td><td>时序定位、稠密 caption、片段监督</td><td>整段动作的一句话标签</td></tr>
+              <tr><td><span class="text-pill text-pill-short">一句话</span></td><td>整段序列的一句摘要或短 paraphrase</td><td>MotionX <code>key_action_summary</code> 64,249；HumanML3D 29,232 TXT（文件内可含多条改写）</td><td>motion-text 对齐、检索、短文本生成</td><td>QA；也不等于逐帧 caption</td></tr>
+              <tr><td><span class="text-pill text-pill-long">详细描述</span></td><td>多句、分阶段、可带身体/物体/时序细节</td><td>MotionX <code>overall_action_overview</code> 64,249 + <code>descriptions</code> 64,249；complex 为流水线文件集合</td><td>长描述生成、动作推理、细粒度解释</td><td>独立 QA 样本或文件数即样本数</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="guide-callout warning">
+          <strong>不要把四类文本直接拼进同一个训练池</strong>
+          <p>至少在 manifest 中保留 <code>text_type=qa|caption|short_description|detailed_description</code>、<code>source</code>、<code>sample_id</code> 和时间粒度。若要混合训练，应先定义各类型的 prompt template、loss 目标与采样权重；其中 QA 是有标准答案的判别任务，其余三类主要是生成或对齐监督。</p>
+        </div>
+
+        <div class="guide-table-wrap">
+          <table class="guide-table modality-matrix">
+            <thead><tr><th>数据来源</th><th>V 视频</th><th>M 运动</th><th>文本类型（细分）</th><th>已验证交集</th></tr></thead>
+            <tbody>
+              <tr><td>MotionX 主数据</td><td>115,990 MP4</td><td>64,246 NPY</td><td><span class="text-pill text-pill-caption">Caption</span> frame；<span class="text-pill text-pill-short">一句话</span> key summary；<span class="text-pill text-pill-long">详细描述</span> overview / descriptions / complex</td><td><strong>V∩M 64,246</strong>；M∩frame 64,216</td></tr>
+              <tr><td>HumanML3D</td><td>—</td><td>29,228 NPY</td><td><span class="text-pill text-pill-short">一句话</span> 29,232 TXT；每文件可含多条改写</td><td><strong>M∩Short 29,228</strong>；4 个文本文件无 M</td></tr>
+              <tr><td>SONIC</td><td>—</td><td>142,216 NPY</td><td><span class="text-pill text-pill-caption">Caption</span> 142,220 temporal event rows</td><td><strong>M∩Caption 142,216</strong>；4 个 key 的 <code>_M</code> 状态异常</td></tr>
+              <tr><td>Qwen <code>motionx_374</code></td><td>374 MP4</td><td>374 NPY</td><td><span class="text-pill text-pill-qa">QA</span> 374 JSON</td><td><strong>V∩M∩QA 374</strong>，三者完整对应</td></tr>
+              <tr><td>Qwen generated assets</td><td>473 MP4</td><td>473 NPY</td><td><span class="text-pill text-pill-qa">QA</span> annotation 在 source tree</td><td><strong>V∩M 473</strong>，媒体完整对应</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Qwen branch 是输入合同，不只是名字</h3>
+        <div class="guide-table-wrap">
+          <table class="guide-table branch-contract">
+            <thead><tr><th>Branch</th><th>必须有</th><th>必须没有</th><th>作用</th><th>关键约束</th></tr></thead>
+            <tbody>
+              <tr><td><span class="modality-pill pill-v">V</span></td><td>video + text</td><td>motion、motion anchor</td><td>纯视频对照</td><td>adapter 发现 motion 应 fail-closed</td></tr>
+              <tr><td><span class="modality-pill pill-m">M</span></td><td>motion + text</td><td>video</td><td>纯运动表示能力</td><td>显式 Mean/Std；单一 <code>&lt;motion&gt;</code></td></tr>
+              <tr><td><span class="modality-pill pill-vm">VM</span></td><td>video + motion + text</td><td>—</td><td>联合输入主实验</td><td>V/M 同 group 配对；显式 Mean/Std</td></tr>
+              <tr><td><span class="modality-pill pill-pair">V+VM direct</span></td><td>同 group 的 V 与 VM 两条记录</td><td>缺失任一 branch</td><td>成对训练或对照</td><td>不是第四种模态；813 groups = 1,626 rows</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="guide-callout warning">
+          <strong>所有含 M 的 branch 都受同一 motion 合同约束</strong>
+          <p><code>M</code> 与 <code>VM</code> 需要 263 维 NPY、明确的 Mean/Std 和当前单一 <code>&lt;motion&gt;</code> anchor；<code>V</code> 不应出现任何 motion 字段。推理数据跨两个 Qwen 媒体池时，media root 使用共同父目录 <code>/wangbenyou-sulongjie/caimeng/dataset/qwen_qa/media</code>。</p>
+        </div>
+      </section>
+
+      <section class="guide-section" id="text-statistics">
+        <p class="kicker">TEXT INVENTORY BY TYPE</p>
+        <h2>按照 Text 类型统计，不再按照文件夹名统计</h2>
+        <p>同一个 <code>captions/</code> 目录可能同时保存短句、长描述和逐帧文本，因此这里按监督语义重新计数。大数字同时标明单位：<strong>group、row、file、sentence 和 event 不能互相替代</strong>。</p>
+
+        <div class="text-stat-grid" aria-label="四类文本统计概览">
+          <article class="text-stat-card stat-qa">
+            <div><span>QA</span><small>选择题监督</small></div>
+            <strong>1,399</strong>
+            <p>strict 唯一 groups</p>
+            <ul><li>train 813</li><li>val 86</li><li>benchmark 500</li><li>共 3,298 branch rows</li></ul>
+          </article>
+          <article class="text-stat-card stat-caption">
+            <div><span>Caption</span><small>局部时序监督</small></div>
+            <strong>64,219 + 142,220</strong>
+            <p>MotionX sequence files + SONIC temporal rows</p>
+            <ul><li>SONIC 352,703 events</li><li>MotionX M∩Caption 64,216</li><li>SONIC exact M∩Caption 142,216</li></ul>
+          </article>
+          <article class="text-stat-card stat-short">
+            <div><span>一句话</span><small>序列级短描述</small></div>
+            <strong>151,633</strong>
+            <p>非空短文本总条数</p>
+            <ul><li>MotionX 64,249 summaries</li><li>HumanML3D 87,384 sentences</li><li>可配 motion：93,474 sequences</li></ul>
+          </article>
+          <article class="text-stat-card stat-long">
+            <div><span>详细描述</span><small>序列级长文本</small></div>
+            <strong>64,249</strong>
+            <p>唯一 MotionX 动作 / 视频</p>
+            <ul><li>128,498 canonical long-text rows</li><li>每动作 2 个规范长文本视图</li><li>64,246 个动作可配 motion</li></ul>
+          </article>
+        </div>
+
+        <h3>分类明细与可配对数量</h3>
+        <div class="guide-table-wrap">
+          <table class="guide-table text-stat-table">
+            <thead><tr><th>Text 类型</th><th>数据来源</th><th>统计单位</th><th>数量</th><th>可配 motion</th><th>备注</th></tr></thead>
+            <tbody>
+              <tr><td><span class="text-pill text-pill-qa">QA</span></td><td>Qwen strict train</td><td>group / branch row</td><td>813 / 1,626</td><td>VM 813</td><td>每个 group 各有 V、VM 两条</td></tr>
+              <tr><td><span class="text-pill text-pill-qa">QA</span></td><td>Qwen strict val</td><td>group / branch row</td><td>86 / 172</td><td>VM 86</td><td>每个 group 各有 V、VM 两条</td></tr>
+              <tr><td><span class="text-pill text-pill-qa">QA</span></td><td>Qwen benchmark</td><td>group / branch row</td><td>500 / 1,500</td><td>M 500；VM 500</td><td>每个 group 有 V、M、VM 三条</td></tr>
+              <tr><td><span class="text-pill text-pill-qa">QA</span></td><td>Qwen extended_qtext</td><td>train / val group</td><td>1,768 / 86</td><td>按对应 branch</td><td>替代实验视图，不计入 strict 1,399 总数</td></tr>
+              <tr><td><span class="text-pill text-pill-caption">Caption</span></td><td>MotionX frame</td><td>sequence TXT</td><td>64,219</td><td>64,216</td><td>3 个文本无 M；30 个 M 无 frame caption</td></tr>
+              <tr><td><span class="text-pill text-pill-caption">Caption</span></td><td>SONIC temporal</td><td>row / event</td><td>142,220 / 352,703</td><td>142,216 exact</td><td>4 个 key 的 <code>_M</code> 状态待确认</td></tr>
+              <tr><td><span class="text-pill text-pill-short">一句话</span></td><td>MotionX key_action_summary</td><td>text row / unique video</td><td>64,249 / 64,249</td><td>64,246</td><td>3 条文本对应视频存在，但没有 motion</td></tr>
+              <tr><td><span class="text-pill text-pill-short">一句话</span></td><td>HumanML3D</td><td>TXT file / non-empty sentence</td><td>29,232 / 87,384</td><td>29,228 files</td><td>4 个文本文件没有 motion</td></tr>
+              <tr><td><span class="text-pill text-pill-long">详细描述</span></td><td>MotionX overall_action_overview</td><td>text row / unique video</td><td>64,249 / 64,249</td><td>64,246</td><td>序列级整体动作概览</td></tr>
+              <tr><td><span class="text-pill text-pill-long">详细描述</span></td><td>MotionX descriptions</td><td>text row / unique video</td><td>64,249 / 64,249</td><td>64,246</td><td>含分阶段、身体与交互细节</td></tr>
+              <tr><td><span class="text-pill text-pill-long">详细描述</span></td><td>MotionX complex pipeline</td><td>流水线文件</td><td>296,465</td><td>不按文件计</td><td>含 raw / intermediate / final；不是独立样本数</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="guide-callout dataset-success">
+          <strong>可直接用于数据清单的分类字段</strong>
+          <p><code>text_type</code> 使用 <code>qa</code>、<code>caption</code>、<code>short_description</code>、<code>detailed_description</code>；另存 <code>text_unit</code>（group/row/file/sentence/event）、<code>source</code>、<code>sample_id</code> 与可选的 <code>start_time/end_time</code>。这样统计时能按语义汇总，同时保留原始计量单位。</p>
+        </div>
+        <div class="guide-callout warning">
+          <strong>四张卡片不能再求一个“Text 总数”</strong>
+          <p>QA 的 branch rows 是同一 group 的多模态视图；HumanML3D 一个文件含多句改写；SONIC 一条 row 含多个 event；MotionX 两种长描述指向同一批 64,249 个动作。跨类型相加会重复计算或混合单位。</p>
+        </div>
+      </section>
+
+      <section class="guide-section" id="inventory">
+        <p class="kicker">FULL INVENTORY</p>
+        <h2>189.656 GB 分布在哪里</h2>
+        <div class="storage-bars" aria-label="各数据集容量占比">
+          <article style="--share:79.35%"><div><strong>MotionX</strong><span>150.497 GB · 540,925 files</span></div><div class="bar"><i></i></div><b>79.35%</b></article>
+          <article style="--share:17.34%"><div><strong>SONIC</strong><span>32.891 GB · 142,219 files</span></div><div class="bar"><i></i></div><b>17.34%</b></article>
+          <article style="--share:2.29%"><div><strong>HumanML3D</strong><span>4.339 GB · 58,460 files</span></div><div class="bar"><i></i></div><b>2.29%</b></article>
+          <article style="--share:1.02%"><div><strong>Qwen QA</strong><span>1.929 GB · 2,182 files</span></div><div class="bar"><i></i></div><b>1.02%</b></article>
+        </div>
+
+        <div class="guide-table-wrap">
+          <table class="guide-table data-table">
+            <thead><tr><th>规范相对路径</th><th>文件数</th><th>大小</th><th>格式 / 用途</th></tr></thead>
+            <tbody>
+              <tr><td><code>motionx/motion</code></td><td>64,246</td><td>20.133 GB</td><td>NPY</td></tr>
+              <tr><td><code>motionx/videos</code></td><td>115,990</td><td>109.238 GB</td><td>MP4</td></tr>
+              <tr><td><code>motionx/captions/complex</code></td><td>296,465</td><td>7.958 GB</td><td>296,464 JSON + 1 TXT</td></tr>
+              <tr><td><code>motionx/captions/original</code></td><td>5</td><td>0.530 GB</td><td>4 JSON + 1 JSONL</td></tr>
+              <tr><td><code>motionx/captions/frame</code></td><td>64,219</td><td>12.637 GB</td><td>TXT</td></tr>
+              <tr><td><code>humanml3d/motion</code></td><td>29,228</td><td>4.333 GB</td><td>NPY</td></tr>
+              <tr><td><code>humanml3d/captions</code></td><td>29,232</td><td>0.006 GB</td><td>TXT</td></tr>
+              <tr><td><code>sonic/motion</code></td><td>142,216</td><td>32.681 GB</td><td>NPY</td></tr>
+              <tr><td><code>sonic/captions</code></td><td>3</td><td>0.209 GB</td><td>JSONL / CSV / Parquet</td></tr>
+              <tr><td><code>qwen_qa/media/motionx_374</code></td><td>1,122</td><td>0.456 GB</td><td>motion / video / QA 各 374</td></tr>
+              <tr><td><code>qwen_qa/media/generated_success_assets</code></td><td>952</td><td>1.169 GB</td><td>motion / video 各 473 + 清单</td></tr>
+              <tr><td><code>qwen_qa/source_tree</code></td><td>108</td><td>0.304 GB</td><td>99 个数据文件 + 9 个 README</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="guide-callout">
+          <strong>一个可清理但未删除的副本</strong>
+          <p><code>motionx/captions/original/.ipynb_checkpoints/overall_action_overview-checkpoint.json</code> 与正式文件 SHA-256 相同，占 24,458,325 bytes。本次只登记，未做破坏性删除。</p>
+        </div>
+      </section>
+
+      <section class="guide-section" id="motion">
+        <p class="kicker">MOTION ARRAY PROFILE</p>
+        <h2>同为 263 维，长度策略不同</h2>
+        <div class="profile-grid">
+          <article>
+            <div class="profile-head"><span>MotionX</span><strong>64,246</strong></div>
+            <p><code>float32 · (299, 263)</code></p>
+            <dl><div><dt>抽样</dt><dd>32 / 32 正常</dd></div><div><dt>长度</dt><dd>全部 299</dd></div><div><dt>容量</dt><dd>20.133 GB</dd></div></dl>
+          </article>
+          <article>
+            <div class="profile-head"><span>HumanML3D</span><strong>29,228</strong></div>
+            <p><code>float32 · (T, 263)</code></p>
+            <dl><div><dt>抽样</dt><dd>32 / 32 正常</dd></div><div><dt>长度</dt><dd>64–199 · median 163.5</dd></div><div><dt>基础 ID</dt><dd>14,614 × original/M</dd></div></dl>
+          </article>
+          <article>
+            <div class="profile-head"><span>SONIC</span><strong>142,216</strong></div>
+            <p><code>float32 · (T, 263)</code></p>
+            <dl><div><dt>抽样</dt><dd>32 / 32 正常</dd></div><div><dt>长度</dt><dd>67–864 · median 171</dd></div><div><dt>容量</dt><dd>32.681 GB</dd></div></dl>
+          </article>
+        </div>
+        <div class="guide-callout warning">
+          <strong>混合训练不能直接 stack</strong>
+          <p>MotionX 已统一为 299 帧，HumanML3D 与 SONIC 是变长序列。collator 必须显式定义 pad/truncate、attention/loss mask 和超长样本处理。</p>
+        </div>
+      </section>
+
+      <section class="guide-section" id="video">
+        <p class="kicker">VIDEO DECODE CHECK</p>
+        <h2>抽样全部可解码，但分辨率不统一</h2>
+        <div class="guide-table-wrap">
+          <table class="guide-table">
+            <thead><tr><th>媒体池</th><th>全量 MP4</th><th>固定抽样</th><th>时长</th><th>分辨率</th></tr></thead>
+            <tbody>
+              <tr><td>MotionX 主视频</td><td>115,990</td><td><span class="state good">12 / 12</span></td><td>6.733–10 s</td><td>320×240 → 856×480</td></tr>
+              <tr><td>Qwen motionx_374</td><td>374</td><td><span class="state good">12 / 12</span></td><td>4.4–10 s</td><td>576×432 → 856×480</td></tr>
+              <tr><td>Qwen generated</td><td>473</td><td><span class="state good">12 / 12</span></td><td>全部 10 s</td><td>720×480 → 1280×720</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>抽样 codec 均为 H.264。全部 64,246 个 MotionX motion 都能匹配主视频；另有 51,744 个视频没有 motion，因此当前 motion 覆盖视频池的 55.39%。视频处理器必须统一 resize/pad，不能假定固定宽高。</p>
+      </section>
+
+      <section class="guide-section" id="quality">
+        <p class="kicker">CAPTION &amp; ALIGNMENT</p>
+        <h2>缺口很小，但必须按交集取样</h2>
+        <div class="issue-cards">
+          <article class="issue-card issue-medium">
+            <div><span>HumanML3D</span><b>2 个基础 ID</b></div>
+            <h3>有 caption、无 motion</h3>
+            <p><code>009707</code>、<code>011059</code> 及其 <code>M</code> 镜像 caption 存在，对应 4 个 NPY 不存在。建议训练清单暂时排除。</p>
+          </article>
+          <article class="issue-card issue-low">
+            <div><span>MotionX frame</span><b>3 / 30</b></div>
+            <h3>双向都有少量不对齐</h3>
+            <p>3 个 caption 无 motion；30 个 motion 无 frame caption。任务需要两者时，按 stem 交集生成 manifest，不能按目录长度 zip。</p>
+          </article>
+          <article class="issue-card issue-medium">
+            <div><span>SONIC</span><b>4 rows</b></div>
+            <h3><code>_M</code> 方向疑似写反</h3>
+            <p>4 个 caption key 没有精确 NPY，但相反 <code>_M</code> 状态的 twin 都存在。先确认左右动作语义，再修 key；不要静默别名。</p>
+          </article>
+        </div>
+        <div class="guide-table-wrap">
+          <table class="guide-table">
+            <thead><tr><th>数据</th><th>全量解析 / 配对结论</th></tr></thead>
+            <tbody>
+              <tr><td>HumanML3D caption</td><td>29,232 TXT；抽样 UTF-8、非空、每文件 3 条文本</td></tr>
+              <tr><td>MotionX frame caption</td><td>64,219 TXT；stem 无重复</td></tr>
+              <tr><td>SONIC JSONL</td><td>142,220 行；全量 JSON 与 event schema 通过</td></tr>
+              <tr><td>SONIC CSV</td><td>142,220 数据行 + 1 header</td></tr>
+              <tr><td>SONIC Parquet</td><td>142,220 行 · 1 row group</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="guide-section" id="qwen">
+        <p class="kicker">QWEN QA CATALOG</p>
+        <h2>默认用 strict，qtext 单独汇报</h2>
+        <div class="pairing-strip">
+          <article><strong>374 × 3</strong><span>motionx_374 的 motion / video / QA 完整对应</span></article>
+          <article><strong>473 × 2</strong><span>generated motion / video 完整对应</span></article>
+          <article><strong>10,510</strong><span>source tree 媒体链接 · broken 0</span></article>
+        </div>
+        <div class="guide-table-wrap">
+          <table class="guide-table">
+            <thead><tr><th>用途</th><th>Branch</th><th>Rows</th><th>Groups</th><th>A / B / C / D</th></tr></thead>
+            <tbody>
+              <tr><td>SFT train</td><td>VM</td><td>813</td><td>813</td><td>203 / 203 / 204 / 203</td></tr>
+              <tr><td>SFT train</td><td>V</td><td>813</td><td>813</td><td>203 / 203 / 204 / 203</td></tr>
+              <tr><td>SFT train</td><td>V+VM</td><td>1,626</td><td>813</td><td>406 / 406 / 408 / 406</td></tr>
+              <tr><td>SFT val</td><td>VM</td><td>86</td><td>86</td><td>21 / 21 / 22 / 22</td></tr>
+              <tr><td>SFT val</td><td>V</td><td>86</td><td>86</td><td>21 / 21 / 22 / 22</td></tr>
+              <tr><td>Benchmark</td><td>VM / V / M</td><td>各 500</td><td>各 500</td><td>各 125 / 125 / 125 / 125</td></tr>
+              <tr><td>extended_qtext train</td><td>VM</td><td>1,768</td><td>1,768</td><td>442 / 442 / 442 / 442</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="qa-check-grid" aria-label="Qwen QA 检查结果">
+          <article><strong>0</strong><span>非法答案</span></article>
+          <article><strong>0</strong><span>缺失媒体</span></article>
+          <article><strong>0</strong><span>重复 sample ID</span></article>
+          <article><strong>0</strong><span>strict train/val/bench 重叠</span></article>
+        </div>
+        <div class="guide-callout warning">
+          <strong>qtext 的 491 个共享视频不是 schema 错误</strong>
+          <p>extended_qtext train 与 benchmark 共享 491 个 base/video，但规范化 question + unordered options 签名重叠为 0。它是“同视频可问不同问题”的宽松协议，不能与 strict 视频级泛化结果混写。</p>
+        </div>
+      </section>
+
+      <section class="guide-section" id="experiment">
+        <p class="kicker">REAL CHECKPOINT SMOKE</p>
+        <h2>8 条真实链路已完整运行</h2>
+        <div class="experiment-flow" aria-label="GPU 烟测流程">
+          <article><span>01</span><strong>冻结样本</strong><small>strict val VM · A/B/C/D 各 2</small></article>
+          <i>→</i>
+          <article><span>02</span><strong>兼容视图</strong><small>每行只替换 1 个旧 anchor</small></article>
+          <i>→</i>
+          <article><span>03</span><strong>GPU 1</strong><small>真实视频 + motion + checkpoint</small></article>
+          <i>→</i>
+          <article><span>04</span><strong>8 / 8 输出</strong><small>全部有合法 answer tag</small></article>
+        </div>
+        <div class="result-panel">
+          <div><span>链路成功</span><strong>8 / 8</strong><small>加载约 10 s · 生成约 15 s</small></div>
+          <div><span>小样本准确率</span><strong>4 / 8</strong><small>只作烟测，不是正式指标</small></div>
+          <div><span>预测分布</span><strong>A4 · B2 · C2 · D0</strong><small>完整 benchmark 应继续检查类别偏置</small></div>
+        </div>
+        <div class="guide-callout danger">
+          <strong>原始旧 anchor 会在第一条失败</strong>
+          <p>重构处理器主动拒绝重复 motion boundary expansion。兼容文件是有 SHA-256 receipt 的派生视图，历史 QA 文件未覆盖。Qwen media root 还必须设为两个媒体池的共同父目录 <code>/wangbenyou-sulongjie/caimeng/dataset/qwen_qa/media</code>。</p>
+        </div>
+        <pre><code># 冻结 8 条原始样本 SHA-256
+ed685a71410d1e7243e26919312c10022e714ba2de629beef0c9737b3c3a7626
+
+# checkpoint overlay
+/wangbenyou-sulongjie/caimeng/runtime/checkpoint-overlays/
+qa374_sft_step3best_checkpoint-48_merged_full</code></pre>
+      </section>
+
+      <section class="guide-section" id="issues">
+        <p class="kicker">ACTION REGISTER</p>
+        <h2>问题优先级与下一步</h2>
+        <div class="guide-table-wrap">
+          <table class="guide-table action-table">
+            <thead><tr><th>优先级</th><th>事项</th><th>影响</th><th>建议</th></tr></thead>
+            <tbody>
+              <tr><td><span class="state bad">P0</span></td><td>历史 motion anchor 不兼容</td><td>VM/M 无法进入新处理器</td><td>生成只读兼容视图并记录 SHA/receipt</td></tr>
+              <tr><td><span class="state warn">P1</span></td><td>qtext 共享 491 个 benchmark 视频</td><td>不能代表视频级泛化</td><td>默认 strict；qtext 单独命名和汇报</td></tr>
+              <tr><td><span class="state warn">P1</span></td><td>HumanML3D 2 个基础 motion 缺失</td><td>4 个 caption 无 NPY</td><td>先排除，或从原源补齐</td></tr>
+              <tr><td><span class="state warn">P1</span></td><td>SONIC 4 个 <code>_M</code> 键异常</td><td>精确配对失败</td><td>人工核对左右语义后修 key</td></tr>
+              <tr><td><span class="state">P2</span></td><td>MotionX frame 3 / 30 不对齐</td><td>联合任务存在空侧</td><td>按 stem 交集生成 manifest</td></tr>
+              <tr><td><span class="state">P2</span></td><td>视频分辨率不统一</td><td>批处理 shape 不稳定</td><td>固定 resize/pad 与 decoder</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="guide-section" id="workspace">
+        <p class="kicker">WORKSPACE MAP</p>
+        <h2>以后只在两个稳定区域工作</h2>
+        <div class="workspace-map">
+          <article>
+            <span>LOCAL · CODEX WORK</span>
+            <h3><code>E:\codex_work\MotionLLM\caimeng</code></h3>
+            <ul>
+              <li><code>paper_research_site/</code>：本网页与研究主页</li>
+              <li><code>reports/</code>：Markdown 统计报告</li>
+              <li><code>tools/data_audit/</code>：可重复运行的数据检查脚本</li>
+            </ul>
+          </article>
+          <article>
+            <span>SERVER · CAIMENG</span>
+            <h3><code>/wangbenyou-sulongjie/caimeng/codex_work</code></h3>
+            <ul>
+              <li><code>web/paper_research_site/</code>：服务器网页副本</li>
+              <li><code>reports/</code>：完整统计报告</li>
+              <li><code>tools/data_audit/</code>：数据检查工具</li>
+              <li><code>artifacts/</code>：小型交接归档</li>
+              <li><code>dataset_links/canonical_dataset</code>：指向规范数据根</li>
+            </ul>
+          </article>
+        </div>
+        <pre><code># 服务器完整报告
+/wangbenyou-sulongjie/caimeng/codex_work/reports/DATASET_STATISTICS_20260830.md
+
+# 可复现实验目录
+/wangbenyou-sulongjie/caimeng/dataset/experiments/20260830_sanity_seed20260830
+
+# 小型交接归档
+/wangbenyou-sulongjie/caimeng/codex_work/artifacts/dataset_audit_20260830.tar.gz</code></pre>
+        <p>旧的 <code>.codex_tmp/caimeng_docs_20260829</code> 临时副本目前保留作恢复来源，没有删除；当前网页服务切换后只以稳定的 <code>caimeng/paper_research_site</code> 为主。</p>
+      </section>
+    </article>
+
+    <nav class="guide-toc" aria-label="页内快速导航">
+      <strong>本页</strong>
+      <a href="#overview">结论</a>
+      <a href="#modalities">模态</a>
+      <a href="#inventory">容量</a>
+      <a href="#motion">Motion</a>
+      <a href="#quality">配对</a>
+      <a href="#qwen">Qwen</a>
+      <a href="#experiment">GPU</a>
+      <a href="#workspace">工作区</a>
+    </nav>
+  </main>
+
+  <footer class="footer">
+    <span>MotionLLM · Dataset Observatory</span>
+    <span>全量元数据扫描与固定种子内容检查分开标注。</span>
+  </footer>
+  <script src="guide.js"></script>
+</body>
+</html>

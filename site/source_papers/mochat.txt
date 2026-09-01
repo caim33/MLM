@@ -1,0 +1,886 @@
+                                                MoChat: Joints-Grouped Spatio-Temporal Grounding LLM for Multi-Turn
+                                                                Motion Comprehension and Description
+                                                                 Jiawei Mo1 , Yixuan Chen1 , Rifen Lin1 , Yongkang Ni3 , Min Zeng1 ,
+                                                                                      Xiping Hu2 * , Min Li1†
+                                                                      1
+                                                                          School of Computer Science and Engineering, Central South University
+                                                                                           2
+                                                                                             Shenzhen MSU-BIT University
+                                                                                       3
+                                                                                         School of software, Xinjiang University
+                                                                           mojiawei@csu.edu.cn, limin@mail.csu.edu.cn, huxp@smbu.edu.cn
+arXiv:2410.11404v1 [cs.CV] 15 Oct 2024
+
+
+
+
+                                                                     Abstract                                        Skeleton Input:
+
+                                           Despite continuous advancements in deep learning for under-
+                                           standing human motion, existing models often struggle to ac-                              ...                    ...                      ...
+                                           curately identify action timing and specific body parts, typ-
+                                           ically supporting only single-round interaction. Such limita-
+                                           tions in capturing fine-grained motion details reduce their ef-
+                                           fectiveness in motion understanding tasks. In this paper, we              Dialogue:
+                                           propose MoChat, a multimodal large language model capa-                     Turn I: Motion Understanding
+                                           ble of spatio-temporal grounding of human motion and un-                                        Provide a brief description of the given action
+                                           derstanding multi-turn dialogue context. To achieve these ca-                                   represented by the skeleton sequence.
+                                                                                                                                                                                             User
+                                           pabilities, we group the spatial information of each skeleton                         A person raises their arm to the level of their head.
+                                           frame based on human anatomical structure and then apply                   MoChat
+                                           them with Joints-Grouped Skeleton Encoder, whose outputs
+                                                                                                                      Turn II: Spatial Limb Grounding
+                                           are combined with LLM embeddings to create spatio-aware
+                                           and temporal-aware embeddings separately. Additionally, we                                      Which arm does the person raise? left or right?
+
+                                           develop a pipeline for extracting timestamps from skeleton                            Left.                                                       User
+                                           sequences based on textual annotations, and construct multi-               MoChat
+                                           turn dialogues for spatially grounding. Finally, various task              Turn III: Temporal Action Grounding
+                                           instructions are generated for jointly training. Experimental                         Please tell me when the motion of a person raising their
+                                           results demonstrate that MoChat achieves state-of-the-art per-                        left arm was executed in this skeleton sequence.
+
+                                           formance across multiple metrics in motion understanding                                                                                          User
+                                                                                                                               From frame 0 to frame 19, the person raised their arm.
+                                           tasks, making it as the first model capable of fine-grained                MoChat
+                                           spatio-temporal grounding of human motion.
+
+                                                                                                              Figure 1: Illustration of the multi-turn spatio-temporal
+                                                                 Introduction                                 grounding capabilities of MoChat. MoChat is a large lan-
+                                                                                                              guage model designed for motion comprehension, with ca-
+                                         The analysis and understanding of human motion have                  pabilities that extend beyond regular motion description.
+                                         extensive applications across multiple fields, including             Specifically, MoChat can follow user instructions to summa-
+                                         human-computer interaction, virtual reality, security surveil-       rize motion sequences (Turn I), pinpoint specific body parts
+                                         lance, medical rehabilitation, and sports broadcasting. Re-          involved in the motion (Turn II), and ground the start and
+                                         cent breakthrough of multimodal large language models                end frames corresponding to user queries (Turn III).
+                                         (MLLMs), such as Flamingo (Alayrac et al. 2024), GPT-4V
+                                         (OpenAI 2024) and CogVLM (Hong et al. 2024), has en-
+                                         abled AI to achieve open-vocabulary human motion under-
+                                         standing. Existing works on MLLM-based human motion                  to interpret human motion from motion capture data, show-
+                                         understanding can be broadly classified into two categories:         casing advanced performance in analyzing motion, exem-
+                                         the first category encompasses models focused on RGB im-             plified by TM2T (Guo et al. 2022b) and MotionGPT (Jiang
+                                         age and video understanding, such as VideoChat (Li et al.            et al. 2024). However, these models still struggle to accu-
+                                         2024) and BLIP-2 (Li et al. 2023), which are not specifically        rately ground specific time periods and body parts involved
+                                         tailored for human motion understanding tasks; the second            in motion, which limits their performance in motion under-
+                                         category comprises specialized models designed explicitly            standing tasks.
+                                            * Co-corresponding author.                                           The challenge of building such motion understanding
+                                            †
+                                              Co-corresponding author.                                        models lies in accurately modeling the relationships be-
+                                         Copyright © 2025, Association for the Advancement of Artificial      tween motion sequences and captions, and incorporating
+                                         Intelligence (www.aaai.org). All rights reserved.                    the temporal dimensions essential for understanding motion.
+For the first challenge, recent research (Zhu et al. 2024)          create a multi-task instruction set for joint training.
+has demonstrated the efficacy of pre-trained large language       • Comprehensive experiments validate the advanced mo-
+models (LLMs) in modeling relationships between diverse             tion understanding capabilities of MoChat, demonstrat-
+non-textual modalities and textual data. Specifically, motion       ing its spatial and temporal grounding abilities. Our
+sequences can be regarded as a unique form of language.             model introduces functionalities not found in existing
+By utilizing an projector, these sequences can be fine-tuned        motion understanding models, making it more versatile
+to facilitate the conversion of motion information into de-         and user-friendly.
+scriptive text. Additionally, in the action recognition field,
+studies (Yan et al. 2023; Huang et al. 2020) have shown that                           Related Work
+grouping keypoints can enhance the representation of action
+features. For the second challenge, existing video caption-      Motion Understanding Models Motion understanding
+ing models (Ren et al. 2024; Qian et al. 2024) are capable       tasks can generally be categorized into fixed-class action
+of extracting the time intervals in videos that correspond to    recognition, which involves a predefined set of classes, and
+specific captions. Therefore, it is promising to train a model   open-vocabulary motion understanding, which does not re-
+capable of locating the spatial and temporal positions of spe-   strict the number of classes. In the branch of fixed-class
+cific action sequences.                                          action recognition, numerous skeleton-based methods have
+   In this work, we propose MoChat, a multimodal large           been proposed. (Shi et al. 2019; Duan et al. 2022; Chen
+language model that is capable of spatio-temporal ground-        et al. 2021) For instance, ST-GCN (Wang, Zhang, and As-
+ing in human motion understanding, facilitated by multi-         ghar 2022) applies 3D graph convolution to human skeleton
+turn dialogue context. To enable the model’s understand-         sequences across both temporal and spatial dimensions to
+ing of motion sequences, we first pre-train a Transformer-       extract action features. With the rise of self-supervised learn-
+based (Vaswani et al. 2017) skeleton encoder. The key-           ing and Transformers (Vaswani et al. 2017), there has been
+points are partitioned into four groups based on the hu-         a shift towards exploring Transformer-based self-supervised
+man anatomical structure for motion encoding, enhancing          action recognition. (Guo et al. 2022c; Chen et al. 2022) One
+the encoder’s geometric perception. The resulting motion         such method is GL-Transformer (Kim et al. 2022), which
+features are then converted through a lightweight projector      constructs pretext tasks for amplitude and displacement re-
+into LLM-compatible tokens, which are subsequently com-          covery using the relative and absolute positions of joints, en-
+bined with text instruction tokens as input into the LLM.        abling effective representation of skeleton sequences with-
+This allows the model to comprehend the semantics of the         out reliance on action labels.
+motion sequence and generate descriptive text for the mo-           With the advancement of LLMs, open-vocabulary motion
+tion sequence. Meanwhile, by calculating the similarity be-      understanding tasks have become feasible. The models typ-
+tween the LLM’s hidden states and the motion tokens, the         ically involve a motion encoder combined with a language
+temporal boundaries corresponding to the text are regressed.     model to comprehend motion sequences. A notable exam-
+Additionally, to construct dialogue data for training, we de-    ple is TM2T (Guo et al. 2022b), which employs VQVAE
+velop a pipeline for extracting timestamps from the motion       (Van Den Oord, Vinyals et al. 2017) to obtain discrete mo-
+caption datasets, and create multi-turn spatial dialogues by     tion tokens from a codebook. These motion tokens and their
+keyword matching. Using the resulting multi-task instruc-        corresponding text tokens are then fed into simple neural
+tion set, we conduct a two-stage joint training of MoChat,       machine translators (NMT) for both motion-to-text and text-
+which enhances its detailed action understanding capabili-       to-motion conversion, enabling bidirectional matching. Mo-
+ties in both temporal and spatial dimensions. We validate our    tionGPT (Jiang et al. 2024) and AvatarGPT (Zhou, Wan, and
+model through extensive experiments on the HumanML3D             Wang 2024) replace NMT with LLMs equipped with projec-
+dataset (Guo et al. 2022a), covering the tasks of Motion         tor, fine-tuned with instructions to enable understanding and
+Understanding, Spatial Limb Grounding, and Temporal Ac-          generation of motion sequences under various conditions.
+tion Grounding, evaluated using tranditional metrics and         However, these methods have not fully exploited the com-
+GPT-4. The results demonstrate that MoChat achieves state-       prehension capabilities of LLMs, primarily due to insuffi-
+of-the-art performance, highlighting its fine-grained spatio-    cient training instructions and the limited representational
+temporal motion understanding capabilities. Our contribu-        power of the encoders.
+tions can be summarized as follows:                              Vision-Language Models The development of large lan-
+                                                                 guage models (LLMs) has significantly advanced the field
+ • We propose MoChat, a motion understanding multi-              of vision-language models, with notable progress in both
+   modal large language model that comprehends motion            image-language models (OpenAI 2024; Liu et al. 2024) and
+   sequences, accurately captions the movement of specific       video-language models (Jin et al. 2024; Ren et al. 2024).
+   body parts, and precisely identifies the time boundaries      In the domain of image-language models, LLaVA-1.5 (Liu
+   corresponding to user instructions. To the best of our        et al. 2024) employs VIT (Radford et al. 2021) as the image
+   knowledge, MoChat is the first MLLM capable of spatio-        encoder and Vicuna (Chiang et al. 2023) as the language de-
+   temporal grounding of actions in skeleton sequences.          coder. A lightweight projector is used to map image embed-
+ • We develop a semi-automated pipeline to extract times-        dings into the language latent space, enabling LLMs to un-
+   tamps from the motion caption datasets, and construct         derstand visual content. In contrast, CogVLM (Wang et al.
+   multi-turn spatial dialogues, both of which are used to       2024) introduces a visual expert module that is equivalent in
+                                      Output
+                   From frame 0 to frame 14, a person squats down.
+
+
+                                                                                                 Keys & Values
+                                   Hm                              ...                                            Regression Head                                          Legend
+                                                                                                                                    MLP                     Text Embeddings         Learnable Parameters
+
+                                            Large Lauguage Model
+                                                                                                                              Cross Attention               Skeleton Embeddings      Hidden States
+
+                                               ...                                                                                                          Global Joint              Add Operator
+      Ht                                                                                   Hs         ...
+                                                                                                                 Querys
+                                                                                                                                                                           Joints Grouped Embeddings
+                        Tokenizer & Embedding Layer
+                                                                                                Projector   W
+                                                                                                                   N×               FFN                     PE       Positional Embedding
+
+           System Instruction                              User Instructiom
+   A chat between a curious human and an            <skeleton> Please tell me the start                            Spatial Attention   Temporal Attention
+   artificial intelligence assistant. The assistant frame and end frame of the motion of     Joints-Grouped
+   gives helpful, detailed, and polite answers to 'squat down'.
+                                                                                            Skeleton Encoder
+   the human's questions.
+
+                                                                                                                   Es'
+
+         Skeleton Sequence                                                                                                                        PE
+                                                     Xs
+                                                                                                                   Eg
+                                                     ...                             ...
+
+                                                                                                                          Joints-Grouped Module
+
+
+
+
+Figure 2: Overview of MoChat. Given a skeleton motion sequence as input, (a) Joints-Grouped Skeleton Encoder first extracts
+motion features by grouping and embedding the joints separately. Then, (b) Projector converts these features into motion tokens
+Hs in the language latent space. These motion tokens Hs are concatenated with instruction tokens Ht and input to a (c) Large
+Language Model (LLM). The LLM’s final hidden states Hm are decoded into appropriate responses and passed to a (d)
+Regression Head to obtain the corresponding timestamps.
+
+
+size to the LLM. Yet this approach doubles the inference pa-                                                                  MoChat: A Chat MLLM for Motion
+rameters of the LLM, which presents challenges during de-                                                          In this section, we introduce MoChat, a multimodal large
+ployment. BLIP-2 (Li et al. 2023) pre-trains a BERT-based                                                          language model capable of spatio-temporal grounding in
+(Devlin et al. 2019) Q-Former to align visual and textual                                                          human motion understanding, facilitated by multi-turn di-
+information, using a fixed-length learnable query vector to                                                        alogue context. The inclusion of two novel modules, the
+extract semantic information from images. However, this                                                            Joints-Grouped Skeleton Encoder and the Regression Head,
+approach overly compresses the information, limiting the                                                           enhances MoChat’s ability to finely understand motions and
+model’s ability to capture intricate image details. For video                                                      accurately ground the start and end frames of instruction-
+understanding, ChatUnivi follows the LLaVA’s projector ap-                                                         corresponding motions. To further empower MoChat to fol-
+proach, also compressing information by aggregating dy-                                                            low human instructions and understand context in com-
+namic visual tokens across different frames. On the other                                                          plex multi-turn, multi-task dialogues, we construct such dia-
+hand, TimeChat adopts the InstructBLIP (Dai et al. 2023)                                                           logues for spatial fine-grained motion understanding and de-
+strategy to encode temporal information through textual in-                                                        velop a pipeline for timestamp extraction. Based on these di-
+structions. Besides, it employs a sliding window to seg-                                                           alogues, we perform a two-stage integrated instruction tun-
+ment video frames, encoding them with multiple Q-Formers.                                                          ing on a pre-trained LLM to create MoChat.
+These approaches enhance TimeChat’s temporal awareness
+but it struggles with continuous temporal concept compre-                                                          Overall Framework
+hension. Additionally, previous work (Zhang et al. 2024) has
+revealed significant challenges in vision models’ handling of                                                      As illustrated in Fig. 2, MoChat is composed of a spatio-
+“geometry-aware” semantic correspondences. For example,                                                            aware Joints-Grouped Skeleton Encoder (JGSE), a LLM
+these models often misinterpret spatial relationships, such as                                                     equipped with projector, and a regression head. Given an in-
+                                                                                                                                                                      T
+confusing the left and right sides of the image with the left                                                      put skeleton sequence with T frames, Xs = Xsi i=1 , the
+and right sides of the objects within it, which hampers their                                                      skeleton encoder JGSE first extracts motion features while
+spatial grounding capabilities. To address these limitations,                                                      maintaining the same sequence length. Then, a projector
+we propose MoChat, the first motion understanding model                                                            converts these features into motion tokens Hs , which are
+that achieves accurate spatio-temporal grounding.                                                                  mapped to the language latent space. These motion tokens
+                                                                                                                   Hs are concatenated with input instruction tokens Ht and
+fed into a Large Language Model (LLM). The LLM’s fi-                indicates the position of the skeleton sequence. After con-
+nal hidden states Hm are then decoded into appropriate re-          catenating the system and user instructions, the instruction
+sponses, which are passed to a regression head to obtain the        embedding tokens Ht are generated by the LLM’s tokenizer
+corresponding timestamps simultaneously.                            and embedding layer. Finally, the motion embedding tokens
+                                                                    Hs are inserted into the instruction embedding tokens Ht at
+Joints-Grouped Skeleton Encoder Previous transformer
+                                                                    the placeholder position, and the combined sequence is fed
+based models typically apply positional encoding to skele-
+                                                                    into the LLM.
+ton joints based on the specific order determined by the joint
+                                                                       The output of the LLM, specifically its final hidden states
+numbering scheme. However, different skeleton types have
+                                                                    Hm , is then processed to generate the model’s predictions.
+different joint numbering orders, which forces models to un-
+                                                                    These final hidden states Hm are passed through a linear
+dergo retraining when the skeleton type changes. While this
+                                                                    layer to produce the logits z, which are subsequently de-
+approach is effective for handling specific skeleton types,
+                                                                    coded into the output Xo . At training time, the cross-entropy
+it ultimately limits the model’s ability to generalize and ef-                                                              id
+                                                                    loss is calculated between the logits z and the labels Xgt (the
+fectively represent other skeleton types. In transformers, po-
+                                                                    token IDs corresponding to the ground truth Xgt , which is
+sitional embeddings are initially designed to reinforce the
+                                                                    obtained by shifting the dialogue Xt one position to the left),
+positional relationships within a sequence, making the or-
+                                                                    while the inserted skeleton sequence does not contribute to
+der of the input sequence critically important. This implies
+                                                                    the loss calculation:
+that when a frame of skeleton joints is used as the input se-                                X id(i)
+quence, different orders of the joints can significantly alter                      LCE = −      Xgt log σ(z(i) ),              (3)
+the transformer’s encoding output.                                                                i
+   With this consideration in mind, we choose GL-
+Transformer and modified its position encoding method and           where σ(·) denotes the softmax function applied to the logits
+embedding strategy to develop a new model, the Joints-              z.
+Grouped Skeleton Encoder. For each skeleton frame, which            Regression Head For precisely grounding the time
+includes M joints denoted as Xsi = {jk }M    k=1 , we partition     boundaries, we design a regression head, which is respon-
+the skeleton joints jk into four groups Gg , based on human         sible for predicting the start frame IDstart and the end frame
+anatomical structure, where:                                        IDend . To compute the start and end frame IDs correspond-
+                                                 
+                  Arm (A),              Leg (L),                    ing to the language, we naturally consider calculating the
+           g∈                                       .       (1)     similarity between the motion embedding tokens Hs and
+                  Trunk (T), Global Joint (GJ)
+                                                                    the LLM hidden states Hm . In this process, the motion
+The Global Joint (GJ) is derived by applying a weighted             embedding tokens Hs are fed into the regression head as
+combination of all joints, and it is used to capture the holistic   Queries, while the LLM hidden states Hm serve as Keys
+representation of the skeleton.                                     and V alues. We employ the scaled dot-product attention
+   Each group of joints is then embedded, resulting in em-          mechanism to compute the attention weights:
+beddings EA , EL , ET , and EGJ for the Arm, Leg, Trunk,
+and Global Joint groups, respectively. These embeddings are                                              QK T
+                                                                                                                
+subsequently concatenated to form the final skeleton embed-                         Wcross = softmax √             ,            (4)
+                                                                                                           dk
+ding:
+               Eg = Concat(EA , EL , ET , EGJ ).              (2)   where Q represents the queries, K represents the keys, and
+   Next, we successively add spatial and temporal positional        dk is the dimension of the keys. The resulting attention
+embeddings to the ordered skeleton embedding sequence Es            weights Wcross ∈ RT ×N . We then focus on the weight of
+to reinforce both spatial and temporal positional representa-       the [BOS] token W0 ∈ RT ×1 , as it is the most significant
+tion. To facilitate the exchange of information aggregated to       token for representing the entire sequence.
+the joints, Es is then restored to Es′ according to the original       Subsequently, a Multi-Layer Perceptron (MLP) is used to
+joint numbering order and passed to the N -layer transformer        regress the start and end frame IDs:
+encoder.
+                                                                                         IDs = MLP(W0T · Hs ),                         (5)
+Language Module We follow the LLaVA-1.5 (Liu et al.                                  T ×D
+2024) approach to construct the language module, which is           where Hs ∈ R         , with D being the hidden dimension of
+based on the large language model Vicuna (Chiang et al.             the LLM. The output IDs corresponds to [IDstart , IDend ].
+2023) equipped with a linear projector. After being pro-               Then, for stable convergence, the DIoU loss (Zheng et al.
+cessed by the JGSE, the motion features are converted into          2020) between the predicted and ground truth IDs is calcu-
+motion embedding tokens Hs through a trainable projection           lated as:
+matrix W . This projection maps the motion features into the                                                                          !
+                                                                                              d2 (IDstart , IDend , IDgt
+                                                                                                                      start , IDgt
+                                                                                                                                end )
+language embedding space while preserving the sequence                LDIoU = 1 − IoU −                                                 ,
+length T , resulting in motion embedding tokens Hs .                                          c2 (IDstart , IDend , IDgt        gt
+                                                                                                                      start , IDend )
+   To enhance the LLM’s ability to follow user instructions,                                                                            (6)
+we design a prefix system instruction to make the model             where IoU denotes the Intersection over Union. The d2 (·)
+more user-friendly. The user input is referred to as the alter-     term represents the squared Euclidean distance between the
+native user instruction, and the <skeleton> placeholder             center points of the predicted and ground truth intervals,
+while the c2 (·) term normalizes this distance by the square      Spatial Dialogues Construction We construct multi-turn
+of the length of the union interval.                              dialogues for spatial fine-grained motion using keyword
+   The final loss is a combination of both:                       matching. First, we select keywords such as foot, leg, hand,
+                                                                  arm and torso based on human anatomical structure. Next,
+                  L = LCE + λDIoU LDIoU ,                   (7)   we create instruction templates, as shown in Tab. 1, where
+where λDIoU is a hyperparameter that balances the two             the <body part> placeholder in the instruction can be re-
+losses.                                                           placed with these keywords. Captions containing the cor-
+                                                                  responding keywords are then selected as responses. If a
+Data Construction                                                 caption involves multiple body parts, it is split into sepa-
+We construct motion understanding dialogues using the mo-         rate turns, with each turn’s response describing the motion
+tion caption dataset. We initially design instructions such as    of a single body part. For spatial relationships, we design
+Provide a brief description of the given action represented       gap-filling dialogues based on captions that include spatial
+by the skeleton sequence and directly use the corresponding       keywords such as left and right. Specifically, we ensure a
+motion caption as the answer for constructing basic motion        balanced distribution of different answers to prevent model
+understanding dialogues.                                          bias.
+  Temporal Grounding Dialogues                                    Timestamps Extraction Pipeline We develop a pipeline
+                   Please tell me when <motion> was               for extracting timestamps from skeleton sequences based
+   Dialogue        executed in this skeleton sequence.            on textual annotations. To avoid any potential bias in sub-
+   Templates       From <frameid 1> to                            sequent GPT-4 scoring, GLM-4 (GLM et al. 2024) is em-
+                   <frameid 2>, <motion>                          ployed, with the instruction shown in the supplementary ma-
+                                                                  terial, to determine the atomic action referenced in the cap-
+                   Q: Please tell me when A person                tions and to identify one corresponding joint and axis (X for
+                   bends forward was executed in this             left-right, Y for height, Z for front-back) exhibiting the most
+    Example        skeleton sequence.                             significant variation. This process simplifies the task of ac-
+                   A: From frame 20 to frame 33. A per-           curately assigning timestamps to each individual action. The
+                   son bends forward.                             selection of joints and axes is further refined based on mo-
+ Spatial Gap-filling Dialogues                                    tion data. Following the analysis from GLM-4, the selected
+                                                                  motion data is first smooth-filtered. Subsequently, extreme
+  Instruction      <motion with gap>, Complete the                points and the differences between them are computed, al-
+   Templates       content in brackets with left or right.        lowing for the identification of the start and end frame IDs
+                   Q: Person leans forward goes onto              that correspond to the atomic action with the maximum vari-
+                   knees whilst first putting ( ) hand on         ation. After extraction, a manual review is conducted, and
+                   ground for support and stays on knees.         the results are used to construct the temporal grounding dia-
+    Example                                                       logues as shown in Tab. 1.
+                   Complete the content in brackets with
+                   left or right.
+                   A: Left.                                       Training Strategy
+ Spatial Multi-turn Dialogues                                     Our training strategy consists of three stages: pre-training
+                                                                  the skeleton encoder, aligning motion-language embed-
+                   What actions is the person’s                   dings, and fine-tuning the model end-to-end. In the latter two
+  Instruction      <body part> performing?                        stages, we conduct an integrated instruction tuning process
+   Templates       Tell me about the actions performed            on a pre-trained LLM, which involves two sequential steps
+                   by the person’s <body part>.                   while keeping the JGSE frozen.
+                   Q: Tell me about the actions per-                 For the skeleton encoder pre-training, we unsupervisedly
+                   formed by the person’s torso.                  train the JGSE on skeleton sequences, following the data
+                   A: The person walked backwards                 preprocessing and pretext tasks outlined in (Kim et al. 2022).
+                   slowly, their torso remaining upright,            Next, we jointly train the projector and regression head,
+                   before stepping forward with a force-          with the LLM frozen, using multi-task instruction set to
+    Example        ful kick.                                      align the motion embeddings with the LLM embeddings.
+                   Q: What actions is the person’s arm            Specifically, we merge the dialogues constructed in the pre-
+                   performing?                                    vious subsubsection and randomly sample a batch for each
+                   A: A person bends their left arm at            iteration. The human instructions from these dialogues and
+                   the elbow and raises their right arm           motion sequences serve as loss-irrelevant inputs to the LLM,
+                   towards it, then lowers both arms.             while only the dialogue responses are used as loss-relevant
+                                                                  inputs. We then conduct autoregressive training to generate
+Table 1: Dialogue Examples. Q represents the human in-            the next token for the input dialogues and motion sequences,
+struction, and A represents the ground truth answer. Only         extracting timestamps from the ground truth responses to
+a subset of the templates is shown here; the complete set can     calculate the DIoU loss. Finally, we fully fine-tune the en-
+be found in the supplementary material.                           tire LLM and projector using the same instruction set for
+further improvement.                                             data as described in its paper, and the resulting captions are
+                                                                 evaluated by GPT-4. As shown in Tab. 2, MoChat signifi-
+                       Experiments                               cantly outperforms recent works on the Motion Understand-
+                                                                 ing task.
+Datasets and Evaluation Metrics
+HumanML3D The HumanML3D dataset (Guo et al.                      Comparisons on Spatial Limb Grounding The Spatial
+2022a) is used for training and evaluation, containing 14,616    Limb Grounding task involves identifying which body part
+motion sequences and 44,970 motion captions. The dataset         is responsible for the action in a given motion sequence. Fol-
+is divided into training, validation, and test sets, with 80%,   lowing the data processing methods outlined in previous sec-
+5%, and 15% of the data allocated to each set, respec-           tions, we constructed 2,574 gap-filling questions from the
+tively. We utilize 22-joint SMPL (Loper et al. 2015) skele-      HumanML3D test set to evaluate the model. Since current
+ton sequences and construct the multi-task dialogues from        motion understanding models lack spatial grounding capa-
+its training and test sets.                                      bilities, we opted to use the multimodal model GPT-4V for
+                                                                 evaluation. The motion sequences were rendered into human
+Evaluation Metrics We evaluate our model on three                motion videos, from which 10 frames were evenly sampled.
+tasks: Motion Understanding, Spatial Limb Grounding, and         These 10 images were then used to assess GPT-4V’s spatial
+Temporal Action Grounding. For the Motion Understanding          limb grounding capability via API calls. As shown in Tab. 4,
+task, we follow the approach in (Guo et al. 2022b), utilizing    MoChat achieves the highest accuracy of 85.70%, demon-
+linguistic metrics including BLEU (Papineni et al. 2002),        strating its strong capability in spatial limb grounding.
+ROUGE (Lin 2004), CIDEr (Vedantam, Lawrence Zitnick,
+and Parikh 2015), and BERTScore (Zhang* et al. 2020). Ad-        Comparisons on Temporal Action Grounding The
+ditionally, as pointed out by (Zheng et al. 2023), GPT-4 can     Temporal Action Grounding task requires the model to ac-
+be used to judge the results generated by LLMs. Therefore,       curately locate the time range corresponding to user instruc-
+we construct a prompt containing the reference captions and      tions. Since current motion understanding models lack tem-
+the outputs from all evaluated models for each test sample.      poral grounding capabilities, we opted to evaluate the time-
+GPT-4 is then required to assign a score between 0 and 10        sensitive video understanding model TimeChat. Specifi-
+based on the similarity between the model outputs and the        cally, we construct a test set containing 233 samples to as-
+reference captions. The average of these scores is computed      sess models’ performance. As shown in Tab. 5, although
+to obtain the GPT4Score. For the Spatial Limb Grounding          MoChat-R slightly underperformed MoChat in the previous
+task, we use accuracy as the evaluation metric, as the spatial   two tasks, it surpassed other models in the Temporal Action
+test set is based on gap-filling dialogues. For the Temporal     Grounding task.
+Action Grounding task, the evaluation metric is “R@1, IoU
+= µ,” which denotes the percentage of retrieved frame IDs        Ablation Study
+with an intersection over union (IoU) greater than µ com-        We conduct ablation studies on different combinations of
+pared to the ground truth.                                       instruction sets to verify the effectiveness of various com-
+                                                                 ponents of our method. Specifically, we performed abla-
+Implement Details                                                tion experiments using incrementally combined instruction
+We adopt the pre-trained Vicuna-v1.5-13B model (Chiang           sets across the three tasks mentioned above. The results are
+et al. 2023) as the language foundation model. All models        shown in Tab. 3, Fig. 3, and Tab. 5. As can be observed, for
+are trained on 8 × Nvidia A800 GPUs. The λDIoU is set to         the same model, training with multiple instruction sets has a
+5. Detailed training configurations and hyperparameters are      positive impact on the same task, demonstrating the advan-
+provided in the supplementary material.                          tages of integrated training. For the same instruction set, the
+                                                                 model without the regression head performs best in motion
+Comparisons with State-Of-The-Art Methods                        understanding and spatial limb grounding tasks, while the
+We evaluate MoChat with state-of-the-art methods on              model with the regression head performs best in the tempo-
+three task including Motion Understanding, Spatial Limb          ral action grounding task, proving the effectiveness of this
+Grounding and Temporal Action Grounding. We use an un-           module. Additional ablation studies are included in the sup-
+modified GL-Transformer (Kim et al. 2022) as the skeleton        plementary material.
+encoder for the baseline model, with the LLM component
+kept consistent across all models. The model that includes                              Conclusion
+both the Joints-Grouped Skeleton Encoder and the Regres-
+                                                                 In this paper, we present MoChat, a motion understanding
+sion Head is referred to as MoChat-R, while the model with-
+                                                                 multimodal large language model that comprehends mo-
+out the Regression Head is referred to as MoChat.
+                                                                 tion sequences, accurately captions the movement of spe-
+Comparisons on Motion Understanding The Motion                   cific body parts, and precisely identifies the time boundaries
+Understanding task involves generating a brief caption based     corresponding to user instructions. To the best of our knowl-
+on a given motion sequence. We directly adopt the linguistic     edge, MoChat is the first MLLM capable of spatio-temporal
+results from AvatarGPT (Zhou, Wan, and Wang 2024) and            grounding of actions in single skeleton sequences.
+use the suggested evaluation method to assess MoChat. For           Despite its promising results, MoChat has some limita-
+a fair comparison, we evaluate MotionGPT using the motion        tions, particularly in real-time performance and resource
+  Methods                                                                                                      BLEU@1 ↑ BLEU@4 ↑ ROUGE ↑ CIDEr ↑ BERTScore ↑ GPT4Score ↑
+  TM2T (Guo et al. 2022b)                                                                                                48.90                    7.00       38.10       16.80       32.20              –
+  MotionGPT (Jiang et al. 2024)                                                                                          48.20                   12.47       37.40       29.20       32.40            5.14
+  AvatarGPT (Zhou, Wan, and Wang 2024)                                                                                   49.28                   12.70       40.44       32.65       53.58              –
+  Baseline                                                                                                               59.81                   19.26       45.86       45.09       43.57            5.21
+  MoChat (Ours)                                                                                                          61.75                   21.60       47.59       51.57       45.59            5.99
+  MoChat-R (Ours)                                                                                                        60.06                   21.30       46.08       46.57       42.56            5.25
+
+Table 2: Comparison of Motion Understanding task on HumanML3D dataset. MoChat-R refers to MoChat with a regression
+head. The ↑ symbol indicates that a higher value is better. Bold and underline indicate the best and the second best result.
+
+Models                            Modules                                  Instruction Sets BLEU@1 ↑ BLEU@4 ↑ ROUGE ↑ CIDEr ↑ BERTScore ↑ GPT4Score ↑
+Baseline   GLTE+Vicuna                                                                                                                   59.85       20.80       45.46       44.88      41.63          4.74
+MoChat     JGSE+Vicuna                                                                   BMUD                                            61.36       21.30       46.69       47.98      44.14          5.62
+MoChat-R JGSE+Vicuna+RH                                                                                                                  60.11       20.34       45.86       46.45      42.84          5.10
+Baseline   GLTE+Vicuna                                                                                                                   59.95       20.51       47.64       49.30      44.28          5.40
+MoChat     JGSE+Vicuna                                                             BMUD+SD                                               60.81       20.87       47.04       50.60      44.60          5.96
+MoChat-R JGSE+Vicuna+RH                                                                                                                  60.31       20.64       45.87       46.65      42.84          5.19
+Baseline   GLTE+Vicuna                                                                                                                   59.81       19.26       45.86       45.09      43.57          5.21
+MoChat     JGSE+Vicuna BMUD+SD+TGD                                                                                                       61.75       21.60       47.59       51.57      45.59          5.99
+MoChat-R JGSE+Vicuna+RH                                                                                                                  60.06       21.30       46.08       46.57      42.56          5.25
+
+Table 3: Ablation study on the Motion Understanding task across different models and instruction sets. The module names
+GLTE, JGSE, and RH refer to Global-Local Transformer Encoder, Joints-Grouped Skeleton Encoder, and Regression Head,
+respectively. BMUD+SD+TGD indicates that the model was jointly trained on Basic Motion Understanding Dialogue, Spatial
+Dialogue, and Temporal Grounding Dialogue. The ↑ symbol indicates that a higher value is better. Bold indicates the best result.
+
+
+                                                                                                                                                                     Model                 Acc. ↑
+           
+                                                                                                                                                                     GPT-4V                  68.02
+                      % D V H O L Q H  * / 7 (  9 L F X Q D                                                                                                       Baseline                80.12
+                    0 R & K D W  - * 6 (  9 L F X Q D                                                                                                       MoChat (Ours)           85.70
+                      0 R & K D W  5  - * 6 (  9 L F X Q D  5 +                                                                                                 MoChat-R (Ours)         81.90
+           
+
+                                                                                                                                     
+                                                                                                                                                Table 4: Comparison of Spatial Limb Grounding task on
+                                                                                                                                                spatial test dataset. MoChat-R refers to MoChat with a re-
+           
+                                                                                                                                                gression head. The ↑ symbol indicates that a higher value is
+ $ F F
+
+
+
+
+                                                                                                                                              better. Bold and underline indicate the best and the second
+                                                                                                                                                     best result.
+           
+
+           
+                                                                                                                                                     consumption, where it does not perform as efficiently as
+           
+                                                                                                                                                     fixed-class action recognition models. However, MoChat
+                                                                                                                                                   has significant potential for application in fields such as
+                              % 0 8 '  6 '                                                                % 0 8 '  6 '  7 * '
+                                                             , Q V W U X F W L R Q  6 H W                                                           sports analytics, human-computer interaction, and medi-
+                                                                                                                                                     cal rehabilitation. By advancing the ability to interpret
+Figure 3: Ablation study of Spatial Limb Grounding task                                                                                              and ground motion sequences in a spatio-temporal context,
+across different models and instruction sets. The module                                                                                             MoChat contributes to the broader development of multi-
+names GLTE, JGSE, and RH refer to Global-Local Trans-                                                                                                modal large language models and opens up new avenues for
+former Encoder, Joints-Grouped Skeleton Encoder, and Re-                                                                                             research in motion understanding and beyond.
+gression Head, respectively. BMUD+SD+TGD refers to
+model jointly trained on Basic Motion Understanding Dia-                                                                                                                     References
+logue, Spatial Dialogue and Temporal Grounding Dialogue.                                                                                             Alayrac, J.-B.; Donahue, J.; Luc, P.; Miech, A.; Barr, I.;
+                                                                                                                                                     Hasson, Y.; Lenc, K.; Mensch, A.; Millicah, K.; Reynolds,
+                                                                                                                                                     M.; Ring, R.; Rutherford, E.; Cabi, S.; Han, T.; Gong, Z.;
+ Model                R@1 (IoU=0.5) ↑ R@1 (IoU=0.7) ↑              J.; Zhao, L.; Wu, L.; Zhong, L.; Liu, M.; Huang, M.; Zhang,
+                                                                   P.; Zheng, Q.; Lu, R.; Duan, S.; Zhang, S.; Cao, S.; Yang,
+ TimeChat                    2.10                 0.40             S.; Tam, W. L.; Zhao, W.; Liu, X.; Xia, X.; Zhang, X.; Gu,
+ Baseline                   12.45                 6.87             X.; Lv, X.; Liu, X.; Liu, X.; Yang, X.; Song, X.; Zhang, X.;
+ MoChat (Ours)              19.31                 5.58             An, Y.; Xu, Y.; Niu, Y.; Yang, Y.; Li, Y.; Bai, Y.; Dong, Y.;
+ MoChat-R (Ours)            21.89                 12.02            Qi, Z.; Wang, Z.; Yang, Z.; Du, Z.; Hou, Z.; and Wang, Z.
+                                                                   2024. ChatGLM: A Family of Large Language Models from
+Table 5: Comparisons of Temporal Action Grounding task             GLM-130B to GLM-4 All Tools. arXiv:2406.12793.
+on temporal test dataset. MoChat-R refers to MoChat with a
+regression head. The ↑ symbol indicates that a higher value        Guo, C.; Zou, S.; Zuo, X.; Wang, S.; Ji, W.; Li, X.; and
+is better. Bold and underline indicate the best and the second     Cheng, L. 2022a. Generating Diverse and Natural 3D Hu-
+best result.                                                       man Motions From Text. In Proceedings of the IEEE/CVF
+                                                                   Conference on Computer Vision and Pattern Recognition
+                                                                   (CVPR), 5152–5161.
+Samangooei, S.; Monteiro, M.; Menick, J.; Borgeaud, S.;            Guo, C.; Zuo, X.; Wang, S.; and Cheng, L. 2022b. TM2T:
+Brock, A.; Nematzadeh, A.; Sharifzadeh, S.; Binkowski,             Stochastic and Tokenized Modeling for the Reciprocal Gen-
+M.; Barreira, R.; Vinyals, O.; Zisserman, A.; and Simonyan,        eration of 3D Human Motions and Texts. In Avidan, S.;
+K. 2024. Flamingo: a visual language model for few-shot            Brostow, G.; Cissé, M.; Farinella, G. M.; and Hassner,
+learning. In Proceedings of the 36th International Con-            T., eds., Computer Vision – ECCV 2022, 580–597. Cham:
+ference on Neural Information Processing Systems, NIPS             Springer Nature Switzerland. ISBN 978-3-031-19833-5.
+’22. Red Hook, NY, USA: Curran Associates Inc. ISBN                Guo, T.; Liu, H.; Chen, Z.; Liu, M.; Wang, T.; and Ding, R.
+9781713871088.                                                     2022c. Contrastive Learning from Extremely Augmented
+Chen, Y.; Zhang, Z.; Yuan, C.; Li, B.; Deng, Y.; and Hu,           Skeleton Sequences for Self-Supervised Action Recogni-
+W. 2021. Channel-Wise Topology Refinement Graph Con-               tion. Proceedings of the AAAI Conference on Artificial In-
+volution for Skeleton-Based Action Recognition. In 2021            telligence, 36(1): 762–770.
+IEEE/CVF International Conference on Computer Vision               Hong, W.; Wang, W.; Lv, Q.; Xu, J.; Yu, W.; Ji, J.; Wang, Y.;
+(ICCV), 13339–13348.                                               Wang, Z.; Dong, Y.; Ding, M.; and Tang, J. 2024. CogAgent:
+Chen, Y.; Zhao, L.; Yuan, J.; Tian, Y.; Xia, Z.; Geng, S.; Han,    A Visual Language Model for GUI Agents. In Proceedings
+L.; and Metaxas, D. N. 2022. Hierarchically Self-supervised        of the IEEE/CVF Conference on Computer Vision and Pat-
+Transformer for Human Skeleton Representation Learning.            tern Recognition (CVPR), 14281–14290.
+In Avidan, S.; Brostow, G.; Cissé, M.; Farinella, G. M.; and
+                                                                   Huang, L.; Huang, Y.; Ouyang, W.; and Wang, L. 2020. Part-
+Hassner, T., eds., Computer Vision – ECCV 2022, Lecture
+                                                                   Level Graph Convolutional Network for Skeleton-Based
+Notes in Computer Science, 185–202. Cham: Springer Na-
+                                                                   Action Recognition. Proceedings of the AAAI Conference
+ture Switzerland. ISBN 978-3-031-19809-0.
+                                                                   on Artificial Intelligence, 34(07): 11045–11052.
+Chiang, W.-L.; Li, Z.; Lin, Z.; Sheng, Y.; Wu, Z.; Zhang, H.;
+Zheng, L.; Zhuang, S.; Zhuang, Y.; Gonzalez, J. E.; Stoica,        Jiang, B.; Chen, X.; Liu, W.; Yu, J.; Yu, G.; and Chen, T.
+I.; and Xing, E. P. 2023. Vicuna: An Open-Source Chatbot           2024. Motiongpt: Human motion as a foreign language. Ad-
+Impressing GPT-4 with 90%* ChatGPT Quality.                        vances in Neural Information Processing Systems, 36.
+Dai, W.; Li, J.; Li, D.; Tiong, A.; Zhao, J.; Wang, W.; Li, B.;    Jin, P.; Takanobu, R.; Zhang, W.; Cao, X.; and Yuan, L.
+Fung, P.; and Hoi, S. 2023. InstructBLIP: Towards General-         2024. Chat-UniVi: Unified Visual Representation Empow-
+purpose Vision-Language Models with Instruction Tuning.            ers Large Language Models with Image and Video Under-
+In Thirty-seventh Conference on Neural Information Pro-            standing. In Proceedings of the IEEE/CVF Conference on
+cessing Systems.                                                   Computer Vision and Pattern Recognition (CVPR), 13700–
+                                                                   13710.
+Devlin, J.; Chang, M.-W.; Lee, K.; and Toutanova, K. 2019.
+BERT: Pre-training of Deep Bidirectional Transformers for          Kim, B.; Chang, H. J.; Kim, J.; and Choi, J. Y. 2022. Global-
+Language Understanding. In Burstein, J.; Doran, C.; and            Local Motion Transformer for Unsupervised Skeleton-
+Solorio, T., eds., Proceedings of the 2019 Conference of the       Based Action Learning. In Avidan, S.; Brostow, G.; Cissé,
+North American Chapter of the Association for Computa-             M.; Farinella, G. M.; and Hassner, T., eds., Computer Vision
+tional Linguistics: Human Language Technologies, Volume            – ECCV 2022, 209–225. Cham: Springer Nature Switzer-
+1 (Long and Short Papers), 4171–4186. Minneapolis, Min-            land. ISBN 978-3-031-19772-7.
+nesota: Association for Computational Linguistics.                 Li, J.; Li, D.; Savarese, S.; and Hoi, S. 2023. BLIP-2: Boot-
+Duan, H.; Zhao, Y.; Chen, K.; Lin, D.; and Dai, B. 2022.           strapping Language-Image Pre-training with Frozen Image
+Revisiting Skeleton-Based Action Recognition. In Proceed-          Encoders and Large Language Models. In Krause, A.; Brun-
+ings of the IEEE/CVF Conference on Computer Vision and             skill, E.; Cho, K.; Engelhardt, B.; Sabato, S.; and Scarlett, J.,
+Pattern Recognition, 2969–2978.                                    eds., Proceedings of the 40th International Conference on
+GLM, T.; Zeng, A.; Xu, B.; Wang, B.; Zhang, C.; Yin, D.;           Machine Learning, volume 202 of Proceedings of Machine
+Rojas, D.; Feng, G.; Zhao, H.; Lai, H.; Yu, H.; Wang, H.;          Learning Research, 19730–19742. PMLR.
+Sun, J.; Zhang, J.; Cheng, J.; Gui, J.; Tang, J.; Zhang, J.; Li,   Li, K.; He, Y.; Wang, Y.; Li, Y.; Wang, W.; Luo, P.; Wang,
+Y.; Wang, L.; and Qiao, Y. 2024. VideoChat: Chat-Centric          Wang, Q.; Zhang, K.; and Asghar, M. A. 2022. Skeleton-
+Video Understanding. arXiv:2305.06355.                            Based ST-GCN for Human Action Recognition With Ex-
+Lin, C.-Y. 2004. ROUGE: A Package for Automatic Evalu-            tended Skeleton Graph and Partitioning Strategy. IEEE Ac-
+ation of Summaries. In Text Summarization Branches Out,           cess, 10: 41403–41410.
+74–81. Barcelona, Spain: Association for Computational            Wang, W.; Lv, Q.; Yu, W.; Hong, W.; Qi, J.; Wang, Y.; Ji, J.;
+Linguistics.                                                      Yang, Z.; Zhao, L.; Song, X.; Xu, J.; Xu, B.; Li, J.; Dong,
+Liu, H.; Li, C.; Li, Y.; and Lee, Y. J. 2024. Improved Base-      Y.; Ding, M.; and Tang, J. 2024. CogVLM: Visual Expert
+lines with Visual Instruction Tuning. In Proceedings of           for Pretrained Language Models. arXiv:2311.03079.
+the IEEE/CVF Conference on Computer Vision and Pattern            Yan, H.; Liu, Y.; Wei, Y.; Li, G.; and Lin, L. 2023. Skeleton-
+Recognition (CVPR), 26296–26306.                                  MAE: Graph-based Masked Autoencoder for Skeleton Se-
+Loper, M.; Mahmood, N.; Romero, J.; Pons-Moll, G.; and            quence Pre-training. In Proceedings of the IEEE/CVF Inter-
+Black, M. J. 2015. SMPL: A Skinned Multi-Person Lin-              national Conference on Computer Vision.
+ear Model. ACM Trans. Graphics (Proc. SIGGRAPH Asia),             Zhang, J.; Herrmann, C.; Hur, J.; Chen, E.; Jampani, V.; Sun,
+34(6): 248:1–248:16.                                              D.; and Yang, M.-H. 2024. Telling Left from Right: Identi-
+OpenAI. 2024. GPT-4 Technical Report. arXiv:2303.08774.           fying Geometry-Aware Semantic Correspondence. In Pro-
+Papineni, K.; Roukos, S.; Ward, T.; and Zhu, W.-J. 2002.          ceedings of the IEEE/CVF Conference on Computer Vision
+BLEU: a method for automatic evaluation of machine trans-         and Pattern Recognition (CVPR), 3076–3085.
+lation. In Proceedings of the 40th Annual Meeting on Asso-        Zhang*, T.; Kishore*, V.; Wu*, F.; Weinberger, K. Q.; and
+ciation for Computational Linguistics, ACL ’02, 311–318.          Artzi, Y. 2020. BERTScore: Evaluating Text Generation
+USA: Association for Computational Linguistics.                   with BERT. In International Conference on Learning Rep-
+Qian, L.; Li, J.; Wu, Y.; Ye, Y.; Fei, H.; Chua, T.-S.; Zhuang,   resentations.
+Y.; and Tang, S. 2024. Momentor: Advancing Video Large            Zheng, L.; Chiang, W.-L.; Sheng, Y.; Zhuang, S.; Wu, Z.;
+Language Model with Fine-Grained Temporal Reasoning.              Zhuang, Y.; Lin, Z.; Li, Z.; Li, D.; Xing, E.; Zhang, H.; Gon-
+In Salakhutdinov, R.; Kolter, Z.; Heller, K.; Weller, A.;         zalez, J. E.; and Stoica, I. 2023. Judging LLM-as-a-Judge
+Oliver, N.; Scarlett, J.; and Berkenkamp, F., eds., Proceed-      with MT-Bench and Chatbot Arena. In Thirty-seventh Con-
+ings of the 41st International Conference on Machine Learn-       ference on Neural Information Processing Systems Datasets
+ing, volume 235 of Proceedings of Machine Learning Re-            and Benchmarks Track.
+search, 41340–41356. PMLR.                                        Zheng, Z.; Wang, P.; Liu, W.; Li, J.; Ye, R.; and Ren, D.
+Radford, A.; Kim, J. W.; Hallacy, C.; Ramesh, A.; Goh, G.;        2020. Distance-IoU Loss: Faster and Better Learning for
+Agarwal, S.; Sastry, G.; Askell, A.; Mishkin, P.; Clark, J.;      Bounding Box Regression. In The AAAI Conference on Ar-
+Krueger, G.; and Sutskever, I. 2021. Learning Transferable        tificial Intelligence (AAAI), 12993–13000.
+Visual Models From Natural Language Supervision. In In-           Zhou, Z.; Wan, Y.; and Wang, B. 2024. AvatarGPT: All-in-
+ternational Conference on Machine Learning.                       One Framework for Motion Understanding Planning Gener-
+Ren, S.; Yao, L.; Li, S.; Sun, X.; and Hou, L. 2024.              ation and Beyond. In Proceedings of the IEEE/CVF Confer-
+TimeChat: A Time-sensitive Multimodal Large Language              ence on Computer Vision and Pattern Recognition (CVPR),
+Model for Long Video Understanding. In Proceedings of             1357–1366.
+the IEEE/CVF Conference on Computer Vision and Pattern            Zhu, B.; Lin, B.; Ning, M.; Yan, Y.; Cui, J.; HongFa, W.;
+Recognition (CVPR), 14313–14323.                                  Pang, Y.; Jiang, W.; Zhang, J.; Li, Z.; Zhang, C. W.; Li,
+Shi, L.; Zhang, Y.; Cheng, J.; and Lu, H. 2019. Two-Stream        Z.; Liu, W.; and Yuan, L. 2024. LanguageBind: Extending
+Adaptive Graph Convolutional Networks for Skeleton-               Video-Language Pretraining to N-modality by Language-
+Based Action Recognition. In 2019 IEEE/CVF Confer-                based Semantic Alignment. In The Twelfth International
+ence on Computer Vision and Pattern Recognition (CVPR),           Conference on Learning Representations.
+12018–12027. Long Beach, CA, USA: IEEE. ISBN 978-1-
+72813-293-8.
+Van Den Oord, A.; Vinyals, O.; et al. 2017. Neural dis-
+crete representation learning. Advances in neural informa-
+tion processing systems, 30.
+Vaswani, A.; Shazeer, N.; Parmar, N.; Uszkoreit, J.; Jones,
+L.; Gomez, A. N.; Kaiser, L. u.; and Polosukhin, I. 2017.
+Attention is All you Need. In Guyon, I.; Luxburg, U. V.;
+Bengio, S.; Wallach, H.; Fergus, R.; Vishwanathan, S.; and
+Garnett, R., eds., Advances in Neural Information Process-
+ing Systems, volume 30. Curran Associates, Inc.
+Vedantam, R.; Lawrence Zitnick, C.; and Parikh, D. 2015.
+CIDEr: Consensus-Based Image Description Evaluation. In
+Proceedings of the IEEE Conference on Computer Vision
+and Pattern Recognition (CVPR).
+                          Data Construction                                                with a value of 99.9. To align the motion-language em-
+Tab. 10 presents all the templates used to construct the dia-                              beddings, the model is trained with a batch size of 64 for
+logues. As previously described, for each task, we randomly                                3 epochs, using a learning rate of 2 × 10−3 . The learn-
+select an instruction from the instruction set and then gen-                               ing rate schedule includes a warm-up ratio of 0.03, fol-
+erate the corresponding response based on the dataset. The                                 lowed by cosine annealing. In the final stage, for fine-
+process for constructing the Spatial Dialogue is illustrated in                            tuning the model end-to-end, a batch size of 128 is applied,
+Fig. 5. We perform keyword matching on the captions, with                                  with training conducted over 1 epoch at a learning rate of
+each keyword generating a dialogue turn, ultimately form-                                  2 × 10−5 . The same warm-up and cosine annealing sched-
+ing a multi-turn dialogue. The pipeline for constructing the                               ule from the previous stage is utilized. When GPU mem-
+Temporal Grounding Dialogue is illustrated in Fig. 4. In this                              ory is insufficient, we reduce the per device train batch size
+process, we use GLM-4 to process the captions and apply                                    and increase the gradient accumulation steps while keeping
+the instruction shown in Fig. 7 to filter the joints and axes                              the product of per device train batch size, GPU num, and
+with the most significant variation. Finally, the motion data                              gradient accumulation steps equal to the original batch size.
+is utilized to determine the start and end frame IDs.                                      The training duration is approximately 8 hours for the skele-
+                                                                                           ton encoder pre-training, 10 hours for aligning the motion-
+                                                                                           language embeddings, and 5 hours for the final fine-tuning.
+       Skeleton Sequence                                 Caption
+
+                                      a person bends forward and straights,
+                                                                                                          Additional Experiments
+                                      and then bends forward to touch their                LoRA Parameters and Model Size We explore solu-
+                                      feet.
+                                                                                           tions to reduce resource consumption by experimenting with
+                                                                                           LoRA and different language foundation model sizes. As
+                                                          GLM-4
+                                                                                           shown in Tab. 8, we train and evaluate the model with a
+             X
+                                                                                           LoRA rank of 64 and an alpha of 16, and separately experi-
+                                                                                           ment with a language foundation model with 7B parameters.
+                                   Joint       Coordinate          Atomic Action           However, compared to the 13B model, while the memory
+             Y                     Head            Y-axis
+                                                                  A person bends           usage is reduced, the resulting performance degradation was
+                                                                     forward.              unacceptable. This indicates the need to explore other, more
+                                   Head            Y-axis       They straighten up.        effective methods for reducing memory consumption.
+             Z
+                                                                They bend forward          Custom FrameID Tokens In addition to the Regression
+                                   Head            Y-axis
+                                                                to touch their feet.       Head, we also experiment with using custom frame ID
+                                                                                           tokens (CFT) to identify the start and end frames cor-
+                                                                                           responding to the captions. Specifically, We add T to-
+                         Temporal Grounding Dialogue
+                                                                                           kens to the tokenizer’s vocabulary, such as <frameid 0>,
+  Q: From which frame does the motion of a person bends forward start and at which         <frameid 1>, ..., <frameid T>. Similar to positional
+     frame does it end?
+  A: From frame 20 to frame 33. A person bends forward.                                    encoding, we obtain their corresponding embeddings and
+  Q: What are the start frame ID and end frame ID of the motion of They straighten up?
+  A: From frame 33 to frame 65, they straighten up.
+                                                                                           add them to the motion token embeddings, before finally in-
+  Q: From which frame does the motion of They bend forward to touch their feet start and   serting them into the language embeddings.
+     at which frame does it end?
+  A: From frame 133 to frame 153, they bend forward to touch their feet.                      As shown by the metrics across the three tasks (Tab. 6, 7
+                                                                                           and 8), while the use of CFT results in better performance
+                                                                                           on the Motion Understanding and Spatial Limb Ground-
+Figure 4: Pipeline for constructing Temporal Grounding Di-                                 ing tasks, it still underperforms compared to the Regression
+alogues. GLM-4 splits the caption into atomic actions and                                  Head on the Temporal Action Grounding task.
+identifies the corresponding most significant joint and coor-
+dinate. The curves represent the coordinates of the selected                               Instruction Set Configuration During the fine-tuning of
+joint, with the numbers on the curves indicating the frame                                 the LLM, we observe catastrophic forgetting, where the
+IDs of the extremum points. We construct multi-turn tempo-                                 model lost its ability to follow general instructions, a ca-
+ral grounding dialogues based on the final extracted results.                              pability typically possessed by the base model. To preserve
+                                                                                           the model’s instruction-following ability, we utilize the Puf-
+                                                                                           fin dataset, a subset of processed ShareGPT data, containing
+                                                                                           3,000 examples, with each response generated using GPT-
+                     Implementation Details                                                4. As shown in Tab. 8, the results indicate that, without us-
+Aside from the aforementioned use of Vicuna-v1.5-13B                                       ing the Puffin dataset, some metrics for the motion under-
+as the language foundation model, all our models employ                                    standing task improve. However, the model fails to generate
+the AdamW optimizer for training. For the skeleton en-                                     reasonable responses to other types of instructions, such as
+coder pre-training, we use a batch size of 128 and train                                   “Who are you?”—a question unrelated to the motion under-
+the model for 120 epochs with a learning rate of 5 × 10−5                                  standing task—resulting in a less user-friendly model.
+and a decay rate of 0.99. The encoder consists of a 4-layer                                   Additionally, we explore the impact of using different in-
+transformer. The input sequences are padded to 500 frames                                  struction sets at various stages of instruction fine-tuning.
+    Captions of Same Motion                                Instructions                        Multi-Turn Spatial Grounding Dialogue
+                                         1. What actions is the person’s arm performing?
+                                         2. Tell me about the actions performed by the        Q: What actions is the person’s arm performing?
+   1.   A person bends their left arm       person’s hand.
+        at the elbow and raises their    3. Tell me which hand this person is holding the     A: A person bends their left arm at the elbow and
+        right arm towards it, then          violin with.                                          raises their right arm towards it, then lowers
+        lowers both arms.                                                                         both arms.
+                                                     Body Parts
+                                                    Leg        Foot                           Q: Tell me about the actions performed by the
+                                                                                                  person’s hand.
+   2.   Someone is playing the violin.             Arm         Hand
+                                                   Torso       Head
+                                                                                              A: A person makes a single sawing motion with
+                                                                                                  their right hand.
+   3.   While holding their left arm              Keyword Matching
+        in the air, a person makes a                                                          Q: Tell me which hand this person is holding the
+        single sawing motion with                Spatial Direction                                violin with.
+        their right hand.                          Left        Right
+                                                                                              A: Left.
+                                                  Keyword Matching
+
+
+
+                                         Figure 5: The process of constructing Spatial Dialogues.
+
+
+For instance, we use Basic Motion Understanding Dialogues                                   Module                 Stage1        Stage2      Acc.
+during the alignment of motion-language embeddings, and
+combine Basic Motion Understanding Dialogues, Spatial                              GLTE+Vicuna-13B                                          77.66
+                                                                                                                            BS
+Dialogues, and Temporal Grounding Dialogues during full                            GLTE+Vicuna-7B                                           73.10
+fine-tuning. As shown by the results in the tables (Tab. 6,                     JGSE+CFT+Vicuna-13B                   B           BST       85.28
+7 and 8), when the same instruction set is used across both
+stages, the model performs better on the Motion Understand-                     JGSE+CFT+Vicuna-13B                                         85.79
+ing and Spatial Limb Grounding tasks, but worse on the                             JGSE+Vicuna-13B                        BST               85.70
+Temporal Action Grounding task.                                                  JGSE+RH+Vicuna-13B                                         81.90
+
+            Analysis of Learned Attention                                     Table 6: Additional experiments for Spatial Limb Ground-
+                                                                              ing task, The module names GLTE, JGSE, CFT and RH re-
+To gain further insights into our model, we visualize the                     fer to Global-Local Transformer Encoder, Joints-Grouped
+attention weights of the Joints-Grouped Skeleton Encoder                      Skeleton Encoder, Custom FrameID Tokens and Regres-
+(JGSE), the LLM, and the Regression Head modules. For                         sion Head, respectively. BST indicates that the model was
+the JGSE, we compute the average self-attention weights                       jointly trained on Basic Motion Understanding Dialogue,
+from the last layer of the Transformer Encoder and then                       Spatial Dialogue, and Temporal Grounding Dialogue. A
+visualize the attention of the last temporal [CLS] token                      higher value is better. Bold indicates the best result.
+to other skeleton frames, as shown in Fig. 6 (a). We con-
+catenate the resulting motion embeddings with the language
+embeddings and feed them into the LLM, then extract the                         Module Stage1 Stage2 R@1(IoU=0.5) R@1(IoU=0.7)
+attention matrix from the first head of the first layer. The                  JGSE+CFT          B        BST          20.17                9.01
+attention weights are averaged across multiple language to-
+kens to form complete words, as depicted in Fig. 6 (b).                       JGSE+CFT                                18.03                7.30
+                                                                                                    BST
+For the Regression Head, we visualize the cross-attention                      JGSE+RH                                21.89                12.02
+weights of the [BOS] token with respect to the motion em-
+beddings, as shown in Fig. 6 (c). The attention visualiza-                    Table 7: Additional experiments for the Temporal Action
+tions from these three modules demonstrate that our model                     Grounding task. The module names JGSE, CFT, and RH re-
+effectively captures temporal awareness and motion-caption                    fer to Joints-Grouped Skeleton Encoder, Custom FrameID
+mapping, enabling it to successfully perform the Temporal                     Tokens, and Regression Head, respectively. BST indicates
+Action Grounding task.                                                        that the model was jointly trained on Basic Motion Under-
+                                                                              standing Dialogue, Spatial Dialogue, and Temporal Ground-
+                                                                              ing Dialogue. R@1 denotes Recall at rank 1 for IoU thresh-
+                                                                              olds of 0.5 and 0.7, with higher values indicating better per-
+                                                                              formance. Bold values indicate the best results.
+         Module                      Lora                Stage1 Stage2 BLEU@1 BLEU@4 ROUGE CIDEr BERTScore GPT4Score
+   GLTE+Vicuna-13B                        –                   B wo Puffin              62.36      22.51        47.09    50.35         44.25                  5.53
+   GLTE+Vicuna-13B                  –                                                  59.85      20.80        45.46    44.88         41.63                  5.21
+                                                                       B
+   GLTE+Vicuna-13B            r=64 alpha=16                                            37.42      7.54         32.01    21.81         38.46                  5.24
+   GLTE+Vicuna-13B                        –                                            59.95      20.51        47.64    49.30         44.28                  5.80
+                                                                       BS
+   GLTE+Vicuna-7B                         –                                            47.30      11.20        38.39    41.80         30.24                  3.24
+JGSE+CFT+Vicuna-13B                       –                   B             BST        59.96      20.88        46.38    47.11         43.47                  5.50
+JGSE+CFT+Vicuna-13B                       –                                            61.16      21.49        46.75    49.27         44.12                  6.05
+ JGSE+RH+Vicuna-13B                       –                        BST                 60.06      21.30        46.08    46.57         42.56                  5.35
+   JGSE+Vicuna-13B                        –                                            61.75      21.60        47.59    51.57         45.59                  5.99
+
+Table 8: Additional experiments for Motion Understanding task, r denotes the rank of the low-rank matrices, and alpha is
+the scaling factor controlling the impact of the adaptation. The module names GLTE, JGSE, CFT and RH refer to Global-
+Local Transformer Encoder, Joints-Grouped Skeleton Encoder, Custom FrameID Tokens and Regression Head, respectively.
+BST indicates that the model was jointly trained on Basic Motion Understanding Dialogue, Spatial Dialogue, and Temporal
+Grounding Dialogue. A higher value is better. Bold indicates the best result.
+
+
+
+
+                                                                                            50
+                                                                                                                                           70   80
+                                                                                       55                                             60
+
+                              120   105   90   75   60
+                                                              30   0                             45        0                     50                    90
+                  150   135                              45
+
+                                                                                                                                                            100
+                                                                                  60                                        40
+                                                                                                                                                     110
+                                                                                                      40                         30
+    Input
+   Motion
+  Sequences
+
+
+
+
+            a person takes a step forward,
+               moves to theor right, them                                                                                a person walks in a circle,
+ Caption                                        a person jumps forward once.
+           continues foward with their right                                                                                    clockwise.
+                    hand on a rail.
+MotionGPT    a person is walking downhill.   a person jumps down a grey block.                                           a person walks in a circle.
+             a person walks forward while    a person jumps forward with both                                          a person walks in a clockwise
+MoChat-RH
+          holding handrail with right hand.           arms outstretched.                                                          circle.
+
+Table 9: The quality results of MoChat-RH and the state-of-the-art method on the motion understanding task. The results
+demonstrate that our method exhibits a stronger perception of action details. Italics in the table indicate the matched details.
+User: Provide a brief description of the given action represented by the skeleton sequence.
+MoChat: A person squats down, then jumps up.
+User: Please tell me the start frame and end frame of the motion of a person squats down.
+MoChat: From frame 0 to frame 14, the person squats down.
+User: From which frame does the motion of a person jumps up start and at which frame does it end?
+MoChat: From frame 19 to frame 24, the person jumps up.
+
+
+
+
+    (a) Temporal attention weights of Joints-Grouped Skeleton Encoder (JGSE).                          (b) Attention map of the LLM.
+
+                          4~9                                                        19 ~ 24
+
+
+
+
+                                            (c) Cross-attention weights of the Regression Head (RH).
+
+
+
+                                                                          Legend
+                  Significant attention area of squats down
+                                                                                             Ground truth temporal boundaries of squats down
+
+
+                 Significant attention area of jumps up                                      Ground truth temporal boundaries of jumps up
+
+
+
+                                             Figure 6: Attention visualization of three modules.
+                                    Basic Motion Understanding Dialogues
+                         Provide a brief description of the given action represented by the skeleton sequence.
+                         Write a terse but informative summary of the action depicted by the skeleton sequence.
+                         Share a concise interpretation of the action demonstrated in the skeleton sequence.
+                         Relay a brief, clear account of the action shown in the skeleton sequence.
+                         Render a clear and concise summary of the action sequence.
+                         Create a compact narrative representing the action portrayed in the skeleton sequence.
+Instruction Templates
+                         Give a short and clear explanation of the subsequent action depicted by the skeleton se-
+                         quence.
+                         Summarize the movement content of the action demonstrated by the skeleton sequence.
+                         Describe the action concisely as represented in the skeleton sequence.
+                         Offer a succinct explanation of the action presented in the skeleton sequence.
+                         Present a compact description of the action sequence’s key features.
+                         Q: Provide a brief description of the given action represented by the skeleton sequence.
+      Example
+                         A: A person walks forward, then turns around and walks backward.
+                                        Temporal Grounding Dialogues
+                         From which frame does <motion> start and at which frame does it end?
+                         What are the start frame ID and end frame ID of <motion>?
+ Dialogue Templates
+                         Please tell me when <motion> was executed in this skeleton sequence.
+                         From <frameid 1> to <frameid 2>, <motion>.
+                         Q: Please tell me when A person bends forward was executed in this skeleton sequence.
+      Example
+                         A: From frame 20 to frame 33. A person bends forward.
+                                         Spatial Gap-filling Dialogues
+Instruction Templates    <motion with gap>, Complete the content in brackets with left or right.
+                         Q: Person leans forward goes onto knees whilst first putting ( ) hand on ground for sup-
+      Example            port and stays on knees. Complete the content in brackets with left or right.
+                         A: Left.
+                                         Spatial Multi-turn Dialogues
+                         Describe the movements of the person’s <body part> in detail.
+                         Please provide details about the actions of the person’s <body part>.
+Instruction Templates
+                         What actions is the person’s <body part> performing?
+                         Tell me about the actions performed by the person’s <body part>.
+                         Q: Tell me about the actions performed by the person’s torso.
+                         A: The person walked backwards slowly, their torso remaining upright, before stepping
+                         forward with a forceful kick.
+      Example
+                         Q: What actions is the person’s arm performing?
+                         A: A person bends their left arm at the elbow and raises their right arm towards it, then low-
+                         ers both arms.
+
+     Table 10: Dialogue Templates. Q represents the human instruction, and A represents the ground truth answer.
+A chat between a curious human and an artificial intelligence assistant. The assistant
+gives helpful, detailed, and polite answers to the human's questions.
+Guidelines:
+• First, divide the actions in this sentence into complete short sentence.
+• Then, briefly answer on which axis the most significant change occurred, where the x -
+   axis represents left-right side, the y-axis represents height, and the z-axis represents
+   forward-backward. If the change is most significant on the x -axis, answer "x-axis"; if
+   on the y-axis, answer "y-axis"; if on the z-axis, answer "z-axis". If it is unable to
+   determine, answer "unable to determine".
+• Third step, select the joint with the most significant change on the given axis from the
+   list of candidate joints: [“left hand”, “right hand”, “hands”, “left foot”, “right foot”,
+   “feet”, ”head”, ”one hand (unspecified left or right)”,”one foot (unspecified left or
+   right)”, "pelvis"].
+• There is no need to explain the reasoning process.
+
+Example input:
+a man steps forward and raises his hand as if waving, he drops his arm, and then raises it
+again but a little lower.
+Example output:
+A man steps forward. z-axis. pelvis.
+He raises his hand as if waving. y-axis. hands.
+He drops his arm. y-axis. hands.
+He raises it again but a little lower. y -axis. hands.
+
+New input:
+Now, you need to judge this input:
+A person lifts their hand up to their head then lowers it.
+New Output:
+
+
+
+                  Figure 7: Instructions provided to GLM-4 for splitting captions.
+

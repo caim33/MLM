@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "name": "replace_me",
+  "annotation_path": "/absolute/path/to/samples.jsonl",
+  "media_root": "/absolute/path/to/media",
+  "split": "train",
+  "motion_mean_path": "/absolute/path/to/stats/Mean.npy",
+  "motion_std_path": "/absolute/path/to/stats/Std.npy",
+  "expected_motion_dim": 263
+}

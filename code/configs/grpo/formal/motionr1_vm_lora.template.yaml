@@ -1,0 +1,156 @@
+# FORMAL TEMPLATE ONLY. Copy this file into the immutable batch directory and
+# replace every /ABSOLUTE/... value before launch. Do not execute this template
+# in place: provenance.config_path must equal the exact copied config executed.
+run:
+  batch_id: REPLACE_BATCH_ID
+  model_registry_id: motionr1_vm_lora
+  purpose: formal_finetune
+  expected_optimizer_steps: REPLACE_POSITIVE_MAX_STEPS
+  artifact_root: /ABSOLUTE/BATCH_ROOT
+  output_dir: /ABSOLUTE/BATCH_ROOT/artifacts/motionr1_vm_lora_grpo/output
+  # This exact leaf is checked after Swift exits; the runner never discovers
+  # "latest" versions or checkpoints.
+  artifact_path: /ABSOLUTE/BATCH_ROOT/artifacts/motionr1_vm_lora_grpo/output/checkpoint-REPLACE_POSITIVE_MAX_STEPS
+  add_version: false
+  artifact_manifest_path: /ABSOLUTE/BATCH_ROOT/receipts/motionr1_vm_lora_grpo_manifest.json
+  reload_receipt_path: /ABSOLUTE/BATCH_ROOT/receipts/motionr1_vm_lora_grpo_reload.json
+  colocation_receipt_path: /ABSOLUTE/BATCH_ROOT/receipts/motionr1_vm_lora_grpo_colocation.json
+  colocation_expected_calls: REPLACE_POSITIVE_REWARD_CALLS
+  runtime_contract_path: ${REPO_ROOT}/qwenvl/grpo_ms_swift/runtime/grpo_api_contract.json
+  swift_launcher_sha256: REPLACE_LOWERCASE_SHA256_OF_FROZEN_SWIFT_LAUNCHER
+  run_name: REPLACE_BATCH_ID-motionr1-vm-grpo-lora
+  seed: 20260821
+  dataset_precheck: true
+  context_expansion_guard: true
+  report_to:
+    - tensorboard
+
+model:
+  model: /ABSOLUTE/FROZEN_BASE_MODEL
+  model_family: qwen3_vl_motion
+  model_type: motion_r1_qwen3_vl_motion
+  torch_dtype: bfloat16
+  max_length: 8192
+  min_pixels: 784
+  max_pixels: 50176
+  video_min_frames: 4
+  video_max_frames: 32
+  video_fps: 2
+  motion_length_divisor: 4
+  motion_timestamps_sync_with_video: true
+  new_special_tokens:
+    - <motion_start>
+    - <motion_end>
+  model_kwargs:
+    vqvae_path: /ABSOLUTE/FROZEN_VQVAE/net_best_fid.pth
+    motion_dataname: t2m
+    motion_quantizer: ema
+    vqvae_nb_code: 512
+    vqvae_code_dim: 512
+    vqvae_output_emb_width: 512
+    vqvae_down_t: 2
+    vqvae_stride_t: 2
+    vqvae_width: 512
+    vqvae_depth: 3
+    vqvae_dilation_growth_rate: 3
+    vqvae_activation: relu
+
+data:
+  dataset:
+    - /ABSOLUTE/FROZEN_DATA/grpo_train.jsonl
+  val_dataset:
+    - /ABSOLUTE/FROZEN_DATA/grpo_validation.jsonl
+  dataset_num_proc: 1
+  load_from_cache_file: false
+  dataset_shuffle: false
+  strict: true
+  remove_unused_columns: false
+
+training:
+  tuner_type: lora
+  tuner_backend: peft
+  use_swift_lora: false
+  target_modules: all-linear
+  target_regex: null
+  target_parameters: null
+  modules_to_save:
+    - motion_prenorm
+    - motion_proj
+  lora_rank: 16
+  lora_alpha: 32
+  lora_dropout: 0.05
+  lora_bias: none
+  use_rslora: false
+  use_dora: false
+  lora_dtype: null
+  lorap_lr_ratio: null
+  lorap_emb_lr: 1.0e-6
+  freeze_llm: false
+  freeze_vit: true
+  freeze_aligner: true
+  max_steps: REPLACE_POSITIVE_MAX_STEPS
+  per_device_train_batch_size: 1
+  per_device_eval_batch_size: 1
+  gradient_accumulation_steps: 1
+  learning_rate: 1.0e-6
+  logging_steps: 1
+  save_strategy: steps
+  save_steps: REPLACE_POSITIVE_SAVE_STEPS
+  save_total_limit: 1
+  save_only_model: false
+  save_safetensors: true
+  eval_strategy: "no"
+  dataloader_num_workers: 0
+  bf16: true
+  gradient_checkpointing: true
+  callbacks:
+    - motion_training_receipt
+
+grpo:
+  use_vllm: false
+  steps_per_generation: 1
+  generation_batch_size: 4
+  num_generations: 2
+  num_generations_eval: 2
+  num_iterations: 1
+  max_completion_length: 1024
+  temperature: 1.0
+  top_p: 1.0
+  top_k: 50
+  beta: 0.001
+  epsilon: 0.2
+  epsilon_high: 0.28
+  advantage_estimator: grpo
+  log_completions: true
+
+rewards:
+  reward_funcs:
+    - motion_semantic
+    - motion_format
+    - motion_vm_v_bonus
+  reward_weights:
+    - 1.0
+    - 0.2
+    - 0.5
+
+plugins:
+  external_plugins:
+    - ${REPO_ROOT}/qwenvl/grpo_ms_swift/plugins/swift_external_rewards.py
+  custom_register_path:
+    - ${REPO_ROOT}/qwenvl/grpo_ms_swift/model_register/motion_model.py
+
+provenance:
+  base_artifact_path: /ABSOLUTE/FROZEN_BASE_MODEL
+  train_data_path: /ABSOLUTE/FROZEN_DATA/grpo_train.jsonl
+  validation_data_path: /ABSOLUTE/FROZEN_DATA/grpo_validation.jsonl
+  benchmark_path: /ABSOLUTE/BATCH_ROOT/provenance/frozen_benchmark.jsonl
+  leakage_audit_path: /ABSOLUTE/BATCH_ROOT/provenance/leakage_audit.json
+  config_path: /ABSOLUTE/BATCH_ROOT/configs/motionr1_vm_lora_grpo.yaml
+  # Launch the runner from this exact frozen code root. The runner rejects an
+  # unrelated snapshot path and binds its plugin/register/contract to this root.
+  code_path: ${REPO_ROOT}
+  runner_code_path: ${REPO_ROOT}/qwenvl/grpo_ms_swift/runner/train_grpo_ms_swift.py
+  # Must be the complete output of the same bound interpreter's
+  # `python -m pip freeze --all`, including every critical exact pin.
+  environment_path: /ABSOLUTE/BATCH_ROOT/provenance/environment.freeze.txt
+  motion_vqvae_asset_path: /ABSOLUTE/FROZEN_VQVAE/net_best_fid.pth

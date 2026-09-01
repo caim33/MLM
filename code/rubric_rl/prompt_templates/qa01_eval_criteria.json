@@ -1,0 +1,103 @@
+{
+  "mode": "qa_mc",
+  "benchmark_id": "QA_000001",
+  "case_name": "QA01",
+  "task": "QA",
+  "question_type": "orientation_transition",
+  "question_focus": "camera-relative orientation change from the initial segment to the lunge segment",
+  "question": "How does the person's orientation relative to the camera change from the initial segment (00.00-01.30s) to the lunge segment (02.80-04.20s)?",
+  "options": {
+    "A": "From facing directly at the camera to facing slightly left of the camera",
+    "B": "From facing directly at the camera to facing slightly right of the camera",
+    "C": "From facing slightly left of the camera to facing directly at the camera",
+    "D": "Remains facing directly at the camera throughout both segments"
+  },
+  "correct_option": "A",
+  "correct_option_text": "From facing directly at the camera to facing slightly left of the camera",
+  "reasoning_criteria": [
+    {
+      "id": "r1",
+      "criterion": "The reasoning identifies that the question asks about orientation relative to the camera.",
+      "type": "question_focus"
+    },
+    {
+      "id": "r2",
+      "criterion": "The reasoning compares the initial segment 00.00-01.30s with the lunge segment 02.80-04.20s.",
+      "type": "segment_reference"
+    },
+    {
+      "id": "r3",
+      "criterion": "The reasoning states that the person initially faces directly at the camera.",
+      "type": "correct_option_fact"
+    },
+    {
+      "id": "r4",
+      "criterion": "The reasoning states that during the lunge segment the person faces slightly left of the camera.",
+      "type": "correct_option_fact"
+    },
+    {
+      "id": "r5",
+      "criterion": "The reasoning describes the change as going from direct-facing to slightly-left-facing.",
+      "type": "comparison"
+    },
+    {
+      "id": "r6",
+      "criterion": "The reasoning explicitly connects that orientation change to option A.",
+      "type": "option_mapping"
+    }
+  ],
+  "format_criteria": [
+    {
+      "id": "f1",
+      "criterion": "Exactly one <think>...</think> block is present.",
+      "type": "format"
+    },
+    {
+      "id": "f2",
+      "criterion": "Exactly one <answer>...</answer> block is present.",
+      "type": "format"
+    },
+    {
+      "id": "f3",
+      "criterion": "The <answer> block contains only one uppercase option letter A, B, C, or D.",
+      "type": "format"
+    },
+    {
+      "id": "f4",
+      "criterion": "The reasoning appears before the final answer, with no extra final conclusion outside <answer>.",
+      "type": "format"
+    }
+  ],
+  "negative_criteria": [
+    {
+      "id": "n1",
+      "criterion": "The reasoning says the orientation remains unchanged across the two segments.",
+      "type": "contradiction"
+    },
+    {
+      "id": "n2",
+      "criterion": "The reasoning says the lunge segment faces slightly right of the camera.",
+      "type": "contradiction"
+    },
+    {
+      "id": "n3",
+      "criterion": "The reasoning reverses the transition by saying it goes from slightly left-facing to direct-facing.",
+      "type": "contradiction"
+    },
+    {
+      "id": "n4",
+      "criterion": "The reasoning supports option B, C, or D instead of option A.",
+      "type": "wrong_option_support"
+    },
+    {
+      "id": "n5",
+      "criterion": "The reasoning is generic and does not address camera-relative orientation.",
+      "type": "irrelevant_reasoning"
+    },
+    {
+      "id": "n6",
+      "criterion": "The reasoning focuses on unrelated limb, posture, or action details without answering the orientation comparison.",
+      "type": "irrelevant_reasoning"
+    }
+  ]
+}

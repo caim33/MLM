@@ -1,0 +1,95 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-07-29T16:17:54.382934+00:00",
+  "host": "3v8pjmt48lnm8-0",
+  "python": "3.10.12 (main, Nov 20 2023, 15:14:05) [GCC 11.4.0]",
+  "torch": "2.4.0a0+f70bd71a48.nv24.06",
+  "cuda_available": true,
+  "pretrain_root": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/codex_runs/unified_model_eval/shared_assets/pretrained",
+  "status": "passed",
+  "tests": [
+    {
+      "name": "qwen_config_processor_offline",
+      "status": "passed",
+      "elapsed_seconds": 12.745529651641846,
+      "detail": {
+        "qwen36_27b_lora": {
+          "config_class": "Qwen3_5Config",
+          "processor_class": "Qwen3VLProcessor",
+          "tokenizer_class": "TokenizersBackend",
+          "vocab_size": 248044
+        },
+        "motionr1_vm_lora": {
+          "config_class": "Qwen3VLConfig",
+          "processor_class": "Qwen3VLProcessor",
+          "tokenizer_class": "Qwen2Tokenizer",
+          "vocab_size": 151643
+        },
+        "qwen3vl_8b_lora": {
+          "config_class": "Qwen3VLConfig",
+          "processor_class": "Qwen3VLProcessor",
+          "tokenizer_class": "Qwen2Tokenizer",
+          "vocab_size": 151643
+        },
+        "qwen3vl_4b_lora": {
+          "config_class": "Qwen3VLConfig",
+          "processor_class": "Qwen3VLProcessor",
+          "tokenizer_class": "Qwen2Tokenizer",
+          "vocab_size": 151643
+        },
+        "qwen35_4b_lora": {
+          "config_class": "Qwen3_5Config",
+          "processor_class": "Qwen3VLProcessor",
+          "tokenizer_class": "TokenizersBackend",
+          "vocab_size": 248044
+        }
+      }
+    },
+    {
+      "name": "agcn_official_init_forward",
+      "status": "passed",
+      "elapsed_seconds": 0.8752756118774414,
+      "detail": {
+        "initialization": "official_random_initialization",
+        "parameter_count": 3455118,
+        "output_shape": [
+          1,
+          4
+        ],
+        "finite": true
+      }
+    },
+    {
+      "name": "motionclip_pretrained_encoder_strict_load",
+      "status": "passed",
+      "elapsed_seconds": 0.4003019332885742,
+      "detail": {
+        "checkpoint_key_count": 249,
+        "encoder_key_count": 101,
+        "missing_keys": [],
+        "unexpected_keys": [],
+        "output_shape": [
+          1,
+          512
+        ],
+        "finite": true
+      }
+    },
+    {
+      "name": "motionllm_base_lora_projector_strict_load",
+      "status": "passed",
+      "elapsed_seconds": 10.046513795852661,
+      "detail": {
+        "base_key_count": 227,
+        "official_lora_key_count": 64,
+        "combined_key_count": 291,
+        "missing_keys": [],
+        "unexpected_keys": [],
+        "projector_missing_keys": [],
+        "projector_unexpected_keys": [],
+        "tokenizer_eos_id": 2,
+        "video_model_type": "LanguageBindVideo"
+      }
+    }
+  ]
+}

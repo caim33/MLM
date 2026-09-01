@@ -1,0 +1,69 @@
+{
+  "schema": "motionllm.grpo.runtime.v1",
+  "python_major_minor": "3.12",
+  "swift_cli": "swift",
+  "cuda_runtime_prefix": "12.8",
+  "packages": {
+    "accelerate": "1.13.0",
+    "ms-swift": "4.2.2",
+    "transformers": "4.57.3",
+    "peft": "0.18.0",
+    "safetensors": "0.8.0",
+    "torch": "2.7.0",
+    "datasets": "4.8.4",
+    "trl": "0.26.2",
+    "qwen-vl-utils": "0.0.14",
+    "PyYAML": "6.0.2"
+  },
+  "api_checks": [
+    {
+      "module": "swift.model",
+      "attributes": ["ModelLoader", "register_model"]
+    },
+    {
+      "module": "swift.rewards",
+      "attributes": ["ORM", "orms"]
+    },
+    {
+      "module": "swift.callbacks",
+      "attributes": ["TrainerCallback", "callbacks_map"]
+    },
+    {
+      "module": "swift.template.templates.qwen",
+      "attributes": ["Qwen3VLTemplate", "QwenTemplateMeta"]
+    },
+    {
+      "module": "peft",
+      "attributes": ["PeftModel", "PeftModel.from_pretrained", "get_peft_model_state_dict"],
+      "signatures": {
+        "PeftModel.from_pretrained": ["model", "model_id", "adapter_name", "is_trainable", "config", "autocast_adapter_dtype", "ephemeral_gpu_offload", "low_cpu_mem_usage", "key_mapping", "kwargs"],
+        "get_peft_model_state_dict": ["model", "state_dict", "adapter_name", "unwrap_compiled", "save_embedding_layers"]
+      }
+    },
+    {
+      "module": "peft.utils.save_and_load",
+      "attributes": ["load_peft_weights"],
+      "signatures": {
+        "load_peft_weights": ["model_id", "device", "key_mapping", "hf_hub_download_kwargs"]
+      }
+    },
+    {
+      "module": "safetensors",
+      "attributes": ["safe_open"],
+      "signatures": {
+        "safe_open": ["filename", "framework", "device", "backend"]
+      }
+    },
+    {
+      "module": "accelerate",
+      "attributes": ["Accelerator", "Accelerator.unwrap_model"],
+      "signatures": {
+        "Accelerator.unwrap_model": ["self", "model", "keep_fp32_wrapper", "keep_torch_compile"]
+      }
+    },
+    {
+      "module": "transformers",
+      "attributes": ["AutoProcessor"]
+    }
+  ]
+}

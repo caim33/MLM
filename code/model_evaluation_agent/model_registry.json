@@ -1,0 +1,143 @@
+{
+  "schema_version": "1.0",
+  "updated_at": "2026-07-30T01:26:55+08:00",
+  "fresh_finetune_required_per_batch": true,
+  "global_finetune_barrier_before_eval": true,
+  "models": [
+    {
+      "id": "qwen36_27b_lora",
+      "display_name": "Qwen3.6-27B LoRA",
+      "main_modality": "V",
+      "finetune_kind": "LoRA",
+      "evaluation_mode": "generative",
+      "current_asset_state": "pretrain_assets_ready_historical_runner_available",
+      "notes": "Base cache and historical adapter evidence exist; a new batch adapter is mandatory."
+    },
+    {
+      "id": "motionr1_vm_lora",
+      "display_name": "Motion-R1 VM LoRA",
+      "main_modality": "VM",
+      "finetune_kind": "LoRA",
+      "evaluation_mode": "generative",
+      "current_asset_state": "pretrain_assets_ready_historical_runner_available",
+      "notes": "Main-table run must consume video and motion. V/M ablations stay diagnostic."
+    },
+    {
+      "id": "qwen3vl_8b_lora",
+      "display_name": "Qwen3-VL-8B LoRA",
+      "main_modality": "V",
+      "finetune_kind": "LoRA",
+      "evaluation_mode": "generative",
+      "current_asset_state": "pretrain_assets_ready_historical_runner_available",
+      "notes": "Base cache and historical adapter evidence exist; a new batch adapter is mandatory."
+    },
+    {
+      "id": "qwen3vl_4b_lora",
+      "display_name": "Qwen3-VL-4B LoRA",
+      "main_modality": "V",
+      "finetune_kind": "LoRA",
+      "evaluation_mode": "generative",
+      "current_asset_state": "pretrain_assets_ready_historical_runner_available",
+      "notes": "Base cache and historical adapter evidence exist; a new batch adapter is mandatory."
+    },
+    {
+      "id": "qwen35_4b_lora",
+      "display_name": "Qwen3.5-4B LoRA",
+      "main_modality": "V",
+      "finetune_kind": "LoRA",
+      "evaluation_mode": "generative",
+      "current_asset_state": "pretrain_assets_ready_historical_runner_available",
+      "notes": "Base cache and historical adapter evidence exist; a new batch adapter is mandatory."
+    },
+    {
+      "id": "videollava_7b_lora",
+      "display_name": "Video-LLaVA-7B LoRA",
+      "main_modality": "V",
+      "finetune_kind": "LoRA",
+      "evaluation_mode": "generative",
+      "current_asset_state": "pretrain_assets_ready_historical_runner_available",
+      "notes": "Historical runner and adapter exist; strict parser and fresh finetune are required."
+    },
+    {
+      "id": "videochatgpt_lora",
+      "display_name": "VideoChatGPT LoRA",
+      "main_modality": "V",
+      "finetune_kind": "LoRA",
+      "evaluation_mode": "generative",
+      "current_asset_state": "pretrain_assets_ready_historical_runner_available",
+      "notes": "Historical runner and adapter exist; strict parser and fresh finetune are required."
+    },
+    {
+      "id": "videochat2_lora",
+      "display_name": "VideoChat2 LoRA",
+      "main_modality": "V",
+      "finetune_kind": "LoRA",
+      "evaluation_mode": "generative",
+      "current_asset_state": "pretrain_assets_ready_historical_runner_available",
+      "notes": "Historical runner and adapter exist; strict parser and fresh finetune are required."
+    },
+    {
+      "id": "videollama_trainables",
+      "display_name": "VideoLLaMA trainables",
+      "main_modality": "V",
+      "finetune_kind": "trainables",
+      "evaluation_mode": "generative",
+      "current_asset_state": "pretrain_assets_ready_historical_runner_available",
+      "notes": "Keep separate from the VideoLLaMA LoRA registry entry."
+    },
+    {
+      "id": "videollama_lora",
+      "display_name": "VideoLLaMA LoRA",
+      "main_modality": "V",
+      "finetune_kind": "LoRA",
+      "evaluation_mode": "generative",
+      "current_asset_state": "pretrain_assets_ready_true_lora_runner_smoke_passed",
+      "notes": "Keep separate from VideoLLaMA trainables. The shared official base and torch.hub runtime checkpoints are staged; scripts/finetune_videollama_lora.py passed a real optimizer-step smoke on 2026-07-30. A fresh LoRA artifact is still mandatory for every new batch."
+    },
+    {
+      "id": "mplug_owl_video_lora",
+      "display_name": "mPLUG-Owl Video LoRA",
+      "main_modality": "V",
+      "finetune_kind": "LoRA",
+      "evaluation_mode": "generative",
+      "current_asset_state": "pretrain_assets_ready_historical_runner_available",
+      "notes": "Historical low parse rate is not a new-result target; use the strict parser."
+    },
+    {
+      "id": "otter_video_lora",
+      "display_name": "Otter-Video LoRA",
+      "main_modality": "V",
+      "finetune_kind": "LoRA",
+      "evaluation_mode": "generative",
+      "current_asset_state": "pretrain_assets_ready_historical_runner_available",
+      "notes": "Historical runner and adapter exist; strict parser and fresh finetune are required."
+    },
+    {
+      "id": "agcn_official",
+      "display_name": "AGCN",
+      "main_modality": "M",
+      "finetune_kind": "official discriminative finetune",
+      "evaluation_mode": "discriminative_abcd_scores",
+      "current_asset_state": "official_source_ready_no_pretrain_required",
+      "notes": "Official source, revision, and license are pinned. The official recipe initializes from scratch; next-batch motion preprocessing, joint graph, and classifier must be frozen. MLP/RNN proxy is forbidden."
+    },
+    {
+      "id": "motionclip_official",
+      "display_name": "MotionCLIP",
+      "main_modality": "M",
+      "finetune_kind": "official discriminative finetune",
+      "evaluation_mode": "discriminative_abcd_scores",
+      "current_asset_state": "official_source_and_pretrain_ready",
+      "notes": "Official source and paper checkpoint are pinned and the encoder strict-load smoke passes. Next-batch preprocessing and classifier must be frozen. MLP/RNN proxy is forbidden."
+    },
+    {
+      "id": "motionllm_official",
+      "display_name": "MotionLLM",
+      "main_modality": "V",
+      "finetune_kind": "project-owned LoRA plus official projector path",
+      "evaluation_mode": "generative",
+      "current_asset_state": "pretrain_assets_ready_project_runner_smoke_passed",
+      "notes": "The restored and smoke-tested registry path consumes video through the official LanguageBind video tower. Official repo, public LoRA/projector, converted Vicuna Lit-GPT base, tokenizer, tower, and pinned legacy runtime are staged. The upstream repository does not publish a finetune entrypoint; the project-owned scripts/finetune_motionllm_lora.py batch-JSON path passed a real LoRA-plus-projector optimizer-step smoke on 2026-07-30. A fresh artifact is mandatory for every new batch."
+    }
+  ]
+}

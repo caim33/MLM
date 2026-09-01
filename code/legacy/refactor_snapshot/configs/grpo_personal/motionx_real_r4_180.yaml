@@ -1,0 +1,90 @@
+run:
+  output_dir: /wangbenyou-sulongjie/Motion-r1/qwen-vl-finetune/outputs/grpo/motionx_real_r4_180
+  run_name: motion-r1-grpo-motionx-r4-180
+  seed: 42
+  context_expansion_guard: true
+  forbidden_context_limit_env_keys:
+  - VIDEO_MAX_TOKEN_NUM
+  - VIDEO_MIN_TOKEN_NUM
+  - IMAGE_MAX_TOKEN_NUM
+  - IMAGE_MIN_TOKEN_NUM
+  - FPS_MAX_FRAMES
+  - FPS_MIN_FRAMES
+  - MAX_RATIO
+  - FRAME_FACTOR
+  report_to:
+  - tensorboard
+model:
+  model: /wangbenyou-sulongjie/Qwen3_vl_motion/model/Qwen3-VL-4B-Thinking
+  model_type: motion_r1_qwen3_vl_motion
+  torch_dtype: bfloat16
+  max_length: 8192
+  max_pixels: 50176
+  min_pixels: 784
+  new_special_tokens:
+  - <motion_start>
+  - <motion_end>
+  model_kwargs:
+    vqvae_path: /wangbenyou-sulongjie/Motion-r1/model/pretrained/VQVAE/net_best_fid.pth
+    motion_dataname: t2m
+    motion_quantizer: ema
+    vqvae_nb_code: 512
+    vqvae_code_dim: 512
+    vqvae_output_emb_width: 512
+    vqvae_down_t: 2
+    vqvae_stride_t: 2
+    vqvae_width: 512
+    vqvae_depth: 3
+    vqvae_dilation_growth_rate: 3
+    vqvae_activation: relu
+data:
+  dataset:
+  - ${REPO_ROOT}/../data/grpo/motionx_report_grpo.jsonl
+  dataset_num_proc: 1
+  load_from_cache_file: false
+  dataset_shuffle: true
+  strict: false
+  remove_unused_columns: false
+training:
+  tuner_type: full
+  num_train_epochs: 1
+  max_steps: 180
+  per_device_train_batch_size: 2
+  gradient_accumulation_steps: 1
+  learning_rate: 5.0e-07
+  logging_steps: 1
+  save_strategy: steps
+  save_steps: 30
+  save_total_limit: 6
+  eval_strategy: 'no'
+  dataloader_num_workers: 0
+  bf16: true
+  gradient_checkpointing: true
+grpo:
+  use_vllm: false
+  steps_per_generation: 4
+  num_generations: 4
+  num_iterations: 1
+  max_completion_length: 1024
+  temperature: 1.0
+  top_p: 1.0
+  top_k: 50
+  beta: 0.001
+  epsilon: 0.2
+  epsilon_high: 0.28
+  advantage_estimator: grpo
+  log_completions: true
+rewards:
+  reward_funcs:
+  - motion_semantic
+  - motion_format
+  - motion_vm_v_bonus
+  reward_weights:
+  - 1.0
+  - 0.2
+  - 0.5
+plugins:
+  external_plugins:
+  - ${REPO_ROOT}/qwenvl/grpo_ms_swift/plugins/swift_external_rewards.py
+  custom_register_path:
+  - ${REPO_ROOT}/qwenvl/grpo_ms_swift/model_register/motion_model.py

@@ -1,0 +1,113 @@
+{
+  "schema_version": "1.0",
+  "created_at": "2026-07-30T01:26:55+08:00",
+  "purpose": "Evidence that the two previously unverified finetune paths execute one real optimizer step from canonical pretrained assets.",
+  "policy": {
+    "smoke_outputs_are_not_pretrained_assets": true,
+    "smoke_outputs_are_not_evaluation_results": true,
+    "generated_smoke_weights_deleted_after_hashing": true
+  },
+  "results": [
+    {
+      "status": "passed",
+      "model_id": "videollama_lora",
+      "runner": "scripts/finetune_videollama_lora.py",
+      "kind": "true_peft_lora",
+      "steps": 1,
+      "losses": [
+        0.3471278250217438
+      ],
+      "trainable_parameters": 8388608,
+      "total_parameters": 7859967872,
+      "max_gradient": 0.01922607421875,
+      "max_parameter_update": 1.9999988580821082e-05,
+      "peak_cuda_bytes": 29794477056,
+      "elapsed_seconds": 94.12967848777771,
+      "data_sha256": "24907d5e334b0dc8eaffc405dca668821943216dbffa8a64d5c5274ed572c4e2",
+      "generated_artifact_evidence": [
+        {
+          "name": "adapter_model.bin",
+          "bytes": 33601315,
+          "sha256": "f757dbcbfccedefeed9928342ca1bd652b26bac0f94fecae27a543acc74c1ead",
+          "retained": false
+        },
+        {
+          "name": "adapter_config.json",
+          "bytes": 571,
+          "sha256": "12a2d7f66074dd1eac81cb9e4d414f71858305882ba28c4fbcbaefcafa43f903",
+          "retained": false
+        }
+      ]
+    },
+    {
+      "status": "passed",
+      "model_id": "motionllm_official",
+      "runner": "scripts/finetune_motionllm_lora.py",
+      "runner_ownership": "project-owned because the official public repository does not release a finetune entrypoint",
+      "runner_interface": "batch JSON through --data-path, with deterministic epoch/step scheduling",
+      "kind": "lora_plus_projector",
+      "steps": 1,
+      "losses": [
+        2.0877151489257812
+      ],
+      "sample_count": 1,
+      "video_token_counts": [
+        8
+      ],
+      "trainable_parameters": 54534144,
+      "max_gradient": 0.17034912109375,
+      "max_parameter_update": 3.0517578125e-05,
+      "peak_cuda_bytes": 15046987776,
+      "elapsed_seconds": 32.82605838775635,
+      "initialized_from_official_lora": true,
+      "data_sha256": "42029bc940cb7a7ec5d82d308513b9382004b223f7e2e2e941b925076f32966d",
+      "generated_artifact_evidence": [
+        {
+          "name": "lora.pth",
+          "bytes": 67124682,
+          "sha256": "678dad3d27b3a54564ba3201095a73e66edb8b331c7814da6b3b07f81ac41077",
+          "retained": false
+        },
+        {
+          "name": "linear.pth",
+          "bytes": 83920520,
+          "sha256": "4452f5e2e858813fb0f7555b74c27ce17a95b34422db5bfa86e0f70223b2057c",
+          "retained": false
+        }
+      ]
+    }
+  ],
+  "runtime_fixes_staged": {
+    "videollama_torch_hub_checkpoints": [
+      {
+        "name": "eva_vit_g.pth",
+        "bytes": 2025249237,
+        "sha256": "99d2bb36c6b52c94fe6e2e12373afb27de57ae81378c3d8c53bf0e83b0f4275f"
+      },
+      {
+        "name": "blip2_pretrained_flant5xxl.pth",
+        "bytes": 433481467,
+        "sha256": "4b3839ea6c617f315ead9bf4036bbb0f0cf6bf62695ecfc14968ea626af03a29"
+      }
+    ],
+    "motionllm_pinned_python_packages": {
+      "transformers": "4.28.1",
+      "tokenizers": "0.13.3",
+      "peft": "0.8.2",
+      "huggingface_hub": "0.22.2"
+    }
+  },
+  "cleanup": {
+    "status": "completed",
+    "freed_allocated_bytes": 68903427584,
+    "freed_gib": 64.17,
+    "scope": "historical finetune weight directories, proxy weight files, and generated smoke weights only",
+    "retained": [
+      "canonical pretrained/base checkpoints",
+      "source code and runners",
+      "training data, configs, logs, manifests, and evaluation evidence",
+      "all files used by active QA-generation processes"
+    ],
+    "recoverable": false
+  }
+}

@@ -1,0 +1,107 @@
+SYSTEM:
+You are a strict but fair judge for time-segmented motion captions.
+
+Evaluate semantic correctness, not word overlap.
+Use only the provided criteria.
+Do not create new criteria or IDs.
+Return only valid JSON.
+
+USER:
+Criteria:
+{CRITERIA_JSON}
+
+Candidate motion caption:
+{CANDIDATE_DESCRIPTION}
+
+Task:
+Evaluate the candidate in Stage 1 temporal caption mode.
+
+The candidate should be a concise time-segmented motion caption.
+
+Scoring weights:
+- global_action: 20 points
+- segment_level_caption_facts: 55 points
+- temporal_order: 15 points
+- language_conciseness: 0 to 10 points
+- hallucination_penalty: 0 to -20 points
+
+Judging rules:
+1. A fact is satisfied if the candidate expresses the same meaning by paraphrase.
+2. Do not require exact timestamps.
+3. Do not require exact angles, distances, frame counts, or numerical values.
+4. Do not strongly penalize left/right mismatch unless it changes the main action.
+5. The GT criteria may not be exhaustive. Do not penalize reasonable extra details unless they contradict the criteria.
+6. Penalize unsupported extra people, props, object interactions, scene changes, unrelated activities, and major contradictions.
+7. Omission alone is not hallucination. Penalize omissions through missed IDs, not hallucination_penalty.
+8. Temporal ordering errors should be penalized mainly through temporal_order_score.
+9. For global_action and segment_level_caption_facts, judge whether each motion fact appears anywhere in the candidate, even if it appears in the wrong time segment.
+10. If a fact contains temporal wording such as starts, begins, later, or concludes, focus on the underlying motion/action fact and let temporal_order_score handle timing.
+11. Do not apply hallucination_penalty for reversed or shifted order alone unless the candidate also adds unsupported actions or contradicts the actual motion content.
+12. Return only IDs that exist in the provided criteria. Never invent IDs.
+13. Do not return counts. The training code will count IDs.
+
+For global_action:
+- Put the IDs of satisfied global_facts in satisfied_ids.
+- Put the IDs of missing global_facts in missed_ids.
+
+For segment_level_caption_facts:
+- present_ids: IDs of segment facts whose motion/action content appears anywhere in the candidate, even if placed in the wrong time segment.
+- aligned_ids: IDs of segment facts that appear in the correct segment, a nearby segment, or a reasonable merged segment.
+- missed_ids: IDs of segment facts that do not appear anywhere in the candidate.
+- misplaced_ids: IDs of segment facts that are present but placed in the wrong temporal phase.
+- aligned_ids must be a subset of present_ids.
+- missed_ids and present_ids should not overlap.
+- misplaced_ids should usually be present_ids minus aligned_ids when the only issue is temporal placement.
+
+The training code will compute:
+global_action_score =
+20 * len(satisfied_ids) / total_global_facts
+
+segment_score =
+55 * (
+  0.3 * len(present_ids) / total_segment_facts
+  + 0.7 * len(aligned_ids) / total_segment_facts
+)
+
+For temporal_order:
+Choose one score: 0, 5, 10, or 15.
+- 15: Major motion phases are in the correct order.
+- 10: Mostly correct order, but one phase is missing, merged, or slightly misplaced.
+- 5: Some actions are correct, but temporal progression is weak or confusing.
+- 0: Order is absent, reversed, or mostly wrong.
+
+For language_conciseness:
+Give an integer score from 0 to 10.
+Consider clarity, grammar, caption style, temporal organization, and lack of unnecessary repetition.
+
+For hallucination_penalty:
+Choose one score: 0, -5, -10, -15, or -20.
+- 0: No meaningful hallucination.
+- -5: Minor unsupported detail or small extra action, but the main motion remains correct.
+- -10: Clear unsupported action, prop, object interaction, extra actor, scene change, or contradiction in one segment.
+- -15: Major fabricated action or contradiction affecting multiple segments or the main motion.
+- -20: Mostly unrelated, wrong activity, incompatible sequence, or severe fabrication.
+
+Important:
+Do not compute the final reward.
+Only output criteria IDs, selected scores, and short hallucination notes.
+
+Return JSON with this exact schema:
+
+{
+  "global_action": {
+    "satisfied_ids": [],
+    "missed_ids": []
+  },
+  "segment_level_caption_facts": {
+    "present_ids": [],
+    "aligned_ids": [],
+    "missed_ids": [],
+    "misplaced_ids": []
+  },
+  "temporal_order_score": 0,
+  "language_conciseness_score": 0,
+  "hallucination_penalty": 0,
+  "hallucinations": []
+}
+

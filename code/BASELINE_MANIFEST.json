@@ -1,0 +1,1019 @@
+﻿{
+    "schema_version":  "1.0",
+    "created_at":  "2026-08-20T03:04:48.5059141+08:00",
+    "legacy_source":  "D:\\MotionLLM\\History\\Artifacts\\project_snapshot_20260729_144801",
+    "active_root":  "D:\\MotionLLM\\motionllm_refactor",
+    "history_policy":  "read_only",
+    "sanitization":  [
+                         "excluded backup files, __pycache__, pyc",
+                         "excluded root data, outputs, checkpoints, weights and credentials",
+                         "replaced hard-coded WANDB_API_KEY assignment with environment-only requirement"
+                     ],
+    "files":  [
+                  {
+                      "path":  ".gitignore",
+                      "bytes":  280,
+                      "sha256":  "77faecfa4b5119a8c03529d52da94b6116bfb022802608c8731f5d8919a9dba6"
+                  },
+                  {
+                      "path":  "AGENTS.md",
+                      "bytes":  3812,
+                      "sha256":  "8d593010955cc26f5705c51693b08e018a4c8fbc8e69429320e8c4fa06e3fe21"
+                  },
+                  {
+                      "path":  "codex_remote_tools/collect_sota_report.py",
+                      "bytes":  3963,
+                      "sha256":  "3b60d1900fa308a3b897c378adafa4a66cfccfdbf30dfe4360f162d46aa483ae"
+                  },
+                  {
+                      "path":  "codex_remote_tools/convert_vicuna_hf_to_motionllm_lit.py",
+                      "bytes":  4610,
+                      "sha256":  "ad98ce5235df95ebe5d9a004a65adbfb13956f07946854507b62c8a02af2b182"
+                  },
+                  {
+                      "path":  "codex_remote_tools/download_model.py",
+                      "bytes":  4218,
+                      "sha256":  "b589479ee0a9eb925dea72ddcd1f9ff553431af580f9ce102cb5829a6cf00109"
+                  },
+                  {
+                      "path":  "codex_remote_tools/eval_api_vlm_mcq_generate.py",
+                      "bytes":  11179,
+                      "sha256":  "1b581db15ce1f53ea4457b59e6976ccd40c49da99d1af3040cedd1253360e480"
+                  },
+                  {
+                      "path":  "codex_remote_tools/eval_motionllm_mcq_generate.py",
+                      "bytes":  4964,
+                      "sha256":  "217520f4f84e8021644a6ba38f410740be4372d32930bdea2813f8e1ecfee310"
+                  },
+                  {
+                      "path":  "codex_remote_tools/eval_motionllm_mcq_score.py",
+                      "bytes":  6948,
+                      "sha256":  "6af8561fdaa6aef9cde1759bf5192fc86bae9446adf40d2c336f2682bdadc4b0"
+                  },
+                  {
+                      "path":  "codex_remote_tools/eval_motionr1_lora_mcq_score.py",
+                      "bytes":  17708,
+                      "sha256":  "5e967836d8385f2838d2b634465602fa2833c2b7a41a0affa81310ed4709656e"
+                  },
+                  {
+                      "path":  "codex_remote_tools/eval_motionr1_lora_option_text_score.py",
+                      "bytes":  8757,
+                      "sha256":  "2bbed606d80f64c8725285a944e0065752291d4bde5bf5aa7e242316cf1bbc26"
+                  },
+                  {
+                      "path":  "codex_remote_tools/eval_mplug_owl_lora_mcq_generate.py",
+                      "bytes":  7760,
+                      "sha256":  "a777fa14d91b84dabe0173d8cfe3044207974c6e8fa3dbe3e21989980a3044ca"
+                  },
+                  {
+                      "path":  "codex_remote_tools/eval_open_vlm_mcq_score.py",
+                      "bytes":  19746,
+                      "sha256":  "c7b32c9b7ca1a87e961963d3e0dc9dca44305b7fd083f2860fdd26b0e9021db0"
+                  },
+                  {
+                      "path":  "codex_remote_tools/eval_otter_lora_mcq_generate.py",
+                      "bytes":  8534,
+                      "sha256":  "c9d304a0d6a88fd35e57af3e5ce9587fed981a3272aa339b0e089b4b8e4798a6"
+                  },
+                  {
+                      "path":  "codex_remote_tools/eval_videochat2_lora_mcq_generate.py",
+                      "bytes":  7619,
+                      "sha256":  "4a50a793b56338faf2d3a82f39b0dcb6ffe01f38702d5b886cff0e5c0158b0eb"
+                  },
+                  {
+                      "path":  "codex_remote_tools/eval_videochatgpt_lora_mcq_generate.py",
+                      "bytes":  7776,
+                      "sha256":  "856ba099ebc7df41e7e4441ec9c073e750336d43d36ebeec0c30b541a9e6a974"
+                  },
+                  {
+                      "path":  "codex_remote_tools/eval_videollama_trainables_mcq_generate.py",
+                      "bytes":  7798,
+                      "sha256":  "9afa618c485cacfd8f148f8b4aefbedcc5e122bfb72d67a6e0a83f70188a11c2"
+                  },
+                  {
+                      "path":  "codex_remote_tools/eval_videollava_lora_mcq_generate.py",
+                      "bytes":  8603,
+                      "sha256":  "5c252f159991508d2b31e206caecb5ece9715f28d0d885d033a01a9f0e3ad6f6"
+                  },
+                  {
+                      "path":  "codex_remote_tools/gpu_keepalive.py",
+                      "bytes":  649,
+                      "sha256":  "3bfb3a940ad8dfa6c757230a290884dd02ba2c9ef098ef4dedae900aff1057dc"
+                  },
+                  {
+                      "path":  "codex_remote_tools/lightning_stub_pkg/lightning/__init__.py",
+                      "bytes":  418,
+                      "sha256":  "93bb0eda86844d9de755ae685577cb6e5ca080fe8dd887ca55bf37e4a7be6e3c"
+                  },
+                  {
+                      "path":  "codex_remote_tools/lightning_stub_pkg/lightning/fabric/__init__.py",
+                      "bytes":  1,
+                      "sha256":  "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+                  },
+                  {
+                      "path":  "codex_remote_tools/lightning_stub_pkg/lightning/fabric/strategies.py",
+                      "bytes":  65,
+                      "sha256":  "b74f0ce34c525b42173235e7038e4eacf38c4fd336a5b57f068963d130c71b0d"
+                  },
+                  {
+                      "path":  "codex_remote_tools/lightning_stub_pkg/lightning/fabric/utilities/__init__.py",
+                      "bytes":  1,
+                      "sha256":  "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+                  },
+                  {
+                      "path":  "codex_remote_tools/lightning_stub_pkg/lightning/fabric/utilities/load.py",
+                      "bytes":  88,
+                      "sha256":  "d3b4dd1f274e7a8dc27c92c4ee015bb3b607e8d282841f675455a7d209928c00"
+                  },
+                  {
+                      "path":  "codex_remote_tools/motionllm_lightning_stub.py",
+                      "bytes":  322,
+                      "sha256":  "afcad4e5e046f2a08cc742649be44f464efbf3f841ce4b90afdaa5520fe04d36"
+                  },
+                  {
+                      "path":  "codex_remote_tools/orchestrate_goal_finetune.py",
+                      "bytes":  10532,
+                      "sha256":  "50770b296373e45a3eeba83beacd137b6a5fb1aec8545ed4b4af30eaa8e4c72d"
+                  },
+                  {
+                      "path":  "codex_remote_tools/prepare_goal_finetune_data.py",
+                      "bytes":  16370,
+                      "sha256":  "0df06f4d1b2c07fccfcba1649896f8da83c66ef5bc73e2f6d3ca87375b75fe1a"
+                  },
+                  {
+                      "path":  "codex_remote_tools/prepare_sft_motionx_qa.py",
+                      "bytes":  4952,
+                      "sha256":  "1df07ca2f9202c5987c0eea80f762aae0c7fa8a658485808d07265ca6d66eef7"
+                  },
+                  {
+                      "path":  "codex_remote_tools/remote_exec.py",
+                      "bytes":  3987,
+                      "sha256":  "a970fcc90c5c0095a367517d97de2f33f70aa81bd21cd8b03a01bbfc8adf0b4c"
+                  },
+                  {
+                      "path":  "codex_remote_tools/run_cot_qa_generation_qwen27b.py",
+                      "bytes":  12810,
+                      "sha256":  "6b395637d3a3cd61f99e64bd7ea1a185a20488cc412090a3e41ce7ccde622467"
+                  },
+                  {
+                      "path":  "codex_remote_tools/run_cot_qa_sft_0426.py",
+                      "bytes":  26627,
+                      "sha256":  "bfb3731afe3d705dbd9232fcbd2b756192635e1a263a1978c5b25c69b437ddeb"
+                  },
+                  {
+                      "path":  "codex_remote_tools/run_lora_sft_codex.py",
+                      "bytes":  5578,
+                      "sha256":  "fde8be39fc652d3a7e6ccf0ce13abd6c92054feed4d49ee6321c3a9e10af38d6"
+                  },
+                  {
+                      "path":  "codex_remote_tools/run_mplug_owl_lora_sft_goal.py",
+                      "bytes":  13164,
+                      "sha256":  "78ca0c1a353974eca8732ca4796fc70768b98125220432d2f5156a7a7983c040"
+                  },
+                  {
+                      "path":  "codex_remote_tools/run_otter_lora_sft_goal.py",
+                      "bytes":  10736,
+                      "sha256":  "2343c4cbad015aee31faf76ae8181964de4e981aa1aa3cb32164de5cbef54553"
+                  },
+                  {
+                      "path":  "codex_remote_tools/run_qwen_goal_continue.py",
+                      "bytes":  11502,
+                      "sha256":  "bb3e25c409fdb3ee1a37e99bff29e7b43710e371f5399a99edd2dd358a5b642f"
+                  },
+                  {
+                      "path":  "codex_remote_tools/run_qwen_goal_pipeline.py",
+                      "bytes":  12845,
+                      "sha256":  "d1c78a3f66148aee738739fa9ade161ed4f4b77c51a49223c45e11b2584753a8"
+                  },
+                  {
+                      "path":  "codex_remote_tools/run_rubric_qwen27b.py",
+                      "bytes":  8774,
+                      "sha256":  "1618a208679c09a617fddcd7fb14ef50f61199d88e88817133ce4e13238a9208"
+                  },
+                  {
+                      "path":  "codex_remote_tools/run_rubric_qwen27b_v2.py",
+                      "bytes":  8176,
+                      "sha256":  "c02e4fb5a498c90ba174edec88c246237be51a1f8f23c1247d387d084b92f092"
+                  },
+                  {
+                      "path":  "codex_remote_tools/run_sota_open_eval.py",
+                      "bytes":  8707,
+                      "sha256":  "66e17907b05f9932f93d5666c1125542c8b78d3b2283aa42db502a5d6fe83c04"
+                  },
+                  {
+                      "path":  "codex_remote_tools/run_videochat2_lora_sft_goal.py",
+                      "bytes":  9673,
+                      "sha256":  "67941ed79420498e9748ebe9697cd62946cbce07abd4c8e245acc425ae5c6423"
+                  },
+                  {
+                      "path":  "codex_remote_tools/run_videochatgpt_lora_sft_goal.py",
+                      "bytes":  9595,
+                      "sha256":  "75ce4393b7287661dc057bdb29dd0daa42d1c725824f3420e2f8d49be52a9e11"
+                  },
+                  {
+                      "path":  "codex_remote_tools/run_videollama_sft_goal.py",
+                      "bytes":  8392,
+                      "sha256":  "82bc3c9ef783767ee34f83a0fda27f8bd422b85a3206e3e142cfa319591a608b"
+                  },
+                  {
+                      "path":  "codex_remote_tools/run_videollava_after_qwen.py",
+                      "bytes":  9299,
+                      "sha256":  "0494eb007ed3153a75197c19cbe6e63f5d89ecdc1370e45381bdde9dc7ce6b3b"
+                  },
+                  {
+                      "path":  "codex_remote_tools/run_videollava_lora_sft_goal.py",
+                      "bytes":  1698,
+                      "sha256":  "c5ecc19a1cacc05e487706e9d6ba821add934f78e271d172c03f13ff0e55a00d"
+                  },
+                  {
+                      "path":  "codex_remote_tools/upload_and_launch_goal.py",
+                      "bytes":  4483,
+                      "sha256":  "384c8c7f1c9d988a960977eaaaf9c4e7a0515ee5e63ce26c4049f5fff58840d3"
+                  },
+                  {
+                      "path":  "codex_remote_tools/wait_then_score_test_qwen27b.sh",
+                      "bytes":  1620,
+                      "sha256":  "3c890a61e89108babaf6328485489e4b6cfb20df5441e7217d31093c860e8737"
+                  },
+                  {
+                      "path":  "configs/grpo/base.yaml",
+                      "bytes":  2170,
+                      "sha256":  "f4811277e7566c2036c6d90896b8a173391791d7f9aa8b8fba53c7d2da6501ca"
+                  },
+                  {
+                      "path":  "configs/grpo/debug.yaml",
+                      "bytes":  2174,
+                      "sha256":  "f2978ceb91d092a836399cf03c409350a33bd4470fb32c7c4c3ec6b36a90c7ba"
+                  },
+                  {
+                      "path":  "configs/grpo/debug_strict_smoke.yaml",
+                      "bytes":  2200,
+                      "sha256":  "b438a657f248a1444135d6e208eeb4d0fd44fea85959da8f36473b884070d1c5"
+                  },
+                  {
+                      "path":  "configs/grpo/motionx_374_hard_mcq_r6_1step.yaml",
+                      "bytes":  2466,
+                      "sha256":  "a117ab3a47247d8edae51888ef5e510352c2bdf62a540d778f02f7ed581f4ff2"
+                  },
+                  {
+                      "path":  "configs/grpo/motionx_374_hard_mcq_r6_500.yaml",
+                      "bytes":  2334,
+                      "sha256":  "8ac294e856303d9677571d54506e82064a938c19669a1f0205437b44d3bf0604"
+                  },
+                  {
+                      "path":  "configs/grpo/motionx_374_hard_mcq_r6_600.yaml",
+                      "bytes":  2519,
+                      "sha256":  "cccfd0f164f71719b8136972ccad113e83d56420ab743950f49be3d8421d5b1a"
+                  },
+                  {
+                      "path":  "configs/grpo/motionx_374_hard_mcq_r6_600_prompt_vm_motion_v_video_finalckpt.yaml",
+                      "bytes":  2564,
+                      "sha256":  "65b102d573f3de1fa89ae7198753b3b265c3bf9509a8a733e6329908f36c47f7"
+                  },
+                  {
+                      "path":  "configs/grpo/motionx_374_hard_mcq_r6_600_prompt_vm_motion_v_video_len768.yaml",
+                      "bytes":  2558,
+                      "sha256":  "026c16575ae65a9e508f3ed68c4f34d86a8c2b39a6650cdbb329fd32592d9f33"
+                  },
+                  {
+                      "path":  "configs/grpo/motionx_374_hard_mcq_r6_600_prompt_vm_motion_v_video_len768_lenreward.yaml",
+                      "bytes":  2588,
+                      "sha256":  "549d0633286906baffcf4187196967b79b5d94b40e030980b842f56f7981e14d"
+                  },
+                  {
+                      "path":  "configs/grpo/motionx_374_hard_mcq_r6_600_train2270_val100vm_len512.yaml",
+                      "bytes":  2741,
+                      "sha256":  "1ecbcf1a7ffed4b5f4c55e2e632d27916664e424bae43810a149154d38fa304b"
+                  },
+                  {
+                      "path":  "configs/grpo/motionx_374_hard_mcq_r6_600_train2270_val100vm_len768.yaml",
+                      "bytes":  2741,
+                      "sha256":  "a47ddd99b1f354bdbf3f052053bd3bc63ac781762c99dd4729fde393056f53f0"
+                  },
+                  {
+                      "path":  "configs/grpo/motionx_374_hard_mcq_r6_600_train2270_val100vm_len768_lenreward.yaml",
+                      "bytes":  2771,
+                      "sha256":  "6627c281cc015c9f7d281ac7ba768e8b8b721d5c6e1c204ce977fbb53cfb2dd6"
+                  },
+                  {
+                      "path":  "configs/grpo/motionx_374_hard_mcq_r6_vllm_smoke.yaml",
+                      "bytes":  2785,
+                      "sha256":  "b4a77020bb0b726221092b40450cce9c62fdcffea6a0f893bcd469054ce76fe0"
+                  },
+                  {
+                      "path":  "configs/grpo/motionx_374_hard_mcq_r8_b4_600_train2270_val100vm_len512.yaml",
+                      "bytes":  2747,
+                      "sha256":  "7cb3fb92b1ef48fbdaea075a05e057b53f78bfc79cffc91558cb8138abf84208"
+                  },
+                  {
+                      "path":  "configs/grpo/motionx_hard_mcq_r4_180.yaml",
+                      "bytes":  2345,
+                      "sha256":  "20cd5381dfd0d3673b3f21ed663faa2ab91a17b3855242da094f02d5c6a9a8b3"
+                  },
+                  {
+                      "path":  "configs/grpo/motionx_hard_mcq_r4_20_smoke.yaml",
+                      "bytes":  2354,
+                      "sha256":  "3ee64b2f7fe3660bd99b99453c36ef05be3cd54029ff9fefefbe84f3b7754e1d"
+                  },
+                  {
+                      "path":  "configs/grpo/motionx_real.yaml",
+                      "bytes":  2170,
+                      "sha256":  "d123361c1ef5083bcf2ef17723b0817931edf5a1c7082394d52be29586bd2568"
+                  },
+                  {
+                      "path":  "configs/grpo/motionx_real_200_strict.yaml",
+                      "bytes":  2193,
+                      "sha256":  "99a0e2d1f547967c5555ec86e01f0eba85dc829a8c5d75f80a4014da71fb6ba6"
+                  },
+                  {
+                      "path":  "configs/grpo/motionx_real_promptv2_strict_r4_180.yaml",
+                      "bytes":  2219,
+                      "sha256":  "7d209cd2b43eff2f84cd0ccb6107199ebf06e0711121db108654907d0346fd54"
+                  },
+                  {
+                      "path":  "configs/grpo/motionx_real_promptv2_strict_r4_20_smoke.yaml",
+                      "bytes":  2228,
+                      "sha256":  "e81da6a7daee28280417b879985c592bdfa6d9ae652357455dee45104f530fa2"
+                  },
+                  {
+                      "path":  "configs/grpo/motionx_real_r4_180.yaml",
+                      "bytes":  2171,
+                      "sha256":  "406a9a7e33187d086f74a13939ebe02d985bd9e765dbf08df6016bac60ce787d"
+                  },
+                  {
+                      "path":  "configs/grpo/motionx_real_r4_20_smoke.yaml",
+                      "bytes":  2170,
+                      "sha256":  "2b0d53290aa0e7d2d3ac244d3a7f0c92c465709ef930c06278f54804823370f6"
+                  },
+                  {
+                      "path":  "docs/ARCHITECTURE_TARGET.md",
+                      "bytes":  2304,
+                      "sha256":  "cf1bd5a84e04d3b51e22d445e6fdecf72fa537651aaca5d87e3edcbb4b630b75"
+                  },
+                  {
+                      "path":  "docs/COMMON_COMMANDS.md",
+                      "bytes":  5688,
+                      "sha256":  "5f9da507c3bc7576affca2b66f2a7f99c4c892bf7d7f6c67ddc900e166664b85"
+                  },
+                  {
+                      "path":  "docs/REFACTOR_HANDOFF.md",
+                      "bytes":  8834,
+                      "sha256":  "f20b5706f4d00fe00dee334e27263959b2c9d5c453d3d2f36cdc96c66d68990d"
+                  },
+                  {
+                      "path":  "model_evaluation_agent/00_从这里开始.md",
+                      "bytes":  3683,
+                      "sha256":  "4cc55be410fce2fb81939b88717f9797d8e42160ba828e89662e8e0c36199829"
+                  },
+                  {
+                      "path":  "model_evaluation_agent/batches/.gitkeep",
+                      "bytes":  1,
+                      "sha256":  "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+                  },
+                  {
+                      "path":  "model_evaluation_agent/MEMORY.md",
+                      "bytes":  7560,
+                      "sha256":  "b545562de7b8f83d29f2beda3d591cc71d6c161d1b67d3dc2a2d4e0e90521448"
+                  },
+                  {
+                      "path":  "model_evaluation_agent/model_registry.json",
+                      "bytes":  6559,
+                      "sha256":  "2c5ece6c8172eb2190893ec9ce9cebcb76f9736e25227b7eb4513a1669c68a29"
+                  },
+                  {
+                      "path":  "model_evaluation_agent/PRETRAINED_ASSETS.md",
+                      "bytes":  5980,
+                      "sha256":  "7abe18d5cfc39f1b46a4c356ca4a3579c8659f34d81aeeca1d54d45913af3147"
+                  },
+                  {
+                      "path":  "model_evaluation_agent/pretrained_registry.json",
+                      "bytes":  10736,
+                      "sha256":  "09af6cc6c5abc8089e4b451dd0eca348327822fd7d447197b1bbda5527cba420"
+                  },
+                  {
+                      "path":  "model_evaluation_agent/README.md",
+                      "bytes":  1081,
+                      "sha256":  "f633e61cd8943d4141ae1ee1e0fd7e9440c640524f79494ec418bd2c858f3886"
+                  },
+                  {
+                      "path":  "model_evaluation_agent/REMOTE_WORKFLOW.md",
+                      "bytes":  4908,
+                      "sha256":  "686771f460c81a1035a4f05210f39feaefdc8e2360abb0c6cceb2b9e6c11ff9f"
+                  },
+                  {
+                      "path":  "model_evaluation_agent/RUNBOOK.md",
+                      "bytes":  6891,
+                      "sha256":  "3f5f653edc0290ac481861077601aeef8f5b885a698da86d28d782be06d7939c"
+                  },
+                  {
+                      "path":  "model_evaluation_agent/scripts/audit_finetune_smoke_remote.sh",
+                      "bytes":  1579,
+                      "sha256":  "d318225b964e6cb8451142f4c792b8aba8e16aa3637f1c26a6fdfeafd1c62a09"
+                  },
+                  {
+                      "path":  "model_evaluation_agent/scripts/audit_pretrained_remote.sh",
+                      "bytes":  3738,
+                      "sha256":  "c131260b23350b72b1de3e87404320582ad4bce64a845f6e7b8f293e4d87d074"
+                  },
+                  {
+                      "path":  "model_evaluation_agent/scripts/build_historical_asset_index.py",
+                      "bytes":  8302,
+                      "sha256":  "a7a7dc05fe581f4177c43e2bfd96d8819e5798c3f2d1db7195309d9f75b62df0"
+                  },
+                  {
+                      "path":  "model_evaluation_agent/scripts/build_pretrained_inventory.py",
+                      "bytes":  9548,
+                      "sha256":  "05d6c8f562a5c6d8d65f9535f729b363edf6cdc7f05c31594d290f234caf813b"
+                  },
+                  {
+                      "path":  "model_evaluation_agent/scripts/download_public_pretrained_remote.py",
+                      "bytes":  5881,
+                      "sha256":  "c9c44e00a9c649ccfa86c62db5c289d810fb6945b66704234e527083e757b3e1"
+                  },
+                  {
+                      "path":  "model_evaluation_agent/scripts/finetune_motionllm_lora.py",
+                      "bytes":  16085,
+                      "sha256":  "5996fd6937575a833f1bc6cc990354f3c579e30a43b6352668240223206e932c"
+                  },
+                  {
+                      "path":  "model_evaluation_agent/scripts/finetune_videollama_lora.py",
+                      "bytes":  10749,
+                      "sha256":  "5858fd0f802d2f05ff5fb09310ac2151388697af85203229aec8c5576241659e"
+                  },
+                  {
+                      "path":  "model_evaluation_agent/scripts/new_batch.py",
+                      "bytes":  5562,
+                      "sha256":  "1d885ff9fd7f43bf5f252e5c51838911422191b50455ac06bf060c236bb8ff3d"
+                  },
+                  {
+                      "path":  "model_evaluation_agent/scripts/open_eval_stage.py",
+                      "bytes":  3764,
+                      "sha256":  "978789f8dda98960a053c23d0ca350a345b94b970b7c939aea1060075850fa79"
+                  },
+                  {
+                      "path":  "model_evaluation_agent/scripts/open_full_eval.py",
+                      "bytes":  5364,
+                      "sha256":  "64ef04eb6120cfa923adc0ff7a120780152522cdf70c21a76547084b27586205"
+                  },
+                  {
+                      "path":  "model_evaluation_agent/scripts/prepare_pretrained_remote.sh",
+                      "bytes":  4008,
+                      "sha256":  "46d7e15b5b78bd59a5ba1701a249cf40af6ab1982d1ef2d893f1fcc0b5216e8e"
+                  },
+                  {
+                      "path":  "model_evaluation_agent/scripts/selftest_workflow.py",
+                      "bytes":  6787,
+                      "sha256":  "d7b272ffb490d464e8c16d72b9536bc6483e93107b94a0f97d9a608b8b20b4f9"
+                  },
+                  {
+                      "path":  "model_evaluation_agent/scripts/smoke_pretrained_components.py",
+                      "bytes":  8745,
+                      "sha256":  "c4b1d90234e8270bc4e40ddfbc9f8122142b2ef50bf473311e8d0afc9f93f3d7"
+                  },
+                  {
+                      "path":  "model_evaluation_agent/scripts/sync_to_remote.ps1",
+                      "bytes":  2724,
+                      "sha256":  "280d9591a7ac019b49d21535c70fd7ca229a489c38fab242495a7756f842a4c8"
+                  },
+                  {
+                      "path":  "model_evaluation_agent/scripts/validate_batch.py",
+                      "bytes":  13361,
+                      "sha256":  "be7583ede4c0346bcbfc0ceb438c87840f9e15e7729a5605c14c103da918dffd"
+                  },
+                  {
+                      "path":  "model_evaluation_agent/scripts/validate_pretrained_ready.py",
+                      "bytes":  3452,
+                      "sha256":  "5d8645b04abcfb0913d6ccb463c491eeec1af293b31e4c04d0e2561451a19d46"
+                  },
+                  {
+                      "path":  "model_evaluation_agent/server_audit/20260729_checkpoint_inventory.md",
+                      "bytes":  1082,
+                      "sha256":  "890fd0674dda2f4e27028400a704a5d90a7b771619c030f4b6a360ee4ad77549"
+                  },
+                  {
+                      "path":  "model_evaluation_agent/server_audit/20260729_initial_audit.md",
+                      "bytes":  4190,
+                      "sha256":  "0569db0b17f011ce254da146725b9aa124f7c3a9651ac1788b484c9dae7c728a"
+                  },
+                  {
+                      "path":  "model_evaluation_agent/server_audit/20260729_pretrained_component_smoke.json",
+                      "bytes":  2831,
+                      "sha256":  "a2e13527af82140ca34bb72a66d0bd9b70fd9aa684a813e78f0132f01d53372c"
+                  },
+                  {
+                      "path":  "model_evaluation_agent/server_audit/20260729_pretrained_download_manifest.json",
+                      "bytes":  1645,
+                      "sha256":  "f2a3dcb0d4195cd9d4a11a8e61569dcf49ea56809ea1357fa75ef7bc89ab1e8d"
+                  },
+                  {
+                      "path":  "model_evaluation_agent/server_audit/20260729_pretrained_inventory.json",
+                      "bytes":  60413,
+                      "sha256":  "ee6c546b23f59cb21de46242620cdb809217b3b01c04475711b57f7dbcd93f32"
+                  },
+                  {
+                      "path":  "model_evaluation_agent/server_audit/20260729_remote_sync_complete.md",
+                      "bytes":  1344,
+                      "sha256":  "eb54ecaf43b935431cfba7fb0714c9bfb843f1956b7f9a66f6936a64b070bd77"
+                  },
+                  {
+                      "path":  "model_evaluation_agent/server_audit/20260729_remote_sync_pending.md",
+                      "bytes":  820,
+                      "sha256":  "5ef08aee1c63844d8bbc00cfdecc1cdc87ff08378731d25317b944b5258306d6"
+                  },
+                  {
+                      "path":  "model_evaluation_agent/server_audit/20260730_finetune_smoke.json",
+                      "bytes":  3848,
+                      "sha256":  "26903a0efae0891589406b5db883a0900793ee3547e2379dca5221ab34065e4a"
+                  },
+                  {
+                      "path":  "model_evaluation_agent/server_audit/20260730_pretrained_assets_ready.md",
+                      "bytes":  2210,
+                      "sha256":  "2ca8029619cb48de24999527735e6d3dc6ee85921b8ac3d3f3e9233c37f4fc8a"
+                  },
+                  {
+                      "path":  "model_evaluation_agent/server_audit/20260730_pretrained_inventory.json",
+                      "bytes":  679507,
+                      "sha256":  "e94415c6447eda8c89b55fb51abf0202b2c57a2f9dbd1d2f6528b60946aa0543"
+                  },
+                  {
+                      "path":  "model_evaluation_agent/server_audit/20260730_smoke_cleanup_complete.md",
+                      "bytes":  2750,
+                      "sha256":  "40b88be95f66942225e97b94ca8c71760e2d6634203667f4313118526b0e48ad"
+                  },
+                  {
+                      "path":  "model_evaluation_agent/smoke_assets/motionllm_lora_smoke.json",
+                      "bytes":  430,
+                      "sha256":  "42029bc940cb7a7ec5d82d308513b9382004b223f7e2e2e941b925076f32966d"
+                  },
+                  {
+                      "path":  "model_evaluation_agent/smoke_assets/video_lora_smoke.json",
+                      "bytes":  359,
+                      "sha256":  "24907d5e334b0dc8eaffc405dca668821943216dbffa8a64d5c5274ed572c4e2"
+                  },
+                  {
+                      "path":  "model_evaluation_agent/templates/run_manifest.template.json",
+                      "bytes":  1183,
+                      "sha256":  "9a89f3e640c35d833e74c694d16fa8aac67e11cafc658762a6283f174abbc4a4"
+                  },
+                  {
+                      "path":  "model_evaluation_agent/templates/status.template.md",
+                      "bytes":  263,
+                      "sha256":  "91bf290bfac632d8c5870787db2c90b09d326bb9e2e38a9037ef3348c94ef0ce"
+                  },
+                  {
+                      "path":  "models/encdec.py",
+                      "bytes":  2308,
+                      "sha256":  "ad6c86486a2fba9a12b1aad2060a2f7d119acbe1e3e0a598dd00e2ce3174f134"
+                  },
+                  {
+                      "path":  "models/quantize_cnn.py",
+                      "bytes":  14165,
+                      "sha256":  "fa678951976a0580578afa44543aeb8f68b36f3ae4fa28764a9e7bd0bf15f6ab"
+                  },
+                  {
+                      "path":  "models/qwen3_vl_motion.py",
+                      "bytes":  54473,
+                      "sha256":  "37415d6e27fd9ead6cce9938b851d6a1fdc7bc957407144d82af292a4000a0ae"
+                  },
+                  {
+                      "path":  "models/resnet.py",
+                      "bytes":  2653,
+                      "sha256":  "f5e79053ca6b5bf4c896dbb7ce97c472f8e996d0104463fb5af5cca05cea2cd5"
+                  },
+                  {
+                      "path":  "models/vqvae.py",
+                      "bytes":  4006,
+                      "sha256":  "6918b3da8c0ddb98b7173063c6b69b60bdd4d173fcfcc9a0b6aa97b5d8d7a4c8"
+                  },
+                  {
+                      "path":  "pyproject.toml",
+                      "bytes":  718,
+                      "sha256":  "e0bb0737b610d347b0345992e912fc35a15a24b99937c0c6e107fc44a6e498bb"
+                  },
+                  {
+                      "path":  "qwenvl/data/__init__.py",
+                      "bytes":  6224,
+                      "sha256":  "f440cda919ef722d6e55150b779c62b46d8f310b63dd1e78c1639907eba8a9fb"
+                  },
+                  {
+                      "path":  "qwenvl/data/data_processor.py",
+                      "bytes":  57157,
+                      "sha256":  "eebc145f09cc5d25c18dc4fbfd8fa17a2cbe90312f3c8748fbb439673f41cdf4"
+                  },
+                  {
+                      "path":  "qwenvl/data/Mean.npy",
+                      "bytes":  1180,
+                      "sha256":  "26e136555dab04c94a129d446c26e6b9939cbf045fbf77bcf5462c1fb5a2001c"
+                  },
+                  {
+                      "path":  "qwenvl/data/rope2d.py",
+                      "bytes":  24684,
+                      "sha256":  "97c9f8f49a3a1f782f6dacea538e3032fadfe24e5b60a630d3ae62053250542c"
+                  },
+                  {
+                      "path":  "qwenvl/data/Std.npy",
+                      "bytes":  1180,
+                      "sha256":  "6565a65ed9b31e23c328829a309e1c482be8b85fd23b43d65451a9b19a917f40"
+                  },
+                  {
+                      "path":  "qwenvl/grpo_ms_swift/__init__.py",
+                      "bytes":  56,
+                      "sha256":  "1f2011a85942f338f1897fb9fc168db3d7d473c1e71595e3edf6627d29c213fc"
+                  },
+                  {
+                      "path":  "qwenvl/grpo_ms_swift/datasets/__init__.py",
+                      "bytes":  197,
+                      "sha256":  "78302ce9dc6941ca92658eb5b984a9cce5b80805610f463d3a39ce6cf2a698bd"
+                  },
+                  {
+                      "path":  "qwenvl/grpo_ms_swift/datasets/debug_motion_grpo.jsonl",
+                      "bytes":  600,
+                      "sha256":  "5b72808140c643f61022ded2e84d26bc4ddfffa29ece9beaa2c00305cece0be8"
+                  },
+                  {
+                      "path":  "qwenvl/grpo_ms_swift/datasets/motion_grpo_dataset.py",
+                      "bytes":  2375,
+                      "sha256":  "567d3fb29e0e351bba51b8dfa41d77e79ea177f5b016e843dbc5e46282a3e4be"
+                  },
+                  {
+                      "path":  "qwenvl/grpo_ms_swift/model_register/__init__.py",
+                      "bytes":  116,
+                      "sha256":  "1df692d30a87b853f888157a8a168d89aa8f599dcfffa086acc0f2788d67ae74"
+                  },
+                  {
+                      "path":  "qwenvl/grpo_ms_swift/model_register/motion_model.py",
+                      "bytes":  15485,
+                      "sha256":  "4e1b2e932bd094868b1651c780de26bc02b50f939a90418836b0f7361fb0b18e"
+                  },
+                  {
+                      "path":  "qwenvl/grpo_ms_swift/plugins/__init__.py",
+                      "bytes":  573,
+                      "sha256":  "d213cd54f7b88abf9e2a40c54d6a2b98904a05c5cd9111efe39830c114e8ba52"
+                  },
+                  {
+                      "path":  "qwenvl/grpo_ms_swift/plugins/group_bonus_vm_v.py",
+                      "bytes":  3452,
+                      "sha256":  "ada7b6f3665b86d3df5ce93d01b671246b4a58873fc892fc0ba7204070e24076"
+                  },
+                  {
+                      "path":  "qwenvl/grpo_ms_swift/plugins/rewards_semantic_format.py",
+                      "bytes":  14369,
+                      "sha256":  "dffeabeaeb59a72814ede5809c24932afc0ec4f7ad512321ff312658ef78eea9"
+                  },
+                  {
+                      "path":  "qwenvl/grpo_ms_swift/plugins/swift_external_rewards.py",
+                      "bytes":  5474,
+                      "sha256":  "8706e99d868d2f5496f04eda6e3cb0dc5b391e40d9c6948c4996919ed1a8361a"
+                  },
+                  {
+                      "path":  "qwenvl/grpo_ms_swift/runner/__init__.py",
+                      "bytes":  55,
+                      "sha256":  "fbfeac33c2418ca45efc4204e56f6e219136ed177bd9b924378167eed72c215c"
+                  },
+                  {
+                      "path":  "qwenvl/grpo_ms_swift/runner/train_grpo_ms_swift.py",
+                      "bytes":  16778,
+                      "sha256":  "5942c71d58ea1f16a22d3f6422a5e1f5f78b569f1777b770811e0bff142cce9e"
+                  },
+                  {
+                      "path":  "qwenvl/infer/infer_qwen3_vl_4b_thinking_video_only.py",
+                      "bytes":  7283,
+                      "sha256":  "9484ecb572be3ff6dad5762b60e1501407686ddcf6250ce27f33db213721fff5"
+                  },
+                  {
+                      "path":  "qwenvl/infer/infer_qwen3_vl_4b_thinking_video_only.sh",
+                      "bytes":  591,
+                      "sha256":  "f4a0e7944b9063cc0fde074d03229f209aedca1a1ffd09f769e1df0a040fe982"
+                  },
+                  {
+                      "path":  "qwenvl/infer/infer_qwen3_vl_motion.py",
+                      "bytes":  10161,
+                      "sha256":  "897d6efebf786c10a40c08b282994d8d232dc1db0ea3cec2369717e73b1633f7"
+                  },
+                  {
+                      "path":  "qwenvl/infer/run_infer_qwen3_vl_motion.sh",
+                      "bytes":  1664,
+                      "sha256":  "e5a4167ad3532cddf76bdcf28161f6d5de1d8674950eca23fc034dbe7c9df0f6"
+                  },
+                  {
+                      "path":  "qwenvl/train/argument.py",
+                      "bytes":  4972,
+                      "sha256":  "9c69d9512c6188942ad1f535fdf2afc6904b5986f0b57985c75c291b4ff01b25"
+                  },
+                  {
+                      "path":  "qwenvl/train/full_sft.py",
+                      "bytes":  26339,
+                      "sha256":  "3e4bfc378d841f66226efa9d917c740a4fc0c12eaa704fb93a5285c8edc1d7fa"
+                  },
+                  {
+                      "path":  "qwenvl/train/lora_sft.py",
+                      "bytes":  17683,
+                      "sha256":  "b14add05076f74260049a6c6b80f76cd5c11aaeeec5209f04309e42c990ca780"
+                  },
+                  {
+                      "path":  "qwenvl/train/trainer.py",
+                      "bytes":  19353,
+                      "sha256":  "044955631eafb55f5c4e2da38cef51785da242ccab8d5f54df20bcd0e861d30f"
+                  },
+                  {
+                      "path":  "README.md",
+                      "bytes":  1250,
+                      "sha256":  "0717f2bbe1bbef9d6a16e9653aceeafc6b0be40fee61cd4a21a0a9fe1e766eee"
+                  },
+                  {
+                      "path":  "remote_scripts/motion_proxy_train_eval.py",
+                      "bytes":  25250,
+                      "sha256":  "3e274731b8bbceef47ecd6d0f8dd302516999823b9171fb940d87f0e4afc136e"
+                  },
+                  {
+                      "path":  "remote_scripts/prepare_qwen_benchmark_jsonl.py",
+                      "bytes":  2587,
+                      "sha256":  "e16eef51538b9c8320b952c81d5cb41dfd88e8857d53cc58a4f7e3acca24dddf"
+                  },
+                  {
+                      "path":  "rubric_rl/__init__.py",
+                      "bytes":  62,
+                      "sha256":  "a001ef6ccd405cb98bf770044ece67f3ccd48c9d7a417f5fe417b623073b06db"
+                  },
+                  {
+                      "path":  "rubric_rl/AGENT_SPEC.md",
+                      "bytes":  7266,
+                      "sha256":  "8efed29d26ad1afde7464f5e7d10d970d99d75832ee116f6e6bc53bc72613c4b"
+                  },
+                  {
+                      "path":  "rubric_rl/extract_motion_criteria.py",
+                      "bytes":  5341,
+                      "sha256":  "785e7f798b99a25880d5bebb4cc3414bd7eb8b324f38851a604e41cac9264137"
+                  },
+                  {
+                      "path":  "rubric_rl/extract_motion_criteria_v2.py",
+                      "bytes":  4003,
+                      "sha256":  "4635326d940854b7d6277434872f3b5f1c5266a949113e69c7fa6af26c816c47"
+                  },
+                  {
+                      "path":  "rubric_rl/extract_motion_criteria_v2_failed_segments.py",
+                      "bytes":  6219,
+                      "sha256":  "9579e25342149d6569c804f6d57c82787eb94f592b299d3bc02d4c93ce580f54"
+                  },
+                  {
+                      "path":  "rubric_rl/extract_motion_criteria_v2_fast_segmented.py",
+                      "bytes":  12670,
+                      "sha256":  "71a1c31bd28978aac89fc4b52220bcb577f0c4e4a9cfe1b2dab6b781d7f953ef"
+                  },
+                  {
+                      "path":  "rubric_rl/extract_motion_criteria_v2_segmented.py",
+                      "bytes":  9021,
+                      "sha256":  "90e1274c08b69f24205b2fc07457f571b94d46c3218a640e4743d5eb0c400659"
+                  },
+                  {
+                      "path":  "rubric_rl/extract_qa_mc_criteria.py",
+                      "bytes":  16673,
+                      "sha256":  "f0ce7b2127dbe7557fdc0d0f535c49184aa3f0b38a6a1fdfc7b84d8c558e148b"
+                  },
+                  {
+                      "path":  "rubric_rl/judge_motion_caption.py",
+                      "bytes":  6294,
+                      "sha256":  "23bc6c1328634d1df33fdc447a2ae7d16b8e86d9bdaba7d3924996824cb195c4"
+                  },
+                  {
+                      "path":  "rubric_rl/judge_motion_caption_v2.py",
+                      "bytes":  5129,
+                      "sha256":  "cc1324c0dc5b6275e325575e5911423410097651061dc3a761b992d0b6be3b89"
+                  },
+                  {
+                      "path":  "rubric_rl/prepare_cot_gt_v2.py",
+                      "bytes":  3121,
+                      "sha256":  "364b0119d637b75f0ca394bad48cd5f58902268877dc339a7f2b81b37b8c9685"
+                  },
+                  {
+                      "path":  "rubric_rl/prompt_templates/offline_criteria_prompt.txt",
+                      "bytes":  3243,
+                      "sha256":  "bf974d3b68158a3ea1503754f53838850d2bbaa767b366903108d7bde95420cf"
+                  },
+                  {
+                      "path":  "rubric_rl/prompt_templates/offline_criteria_prompt_v2_no_tolerance.txt",
+                      "bytes":  5743,
+                      "sha256":  "b63af5bc025586d2e65a122a753ca24902bddf1b5c057b8b84f3ce7db0138c4b"
+                  },
+                  {
+                      "path":  "rubric_rl/prompt_templates/online_judge_prompt.txt",
+                      "bytes":  4495,
+                      "sha256":  "42f65354929166b9310b0b6ecc3c41a3630a8831f93dd62eb5eacacddb3b49ae"
+                  },
+                  {
+                      "path":  "rubric_rl/prompt_templates/online_judge_prompt_v2_no_tolerance.txt",
+                      "bytes":  5494,
+                      "sha256":  "429ce69c7caff3a50eacaa5f60336638f283cb56658ee3b6e409e496aa4262e0"
+                  },
+                  {
+                      "path":  "rubric_rl/prompt_templates/qa_mc_offline_prompt.txt",
+                      "bytes":  4133,
+                      "sha256":  "f3544d727ec407b481613070df2d27a28815dba908cf157ed87eb41353a8353b"
+                  },
+                  {
+                      "path":  "rubric_rl/prompt_templates/qa_mc_online_judge_prompt.txt",
+                      "bytes":  5258,
+                      "sha256":  "4549c9ef61eb7ef1bf53a203045e6bc4774c4566edafea88854f6757cfc1fc01"
+                  },
+                  {
+                      "path":  "rubric_rl/prompt_templates/qa_mc_postprocessing_rules.txt",
+                      "bytes":  3214,
+                      "sha256":  "e15a4d1834adc2303ad3036ce8625303aa97decb6d117bb0bc75d245117915ab"
+                  },
+                  {
+                      "path":  "rubric_rl/prompt_templates/qa01_eval_criteria.json",
+                      "bytes":  3587,
+                      "sha256":  "7615e9adf6089f90716c7f3d5c557e15dbf6aea08b6f045d0080a1df36211d4e"
+                  },
+                  {
+                      "path":  "rubric_rl/prompt_templates/reward_postprocessing_rules_v2_no_tolerance.txt",
+                      "bytes":  4472,
+                      "sha256":  "b75b90b609386f376da2f9f7ca1593592d6b641f1a9e9a9c2777df77397fe8e4"
+                  },
+                  {
+                      "path":  "rubric_rl/prompts.py",
+                      "bytes":  8874,
+                      "sha256":  "5fad1c84d1871b4370fd2afe4e738dbb8750a1af328f64d2e20b62883fa11fc0"
+                  },
+                  {
+                      "path":  "rubric_rl/prompts_v2.py",
+                      "bytes":  16953,
+                      "sha256":  "d914c3a95d9cfa040808e694b271d8bcf044e725ae8e59b88e7cfe3bb1ad83e7"
+                  },
+                  {
+                      "path":  "rubric_rl/QA01_QA_MC_RUBRIC_RL.md",
+                      "bytes":  18293,
+                      "sha256":  "3865fc406c4d0f355ab41ed2c300d76cad29b976eac83aeccd6ddc6028313da3"
+                  },
+                  {
+                      "path":  "rubric_rl/qwen_text.py",
+                      "bytes":  8326,
+                      "sha256":  "fa028889968db4f0055141d4f97893e1bc48a84d39039c90bef876af9dc9bc01"
+                  },
+                  {
+                      "path":  "rubric_rl/README.md",
+                      "bytes":  3495,
+                      "sha256":  "a8876b7a60aa9da5903c5979a34eb2bd6840aa391c999797902468f2d0bd5d5d"
+                  },
+                  {
+                      "path":  "rubric_rl/reward.py",
+                      "bytes":  7290,
+                      "sha256":  "f6c026c92359b2477d214650ecfe670048ff193675a1e915b3a13cf64574bcea"
+                  },
+                  {
+                      "path":  "rubric_rl/reward_v2.py",
+                      "bytes":  15700,
+                      "sha256":  "42bcd4d0215464d6af34a5b79b5bbe4fddc7b67cc29e53cff3bc63420ce09533"
+                  },
+                  {
+                      "path":  "rubric_rl/RUBRIC_V2_CURRENT_PROMPTS_AND_POSTPROCESSING.md",
+                      "bytes":  13926,
+                      "sha256":  "83a6dcf16c3be4662127426d9c8894eebfea12b76e85d02408d9a21aff93214b"
+                  },
+                  {
+                      "path":  "scripts/build_motionx_deepseek_grpo_dataset.py",
+                      "bytes":  10785,
+                      "sha256":  "f89ca8a4826c9dbeb887c30a5a93b9d562515c3086d97f0d216fd958c4ed8b1b"
+                  },
+                  {
+                      "path":  "scripts/build_motionx_report_grpo_dataset.py",
+                      "bytes":  15836,
+                      "sha256":  "5b72a532372cdb7c913ba1f48a9856648685f1ab8bfb1f8e066a561ab781205e"
+                  },
+                  {
+                      "path":  "scripts/debug_grpo_ms_swift.sh",
+                      "bytes":  431,
+                      "sha256":  "0d7bb7da3e1139265597bd330e18dec2fc44d84c3dbe6e76e49b3df76fb2d8e2"
+                  },
+                  {
+                      "path":  "scripts/export_grpo_rollouts_by_question.py",
+                      "bytes":  5822,
+                      "sha256":  "6e9371ada05bc8e99f7271931a04442ca7c12875c7216dfb0398da9b2aa76fdf"
+                  },
+                  {
+                      "path":  "scripts/full_sft.sh",
+                      "bytes":  6779,
+                      "sha256":  "5bd97fc16e85ba51379a8f846c3fd6bf50f2b1cad22e6bbc7c4517bd4c460681"
+                  },
+                  {
+                      "path":  "scripts/lora_sft.sh",
+                      "bytes":  3503,
+                      "sha256":  "daf7eb4249d0cbe967732c93dc77acb956f21763b77eba7b49d2bb1291068cc5"
+                  },
+                  {
+                      "path":  "scripts/run_description_bench_after600.sh",
+                      "bytes":  6344,
+                      "sha256":  "a09f844a510fcf3411a2d57b778d34c4a4ec05118c0b8bc76d93e81a3ea089a8"
+                  },
+                  {
+                      "path":  "scripts/train_grpo_motionx_real.sh",
+                      "bytes":  437,
+                      "sha256":  "15a596e7c0483f109c198e2f8adb781102f85b4497711a2d21f72d092f5d4fba"
+                  },
+                  {
+                      "path":  "scripts/train_grpo_ms_swift.sh",
+                      "bytes":  430,
+                      "sha256":  "31e4c4778c8fbf4608642aab0a75d1f47d7a0ac5eee62082d2e4e6f5a65ac410"
+                  },
+                  {
+                      "path":  "scripts/zero2.json",
+                      "bytes":  556,
+                      "sha256":  "bb7d7a3360f8181c132e8666e6045cb75fa8a1a225d2b79148c1136fe99eaaa4"
+                  },
+                  {
+                      "path":  "scripts/zero3.json",
+                      "bytes":  801,
+                      "sha256":  "8d25d1f104be517b09152d6398a7352a8db4956f956565ec2ed8af58feba7a81"
+                  },
+                  {
+                      "path":  "scripts/zero3_offload.json",
+                      "bytes":  1279,
+                      "sha256":  "75da1bf2bb9220e7ab1a18a4b6a1ca2bb210835d373978aa94ebc6600b5e007c"
+                  },
+                  {
+                      "path":  "tools/aistation_api_get.mjs",
+                      "bytes":  4509,
+                      "sha256":  "e4a7635b76e4b32ff98cabe647ea39567de493f4f01972a996c5892892c32882"
+                  },
+                  {
+                      "path":  "tools/aistation_api_post.mjs",
+                      "bytes":  4931,
+                      "sha256":  "fb858452aa9a52a08806e3c8a181c96b8e62859b1c79f54b44bbc70f9ecb4e99"
+                  },
+                  {
+                      "path":  "tools/aistation_auto_occupy_watch.mjs",
+                      "bytes":  8984,
+                      "sha256":  "b1a9bd6dca39f525506e29fac562515f37da83ed814e9f55aa5d4b5214de87a2"
+                  },
+                  {
+                      "path":  "tools/aistation_gpu_monitor.mjs",
+                      "bytes":  14498,
+                      "sha256":  "e18f3691f0eacaee441ba1b1559d56fcc60089ebf1be656bb1abc227217ce24a"
+                  },
+                  {
+                      "path":  "tools/aistation_gpu_watch.mjs",
+                      "bytes":  5021,
+                      "sha256":  "073daa2ed60c5310111522e9ed4c8c264baee3956a26f23d15ed774125657536"
+                  },
+                  {
+                      "path":  "tools/aistation_user_gpu_usage.mjs",
+                      "bytes":  8728,
+                      "sha256":  "069b687cc357d3bcfa3a9be1fee750726fe8758678b1251c0987410eb49e5f62"
+                  },
+                  {
+                      "path":  "tools/aistation_write_ssh_info.mjs",
+                      "bytes":  5180,
+                      "sha256":  "8403b004b8ec14bc1bd7e7f4c188af9b8e2397220080cb6c52180a09b451f7eb"
+                  },
+                  {
+                      "path":  "tools/check_image.py",
+                      "bytes":  6333,
+                      "sha256":  "c3b18cfbba92326617f7cb702ac0dd779ef6e8986377ee90cb69357fddf30c6d"
+                  },
+                  {
+                      "path":  "tools/convert_motionx_prod200_cot_archive.py",
+                      "bytes":  12527,
+                      "sha256":  "7c90157b4934fd7ed8d1bc5bc019e2ea3c0a50898488b1ef3e3f65147185294c"
+                  },
+                  {
+                      "path":  "tools/eval_description_benchmark_sftstyle.py",
+                      "bytes":  15225,
+                      "sha256":  "3cde082bae285844f4ec6524a10fc668cd3901454d16f2d5be8ba75f52851d00"
+                  },
+                  {
+                      "path":  "tools/eval_grpo_mcq_accuracy.py",
+                      "bytes":  9604,
+                      "sha256":  "5b65971f1affbf11bd9b3cc54c2d9219ad7bf3956f14616eedd25a5ef2d90971"
+                  },
+                  {
+                      "path":  "tools/export_first_step_rollouts.py",
+                      "bytes":  13901,
+                      "sha256":  "80a4b2b5c6a3de0ca44d5af003399f2770d456eecac8a97e840428960cdecded"
+                  },
+                  {
+                      "path":  "tools/generate_qa_from_cot.py",
+                      "bytes":  23448,
+                      "sha256":  "da8bf28a753e876d593047366e7f0c4fe5a49cfbef97b712b978fcf7f19120f9"
+                  },
+                  {
+                      "path":  "tools/judge_description_semantic_qwen3vl.py",
+                      "bytes":  12441,
+                      "sha256":  "5f2c266f44f4f641003bda17054f3add7f0cdff53046923a6494baf2cb0c5a86"
+                  },
+                  {
+                      "path":  "tools/pack_data.py",
+                      "bytes":  8176,
+                      "sha256":  "e5099dafa29f0ad0befed4b9c4b0627dc4defbe561f0b85372cce5e7801d5bff"
+                  },
+                  {
+                      "path":  "tools/plot_grpo_training_metrics.py",
+                      "bytes":  22218,
+                      "sha256":  "943d380da0e39384a4b1b4ff8bd40e7c468e84c585e1f77c9550b5212cc41a18"
+                  },
+                  {
+                      "path":  "tools/process_bbox.ipynb",
+                      "bytes":  429105,
+                      "sha256":  "7c320edcdd39f95fd6da236c27ee0b2b4f6a97f0bcb3f8e8c501793a1eddcf08"
+                  }
+              ]
+}

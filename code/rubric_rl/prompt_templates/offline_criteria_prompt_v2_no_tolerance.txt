@@ -1,0 +1,133 @@
+Input report:
+{gt_description}
+
+Task:
+Extract one complete source-aware rubric for the entire report in a single JSON object.
+Do not judge a candidate answer and do not compute reward.
+
+Offline extraction must only produce reusable motion and reasoning criteria.
+Do not assign points, scores, rewards, penalties, or numeric tolerance metadata.
+Numeric tolerance is not part of the ground-truth rubric. It will be applied later by deterministic reward post-processing.
+
+Extraction fields to cover:
+- final-answer criteria:
+  - global_activity
+  - basic_action_facts / description
+  - temporal_structure
+  - body_configuration
+  - motion-grounded details:
+    - numeric_kinematics
+    - laterality
+    - camera_relative_orientation
+- visible reasoning criteria:
+  - source_separation
+  - conflict_detection
+  - trust_hierarchy_application
+  - numeric_evidence_use
+  - reasoning_answer_consistency
+- negative_criteria for hallucinations, unsupported claims, source contradictions, wrong laterality, wrong camera-relative orientation, and wrong numeric values.
+
+Source trust hierarchy:
+1. Motion is authoritative for numeric kinematics, laterality, camera/screen orientation, and numerically supported body configuration.
+2. Video/final summary is preferred for high-level activity semantics, scene/context, objects, broad temporal/action semantics, and person-object interactions motion cannot measure.
+3. Use motion numbers to adjudicate posture, grounded/sitting/kneeling/contact-like claims, and conflicts with video.
+4. Do not trust motion narrative verbs unless supported by numeric evidence or video semantics.
+
+Extraction rules:
+1. Preserve every explicit segment time range and order.
+2. Use each segment answer for final-answer criteria.
+3. Use each segment think for reasoning criteria and source-trust decisions.
+4. Keep important explicit numeric values, but keep the rubric compact.
+5. Do not invent numeric values.
+6. Numeric criteria must be measurement-neutral. If narrative wording conflicts with the numbers, trust the numbers and rewrite the criterion neutrally.
+   - Prefer wording like "right knee angle is 54 to 62 degrees" or "head height is +0.15m to +0.57m".
+   - Do not use qualitative labels such as straight, extended, deep, upright, high, planted, or braced inside numeric_kinematics unless the numeric range directly supports that label.
+   - Distinguish limb location from joint straightness: "leg behind" is not the same as "knee straight".
+7. Numeric criteria must include target_range and unit only. Do not output strict_tolerance, loose_tolerance, tolerance, margin, scoring, or closeness fields.
+8. If a value is a range, use [low, high]. If it is a single value, use [value, value].
+9. body_configuration may use qualitative posture terms only when they are directly supported by motion numbers or unambiguous motion facts.
+10. laterality means anatomical left/right body-side identity. Use motion as the source of truth.
+11. camera_relative_orientation means facing direction relative to the camera/screen, such as "faces the camera", "angled toward the camera's right", or "turns away from the camera". Use motion as the source of truth when available.
+12. basic_action_facts should capture core visible/motion action facts and description, but should not duplicate every numeric detail.
+13. reasoning_criteria should describe what a candidate's visible reasoning should do, not repeat final-answer facts.
+14. Per segment, extract exactly:
+   - 2 basic_action_facts
+   - 1 body_configuration
+   - 3 numeric_kinematics, choosing the most important explicit numbers
+   - 1 laterality criterion if left/right appears, otherwise []
+   - 1 camera_relative_orientation criterion if camera/screen orientation appears, otherwise []
+   - 2 reasoning_criteria from the think text
+   - rejected_claims: []
+15. Extract exactly:
+   - 1 global_activity
+   - 5 to 7 temporal_phases
+   - 6 negative_criteria
+16. Keep all criterion strings short. Do not output evidence fields. Do not output markdown. Return only JSON.
+17. Do not output id fields. Stable IDs will be added by post-processing.
+
+Return only valid JSON with this schema:
+
+{
+  "mode": "source_aware_reasoning_motion_rubric_v2",
+  "global_activity": [
+    {
+      "criterion": "high-level activity criterion",
+      "source": "video | motion | video+motion"
+    }
+  ],
+  "segments": [
+    {
+      "time": "...",
+      "basic_action_facts": [
+        {
+          "criterion": "...",
+          "source": "video | motion | video+motion"
+        }
+      ],
+      "body_configuration": [
+        {
+          "criterion": "...",
+          "source": "motion"
+        }
+      ],
+      "numeric_kinematics": [
+        {
+          "criterion": "...",
+          "quantity": "...",
+          "body_part": "...",
+          "target_range": [0, 0],
+          "unit": "degrees | m | s",
+          "source": "motion"
+        }
+      ],
+      "laterality": [
+        {
+          "criterion": "...",
+          "source": "motion"
+        }
+      ],
+      "camera_relative_orientation": [
+        {
+          "criterion": "...",
+          "source": "motion | video+motion"
+        }
+      ],
+      "reasoning_criteria": [
+        {
+          "criterion": "...",
+          "type": "source_separation | conflict_detection | trust_hierarchy_application | numeric_evidence_use | reasoning_answer_consistency",
+          "source": "think"
+        }
+      ],
+      "rejected_claims": []
+    }
+  ],
+  "temporal_phases": ["..."],
+  "negative_criteria": [
+    {
+      "criterion": "...",
+      "type": "unsupported_detail | contradiction | wrong_laterality | wrong_orientation | numeric_contradiction | unrelated_motion",
+      "source_of_truth": "motion | video | video+motion"
+    }
+  ]
+}

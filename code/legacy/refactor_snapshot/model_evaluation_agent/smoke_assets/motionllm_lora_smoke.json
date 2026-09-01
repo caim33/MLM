@@ -1,0 +1,16 @@
+[
+  {
+    "id": "motionllm_smoke_0001",
+    "video": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/codex_runs/video_model_sources/Ask-Anything/video_chat_with_ChatGPT/images/playing_guitar.mp4",
+    "conversations": [
+      {
+        "from": "human",
+        "value": "<video>\nWhat is the person doing in this video?"
+      },
+      {
+        "from": "gpt",
+        "value": "The person is playing a guitar."
+      }
+    ]
+  }
+]

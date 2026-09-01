@@ -1,0 +1,696 @@
+                                                                             LLMs are Good Action Recognizers
+
+                                                                           Haoxuan Qu1 Yujun Cai2 Jun Liu1†
+                                                   1
+                                                     Singapore University of Technology and Design 2 Nanyang Technological University
+                                                      haoxuan qu@mymail.sutd.edu.sg, yujun001@e.ntu.edu.sg, jun liu@sutd.edu.sg
+arXiv:2404.00532v1 [cs.CV] 31 Mar 2024
+
+
+
+
+                                                                     Abstract
+
+                                             Skeleton-based action recognition has attracted lots of
+                                         research attention. Recently, to build an accurate skeleton-
+                                         based action recognizer, a variety of works have been pro-
+                                         posed. Among them, some works use large model architec-           Figure 1. Overview of our proposed LLM-AR framework. In
+                                                                                                           our framework, given an input action signal, we first perform a
+                                         tures as backbones of their recognizers to boost the skeleton
+                                                                                                           linguistic projection process to acquire the corresponding “action
+                                         data representation capability, while some other works pre-
+                                                                                                           sentence”. We then perform action recognition via the large lan-
+                                         train their recognizers on external data to enrich the knowl-     guage model with its pre-trained weights untouched to keep its
+                                         edge. In this work, we observe that large language models         pre-learned rich knowledge.
+                                         which have been extensively used in various natural lan-
+                                         guage processing tasks generally hold both large model ar-        posed to utilize large model architectures (such as trans-
+                                         chitectures and rich implicit knowledge. Motivated by this,       formers) as the backbone of their action recognizers to
+                                         we propose a novel LLM-AR framework, in which we in-              achieve stronger representation capability and capture more
+                                         vestigate treating the Large Language Model as an Action          subtle differences among different actions. On the other
+                                         Recognizer. In our framework, we propose a linguistic pro-        hand, some other works [72, 80] proposed to pre-train their
+                                         jection process to project each input action signal (i.e., each   action recognizers on external data in order for their action
+                                         skeleton sequence) into its “sentence format” (i.e., an “ac-      recognizers to handle this task with richer knowledge.
+                                         tion sentence”). Moreover, we also incorporate our frame-
+                                         work with several designs to further facilitate this linguistic       Recently, large language models such as GPT [2] and
+                                         projection process. Extensive experiments demonstrate the         LLaMA [56] have become quite popular and have been ex-
+                                         efficacy of our proposed framework.                               tensively applied in handling various human languages. For
+                                                                                                           example, having been pre-trained over various human lan-
+                                                                                                           guages and learned common language-related characteris-
+                                                                                                           tics, large language models can be very effectively and ef-
+                                         1. Introduction                                                   ficiently adapted to even new human languages unseen dur-
+                                         Human action recognition aims to categorize the actions           ing pre-training [49]. Moreover, people have also treated
+                                         performed by humans into a pre-defined list of classes. It        large language models as interpreters in code interpretation
+                                         is relevant to a variety of applications, such as human-          [14] and generators in essay generation [22], and found that
+                                         computer interaction [37], intelligent surveillance [36], and     large language models can handle these tasks effectively.
+                                         virtual reality [13]. In the past few years, skeleton-based       Motivated by this, in this work we are wondering, if we
+                                         action recognition [3, 5, 6, 12, 53, 54, 62, 70] has received     can also treat the large language model as an action recog-
+                                         a lot of research attention with the notice that skeleton is      nizer in skeleton-based human action recognition? In gen-
+                                         a succinct yet informative representation of human behav-         eral, large language models hold some characteristics that
+                                         iors. Yet, despite the considerable progress, skeleton-based      are useful for action recognition. Specifically, pre-trained
+                                         action recognition still remains a challenging task [78], and     over a tremendously large corpus [2, 56] that generally con-
+                                         to build a more accurate skeleton-based action recognizer,        tains very rich human-centric behavior descriptions, large
+                                         various recent works have been proposed from different per-       language models that hold large model architectures could
+                                         spectives. Among them, some recent works [15, 59] pro-            naturally contain rich implicit knowledge [46, 50] of human
+                                                                                                           behaviors, and hold strong capability in handling different
+                                            † Corresponding author                                         inputs. Thus, it can be very promising if we treat the large
+language model as a human action recognizer.                        fill some requirements as discussed below. Firstly, since
+    However, despite the success of large language models           large language models are generally pre-trained over cor-
+in handling various human languages, it can be challenging          pus consisting of sentences in human languages, to facili-
+to treat them as action recognizers. This is because, while         tate large language models in taking “action sentences” as
+large language models typically take sentences in human             instructions together with sentences in human languages,
+languages as input instructions, the input signal of the ac-        these “action sentences” should be “like” sentences in hu-
+tion recognizer (i.e., the skeleton sequence) is not in a “sen-     man languages so as to be more friendly to the large lan-
+tence format” that is “friendly” to large language models.          guage model. On the other hand, “action sentences” should
+To handle this issue, given a large language model initial-         still maintain good representations of their original action
+ized with its pre-trained weights, one potential way is to          signals in order for the large language model to accurately
+adjust the weights of the full model to fit the non-linguistic      perform action recognition based on them.
+input action signals. Recently, several works [25, 38] have             To better meet the above requirements in the linguistic
+been proposed to fine-tune large language models and ad-            projection process, we further incorporate our framework
+just their pre-trained weights to handle non-language tasks.        with two designs below. Firstly, to make the “action sen-
+However, as shown in the previous study [64], the adjust-           tences” more “like” sentences in human languages, we get
+ment of the large language model’s pre-trained weights can          inspiration from previous linguistic and natural language
+hurt its generalizability and lead to the loss of its pre-learned   processing works [27, 47, 48, 55, 82] which show that, lan-
+rich knowledge. This is clearly undesirable here, as we hope        guages as the communication tools of human beings often
+the large language model to be knowledgeable in order for           contain human inductive biases. Thus, we propose to incor-
+it to be an accurate action recognizer.                             porate our framework with a learning strategy to regular-
+    Taking this into account, in this work, we aim to har-          ize the projected “action sentences” to follow human induc-
+ness the large language model as an action recognizer, and          tive biases as well. Secondly, to make the projected “action
+at the same time keep its pre-trained weights untouched to          sentence” a good representation of its original action sig-
+preserve its pre-learned rich knowledge. Specifically, we           nal, motivated by the human skeleton’s tree-like nature [63]
+propose a novel action recognition framework named Large            and hyperbolic space’s superior ability in representing tree
+Language Model as an Action Recognizer (LLM-AR). As                 structures [18], and inspired by previous works [33, 51], we
+shown in Fig. 1, to perform action recognition, our LLM-            further incorporate our action-based VQ-VAE model with a
+AR framework first involves a linguistic projection process         hyperbolic codebook.
+to project the input action signal into its “sentence format”,          Once we finish the learning of the linguistic projection
+that can be “friendly” and compatible to the large language         process, we perform low-rank adaptation (LoRA) [23] on
+model pre-trained over human sentences. Then the large              the large language model to let the model understand the
+language model takes in this “sentence format” of the action        projected “action sentences”. Note that since the pre-trained
+signal together with a human sentence as the instruction to         weights of the large language model are untouched through-
+predict the name of the action. In the rest of this work, for       out the LoRA process, we can preserve the pre-learned rich
+simplicity, we call the action signal in its “sentence format”      knowledge in the large language model and thus utilize the
+an “action sentence”.                                               large language model conveniently in our framework.
+                                                                        The contributions of our work are as follows. 1) We pro-
+    In our framework, to project the action signals into “ac-
+                                                                    pose a novel action recognition framework named LLM-
+tion sentences” (i.e., performing linguistic projection), we
+                                                                    AR. To the best of our knowledge, this work is the first ex-
+incorporate several designs. Basically, to perform such a
+                                                                    ploration on treating a large language model with its pre-
+process, we observe that, every sentence in a language gen-
+                                                                    trained weights untouched as an action recognizer. 2) We
+erally can be regarded as a sequence consisting of discrete
+                                                                    introduce several designs in our framework to facilitate the
+word tokens. Inspired by both this observation and previous
+                                                                    linguistic projection process and produce the “action sen-
+works [75, 77], in LLM-AR, we first learn an action-based
+                                                                    tences”. 3) LLM-AR achieves state-of-the-art performance
+vector quantized variational autoencoder (VQ-VAE) model
+                                                                    on the evaluated benchmarks.
+to project each action signal into a sequence of discrete to-
+kens.
+                                                                    2. Related Work
+    However, while we can basically represent each “action
+sentence” by a sequence of discrete tokens, it is not nec-          Human Action Recognition. For tackling human action
+essary that any discrete token sequence can represent an            recognition, most of the existing methods can be roughly
+“action sentence” well. In fact, to enable a large language         categorized into two groups: RGB-based methods [58, 60]
+model to become an accurate action recognizer based on              and skeleton-based methods [5, 6, 53, 54, 70].
+the “action sentences”, besides being discrete sequences               As skeleton sequences can represent human behaviors
+of tokens, ideally, the “action sentences” also need to ful-        in a succinct yet informative manner, skeleton-based ac-
+tion recognition has received lots of research attention [3–     tools in many natural language processing tasks. Inspired
+7, 12, 15, 17, 21, 28, 32, 39, 40, 53, 54, 59, 62, 65–           by this, in this work, we aim to leverage the large language
+68, 70, 73, 76, 80]. In the early days, different works have     model as an effective action recognizer. To achieve this, we
+been proposed to use different network architectures to han-     propose a novel framework LLM-AR. Specifically, LLM-
+dle skeleton-based action recognition. Liu et al. [39] pro-      AR first performs a linguistic projection process to project
+posed to perform skeleton-based action recognition through       the input action signal (i.e., the skeleton sequence) into an
+a spatial-temporal LSTM architecture. Ke et al. [28] pro-        “action sentence”. After that, LLM-AR passes the “action
+posed to transform skeleton sequences into grey images and       sentence” into the large language model to derive the corre-
+process these images through a CNN network. As time              sponding human action. Below, we first describe how LLM-
+passed, GCN tends to be a popular network architecture           AR performs the linguistic projection process, and then in-
+[5, 7, 8, 34, 54, 65, 67, 70]. Yan et al. [70] proposed          troduce the overall training and testing scheme of LLM-AR.
+ST-GCN that made the first attempt in performing skeleton-
+based action recognition using a GCN architecture. After         3.1. Linguistic Projection
+that, various different GCN-based methods have been fur-         In our framework, to enable the large language model to
+ther proposed, such as AS-GCN [34], 2s-AGCN [54], Shift-         perform action recognition, we first perform a linguistic
+GCN [7], and CTR-GCN [5]. More recently, a number of             projection process to project each input action signal into
+works [15, 59, 76, 80] further proposed to perform skeleton-     an “action sentence”. To learn to perform such a projection,
+based action recognition via training a model with a large       with the observation that each sentence in human languages
+transformer architecture in an end-to-end manner. Some of        is essentially a sequence of discrete word tokens, motivate
+such methods include 3Mformer [59] and UPS [15].                 by previous works [75, 77], we first learn an action-based
+    Different from these approaches, in this work, from a        VQ-VAE model to project each input action signal into a
+novel perspective, we investigate how to instruct the large      sequence of discrete tokens. We then further (1) involve
+language model to perform skeleton-based action recogni-         the above learning process with a human-inductive-biases-
+tion while keeping its pre-trained weights untouched to pre-     guided learning strategy to make the projected “action sen-
+serve its pre-learned rich knowledge. To achieve this, we        tences” more “like” sentences in human languages, and (2)
+involve our framework with a novel linguistic projection         incorporate the action-based VQ-VAE model with a hyper-
+process to project each input action signal into an “action      bolic codebook to keep “action sentences” good representa-
+sentence”. Specifically, we incorporate several designs in       tions of the action signals.
+the linguistic projection process to make the projected “ac-         Action-based VQ-VAE Model. VQ-VAE models [51,
+tion sentences” more “like” sentences of human languages         57, 74] have been popularly used in converting an image
+so as to make them more friendly to large language models,       into a discrete token sequence. Inspired by this, in our
+and meanwhile keep the “action sentence” a good represen-        framework, to convert the input action signal into a se-
+tation of the input action signal.                               quence of discrete tokens, we first learn an action-based
+Large Language Models. Recently, a variety of large lan-         VQ-VAE model.
+guage models have been proposed, such as GPT [2] and
+                                                                     Specifically, similar to the architecture of previous VQ-
+LLaMA [56]. Pre-trained over a tremendous number of
+                                                                 VAE models [57, 75, 77], our action-based VQ-VAE model
+word tokens, these large language models with large model
+                                                                 involves an encoder E, a decoder D, and a codebook C
+architectures have been shown to contain very rich knowl-
+                                                                 consisting of U learnable tokens (i.e., C = {cu }U                                                                                                                                                                                u=1 where
+edge [46, 50]. Consequently, large language models have
+                                                                 cu ∈ Rdu ). We here keep du to be the same as the dimen-
+been extensively explored in various tasks [14, 16, 19, 22,
+                                                                 sion of the word token in the used large language model,
+26, 77, 79], such as language translation [26], essay gen-
+                                                                 and keep U an even number. Among the aforementioned
+eration [22], and code interpretation [14]. In this work, we
+                                                                 three components of the model, given an input action signal
+design a novel framework treating the large language model
+                                                                 s1:V , where V represents the action length, the encoder E
+as a human action recognizer leveraging our designed lin-
+                                                                 first encodes the action signal through 1D convolutions over
+guistic projection process.
+                                                                 the time dimension into a sequence of latent features f1:W ,
+                                                                 where fw ∈ Rdu and W represents the length of the latent
+3. Proposed Method                                               feature sequence. After this, to discretize the latent features
+Given a skeleton sequence as the input action signal, the        f1:W , a quantization operation is performed to replace each
+goal of action recognition is to predict its corresponding ac-   feature fw with its nearest token in the codebook as:
+tion class. Recently, holding large model architectures and                         \label {eq:quantization} \setlength {\abovedisplayskip }{3pt} \setlength {\belowdisplayskip }{3pt} \begin {aligned} f^d_w = \underset {c_u \in C}{\mathrm {argmin}} \big (dist(f_w, c_u)\big ) \end {aligned}        (1)
+containing very rich knowledge, pre-trained large language
+models have been shown to be powerful in handling sen-           where fwd is the discrete version of fw , and dist(·, ·) rep-
+tences of human languages, and thus have become useful           resents a distance function. Finally, the decoder aims to
+recover the original action signal s1:V from the sequence of                                                                                                                                         senting context-sensitivity, we represent this human induc-
+                                      d
+discrete latent features (tokens) f1:W    . Through the above                                                                                                                                        tive bias as follows. Specifically, given the codebook C
+process of encoding, quantization, and decoding, we can                                                                                                                                              consisting of U tokens where U is an even number, dur-
+project an action signal into a sequence of informative dis-                                                                                                                                         ing initializing C, we first randomly split the codebook into
+                d
+crete tokens f1:W   . The more detailed architecture of this                                                                                                                                         two halves (i.e., {1, ..., U2 } and {1 + U2 , ..., U }). Next, we
+action-based VQ-VAE model is provided in supplementary.                                                                                                                                              regard each token cu in the first half (i.e., u ∈ {1, ..., U2 })
+    Human-inductive-biases-guided Learning Strategy.                                                                                                                                                 and the token cu+ U in the second half to be a pair of corre-
+                                                                                                                                                                                                                          2
+Above we learn to project each input action signal into                                                                                                                                              lated tokens. As shown in [47], such a pairing mechanism is
+a sequence of discrete tokens. To enable the learned to-                                                                                                                                             a simple yet very effective way of representing the context-
+ken sequences to be more friendly to the large language                                                                                                                                              sensitivity bias in human languages.
+model, here we aim to make these sequences more “like”                                                                                                                                                  To optimize the set of learned token sequences (i.e., “ac-
+                                                                                                                                                                                                                            d
+sentences in human languages. To achieve this, we get in-                                                                                                                                            tion sentences”) {f1:W      } to also follow the above biases like
+spiration from massive existing studies [27, 47, 48, 55, 82]                                                                                                                                         human languages, we then aim to (a) regularize the set of
+which show that, human languages as tools created for hu-                                                                                                                                            “action sentences” to follow Zipf’s law, as well as (b) reg-
+man communication naturally contain human inductive bi-                                                                                                                                              ularize each “action sentence” to be formulated using more
+ases. Besides, it is also further shown by the previous study                                                                                                                                        correlated word tokens so that the formulated “action sen-
+[47] that, inputs following human inductive biases are more                                                                                                                                          tences” can better follow the context-sensitivity bias. To
+friendly to large language models. Taking these into con-                                                                                                                                            achieve this, we design a human-inductive-biases-guided
+sideration, we aim to optimize the set of learned token se-                                                                                                                                          learning strategy that consists of the following steps. (1)
+quences to also follow human inductive biases, so that these                                                                                                                                         Given a batch of action signals {sb1:V }B     b=1 with batch size
+sequences can be more “like” human sentences and thus be-                                                                                                                                            B, we first encode these signals through the encoder E of
+come more friendly to be used by large language models.                                                                                                                                              the action-based VQ-VAE model to get their corresponding
+                                                                                                                                                                                                                         b
+    Below, we first introduce the human inductive biases that                                                                                                                                        latent features {f1:W     }B
+                                                                                                                                                                                                                                b=1 . (2) After that, during discretiz-
+are generally recognized as being present in human lan-                                                                                                                                              ing the latent features using tokens {cu }U     u=1 in the code-
+guages. Such biases include: (a) a human language natu-                                                                                                                                              book C, we measure the token usage of each sequence of
+                                                                                                                                                                                                                       b
+rally follows the Zipf’s law [47, 48, 82], and (b) a human                                                                                                                                           latent features f1:W     in a differentiable way via the Gumbel
+language is generally context-sensitive [27, 47, 55]. After                                                                                                                                          Softmax trick [24] as:
+introducing these human inductive biases, we then describe
+our proposed human-inductive-biases-guided learning strat-                                                                                                                                             \label {eq:gumble} \setlength {\abovedisplayskip }{3pt} \setlength {\belowdisplayskip }{3pt} \begin {aligned} t^b = \sum _{w=1}^W d^b_w, \textbf {where}~d^b_w = \mathrm {Gumble\_Softmax}(-dist(f^b_w, c_u)) \end {aligned} 
+egy.
+    As for the Zipf’s law in (a), during daily communications                                                                                                                                                                                                  (3)
+of human beings, there naturally exist some words that are                                                                                                                                           where Gumble Softmax(·) is the Gumble Softmax trick,
+used more commonly and some words more rarely. Zipf’s                                                                                                                                                and dbw is the one-hot vector with length U as the output
+law intuitively represents this imbalanced usage frequency                                                                                                                                           of the Gumble Softmax trick. Besides, tb is a vector with
+of word tokens in human languages. Specifically, Zipf’s law                                                                                                                                          length U , and the value of the u-th element of tb represents
+                                                                                                                                                                                                                                                              b
+states that, in a human language, the i-th most commonly                                                                                                                                             the number of times token cu is used in discretizing f1:W
+used word has its usage frequency roughly proportional to:                                                                                                                                           and formulating its corresponding “action sentence”. (3)
+                                                                                                                                                                                                     Next, denoting DZipf the Zipf distribution with α = 1 and
+                                 \label {eq:zipf} \setlength {\abovedisplayskip }{3pt} \setlength {\belowdisplayskip }{3pt} \begin {aligned} \frac {1}{(i + \beta )^\alpha } \end {aligned} 
+                                                                                                                                                                                               (2)   β = 2.7, we regularize the set of “action sentences” to fol-
+                                                                                                                                                                                                     low Zipf’s law through LZipf as:
+where α ≈ 1 and β ≈ 2.7 [82]. The reason why Zipf’s
+law consistently appears across different human languages                                                                                                                                              \label {eq:zipf_loss} \setlength {\abovedisplayskip }{3pt} \setlength {\belowdisplayskip }{3pt} \begin {aligned} & L_{Zipf} = JS(D_{freq}\|D_{Zipf}), \textbf {where} D_{freq} = \frac {sort(\sum _{b=1}^B t^b)}{B \times W} \end {aligned} 
+is also theoretically analyzed by various works [9, 43] from
+                                                                                                                                                                                                                                                              (4)
+different perspectives, such as from the evolution of human
+                                                                                                                                                                                                     where sort(·) is the sorting operation used to order tokens
+communications.
+                                                                                                                                                                                                     based on their usage frequency, Df req is the distribution
+    With respect to the context-sensitivity of human lan-
+                                                                                                                                                                                                     representing the token usage frequency, and JS(·∥·) repre-
+guages in (b), intuitively, the context-sensitivity refers to the
+                                                                                                                                                                                                     sents the JS divergence between two distributions. (4) At
+inductive bias that when people formulate their sentences,
+                                                                                                                                                                                                     the same time, we encourage the “action sentences” to fol-
+they often do not use each word token independently. In-
+                                                                                                                                                                                                     low the context-sensitivity bias and use more correlated to-
+stead, their usage of different tokens in formulating a sen-
+                                                                                                                                                                                                     kens via Lcontext as:
+tence is often correlated. Note that, while human languages
+are generally believed by linguists to be context-sensitive,                                                                                                                                                                                            \label {eq:context_loss} \setlength {\abovedisplayskip }{3pt} \setlength {\belowdisplayskip }{3pt} \begin {aligned} & L_{context} = 1 -\frac {\sum _{b=1}^B Corr(t^b)}{B \times W} \end {aligned}    (5)
+how to explicitly represent context-sensitivity remains a dif-
+ficult problem. Here, inspired by [47] in its way of repre-                                                                                                                                          where Corr(tb ) leverages min pooling over every pair of
+Figure 2. Overview of the action-based VQ-VAE model with the hyperbolic codebook CH incorporated. Given a batch of input action
+signals {sb1:V }B                                                        b   B
+                b=1 , to optimize the action-based VQ-VAE model, {s1:V }b=1 are first fed to the encoder E to get the corresponding latent
+            b    B
+features {f1:W }b=1 . Next, to leverage the hyperbolic codebook CH that can serve as a good representation of the tree-like human skeletons
+                              b
+to perform quantization, {f1:W   }Bb=1 are projected into the hyperbolic space via the process of E-to-H projection. After that, the quantization
+is performed in the hyperbolic space using distB (few , cu ) defined in Eq. 9 as the distance function. Finally, after quantization, the discrete
+version of the latent features are passed back into the Euclidean space via the process of H-to-E projection to reconstruct the input action
+signals through the decoder D.
+
+elements in tb (e.g., the pair of u-th element and (u + U2 )-th                                                                                                                                via rewriting Lhuman in Eq. 6 as:
+element) to calculate the number of correlated tokens used                                                                                                                                       \label {eq:total_loss} \setlength {\abovedisplayskip }{3pt} \setlength {\belowdisplayskip }{3pt} \begin {aligned} & L_{human} = L_{Zipf} + L_{context} + \mathrm {MMD}(\{c_u\}_{u=1}^U, \{c_{LLM}\}) \end {aligned} 
+                 b
+in discretizing f1:W  (more details about this method to mea-                                                                                                                                                                                                                                                                                                                                             (7)
+              b
+sure Corr(t ) are provided in supplementary). Note that                                                                                                                                        By incorporating this alignment procedure into the previ-
+via minimizing Lcontext , we encourage more correlated to-                                                                                                                                     ously mentioned learning strategy, we can then lead the for-
+kens to be used in formulating “action sentences”. (5) Fi-                                                                                                                                     mulated “action sentences” {f1:W                                                                                d
+                                                                                                                                                                                                                                                                                                                            } to be more friendly to
+nally, we formulate the loss function Lhuman that we use to                                                                                                                                    be used by large language models.
+perform our human-inductive-biases-guided strategy as:
+                                                                                                                                                                                                   Hyperbolic Codebook. Besides making the “action sen-
+                 \label {eq:bias_loss} \setlength {\abovedisplayskip }{3pt} \setlength {\belowdisplayskip }{3pt} \begin {aligned} & L_{human} = L_{Zipf} + L_{context} \end {aligned}    (6)   tences” more friendly to the large language model, we also
+Via incorporating the above learning strategy into the learn-                                                                                                                                  aim to keep them good representations of the original in-
+ing process of the action-based VQ-VAE model, we can reg-                                                                                                                                      put action signals (i.e., the skeleton sequences). Motivated
+ularize the “action sentences” to better follow the human in-                                                                                                                                  by the tree-like nature of human skeletons [63], we aim to
+ductive biases that are present in human languages and thus                                                                                                                                    make the word tokens in the “action sentences” to well rep-
+make them more “like” sentences in human languages.                                                                                                                                            resent such a structure. To achieve this, inspired by the
+                                                                                                                                                                                               superior capability of the hyperbolic space in embedding
+    Above we inject human inductive biases into “action                                                                                                                                        tree structures [18] and motivated by previous VQ-VAE
+sentences”. Here, we notice that, besides inductive biases                                                                                                                                     works [33, 51], we here further incorporate our action-based
+that can be explicitly described, human languages can also                                                                                                                                     VQ-VAE model with a hyperbolic codebook utilizing the
+present other implicit characteristics. Thus, to enable “ac-                                                                                                                                   Poincaré ball model [18, 45]. The Poincaré ball model is
+tion sentences” to be more friendly to large language mod-                                                                                                                                     an isometric model that can represent the hyperbolic space.
+els which are generally pre-trained over various human lan-                                                                                                                                    Formally, the n-dimensional Poincaré ball model is defined
+guages, we aim to further incorporate implicit character-                                                                                                                                      as (Bnc , gxc ), where Bnc = {x ∈ Rn : c∥x∥ < 1}, gxc =
+                                                                                                                                                                                                                                                     2
+istics into “action sentences” as well. Specifically, since                                                                                                                                    (γxc )2 In is the Riemannian metric tensor, γxc = 1−c∥x∥ 2 is
+
+
+large language models such as LLaMA typically use word                                                                                                                                         the conformal factor, In is the Euclidean metric tensor, and
+tokens {cLLM } stored in its first layer to formulate sen-                                                                                                                                     c is the curvature.
+tences in human languages, we here further align (1) the                                                                                                                                          Denoting the hyperbolic codebook CH = {cu }U          u=1 ,
+tokens {cu }Uu=1 in codebook C that are used to formulate                                                                                                                                      where cu ∈ Bdc u , we make the following three changes
+the “action sentences” with (2) the word tokens {cLLM }                                                                                                                                        to incorporate CH into our action-based VQ-VAE model.
+used in the large language model. To achieve such an align-                                                                                                                                    We also illustrate where these changes take place in our
+ment, we leverage Maximum Mean Discrepancy (MMD)                                                                                                                                               action-based VQ-VAE model in Fig. 2. (1) Euclidean-to-
+[20] as an effective feature alignment technique to measure                                                                                                                                    Hyperbolic (E-to-H) Projection. Given a latent feature fw
+the discrepancy between {cu }U   u=1 and {cLLM }. Specifi-                                                                                                                                     which is originally in the Euclidean space, to convert it into
+cally, the less MMD({cu }U                           U
+                             u=1 , {cLLM }) is, {cu }u=1 and                                                                                                                                   a discrete token using a hyperbolic codebook, we first need
+{cLLM } can be regarded as more aligned. We then incor-                                                                                                                                        to project fw into the hyperbolic space. Specifically, fol-
+porate this alignment procedure into our proposed strategy                                                                                                                                     lowing [18], we perform such a projection through the ex-
+ponential map expc0 (·) as:                                                                                                                                                                                                                                                                                                of the encoded latent features to stay close to its discrete
+                                                                                                                                                                                                                                                                                                                           version. Formally speaking, denoting {sb1:V }B   b=1 a batch of
+                                             \label {eq:exp_map} \setlength {\abovedisplayskip }{3pt} \setlength {\belowdisplayskip }{3pt} \begin {aligned} \widetilde {f}_w = \mathrm {exp}^c_\textbf {0}(f_w) = tanh(\sqrt {c}\|f_w\|)\frac {f_w}{\sqrt {c}\|f_w\|} \end {aligned}                                 (8)   input action signals, {ŝb1:V }B
+                                                                                                                                                                                                                                                                                                                                                          b=1 the  corresponding   batch of
+                                                                                                                                                                                                                                                                                                                                                              b
+                                                                                                                                                                                                                                                                                                                           reconstructed action signals, {f1:W    }Bb=1 the latent features
+where few is the projected feature of fw in the hyperbolic                                                                                                                                                                                                                                                                                                      d,b B
+                                                                                                                                                                                                                                                                                                                           encoded from {sb1:V }B b=1  , and {f     }
+                                                                                                                                                                                                                                                                                                                                                                1:W b=1   the discrete ver-
+space. (2) Hyperbolic Distance Calculation. Given the
+                                                                                                                                                                                                                                                                                                                           sions of these latent features, the above three loss functions
+projected feature few , to perform quantization of few based                                                                                                                                                                                                                                                               can be written as:
+on the tokens in CH , we need a distance function defined
+                                                                                                                                                                                                                                                                                                                                              \label {eq:three_losses} \setlength {\abovedisplayskip }{3pt} \setlength {\belowdisplayskip }{3pt} \begin {aligned} & L_{re} = L_1^{smooth}(\{s^b_{1:V}\}_{b=1}^B, \{\hat {s}^b_{1:V}\}_{b=1}^B) \\ & L_{embed} = \|sg(\{f^b_{1:W}\}_{b=1}^B) - \{f^{d,b}_{1:W}\}_{b=1}^B\|^2 \\ & L_{commit} = \|\{f^b_{1:W}\}_{b=1}^B - sg(\{f^{d,b}_{1:W}\}_{b=1}^B)\|^2 \end {aligned} 
+in the hyperbolic space. Here, for simplicity, we use the
+popularly used geodesic/induced distance [18, 29]. Denote                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   (11)
+this distance as distB (·, ·). distB (few , cu ) between few and
+cu can be defined as:
+                                                                                                                                                                                                                                                                                                                           where Lsmooth
+                                                                                                                                                                                                                                                                                                                                    1       (·) represents the L1 smooth loss and sg(·) is
+  \label {eq:hyperbolic_distance} \setlength {\abovedisplayskip }{3pt} \setlength {\belowdisplayskip }{3pt} \begin {aligned} dist_{\mathbb {B}}(\widetilde {f}_w, c_u) = arccosh \big (1 + 2\frac {\|\widetilde {f}_w - c_u\|^2}{(1 - \|\widetilde {f}_w\|^2)(1 - \|c_u\|^2)}\big ) \end {aligned}                         the stop-gradient operation that is used to prevent the gradi-
+                                                                                                                                                                                                                                                                                                                           ent from flowing through its operand. In addition, to make
+                                                         (9)                                                                                                                                                                                                                                                               the learned “action sentences” more like sentences in hu-
+(3) Hyperbolic-to-Euclidean (H-to-E) Projection. After                                                                                                                                                                                                                                                                     man languages, we also incorporate the above three loss
+quantization, we need to project fewd (the discrete version                                                                                                                                                                                                                                                                functions with Lhuman defined in Eq. 7. Overall, we can
+of few ) back into the Euclidean space in order for it to be                                                                                                                                                                                                                                                               write the total loss Ltotal for the first training stage as:
+passed to the decoder D. To achieve this, we follow [18] to                                                                                                                                                                                                                                                                      \label {eq:total_loss_first} \setlength {\abovedisplayskip }{3pt} \setlength {\belowdisplayskip }{3pt} \begin {aligned} L_{total} = L_{re} + L_{embed} + \omega _1 L_{commit} + \omega _2 L_{human} \end {aligned}                                                                                                                                                                         (12)
+leverage the logarithmic map logc0 (·) as:
+                                                                                                                                                                                                                                                                                                                           where ω1 and ω2 are weighting hyperparameters.
+                     \label {eq:log_map} \setlength {\abovedisplayskip }{3pt} \setlength {\belowdisplayskip }{3pt} \begin {aligned} f^d_w = \mathrm {log}^c_\textbf {0}(\widetilde {f}^d_w) = arctanh(\sqrt {c}\|\widetilde {f}^d_w\|)\frac {\widetilde {f}^d_w}{\sqrt {c}\|\widetilde {f}^d_w\|} \end {aligned}    (10)      We then perform LoRA [23] on the large language model
+                                                                                                                                                                                                                                                                                                                           in the second stage in order for it to better understand the
+where fwd represents the discrete version of the feature pro-                                                                                                                                                                                                                                                              “action sentences” while keeping the pre-trained weights of
+jected back in the Euclidean space. With the above changes                                                                                                                                                                                                                                                                 the model untouched. Specifically, for each training sample
+made, we can seamlessly involve the hyperbolic codebook                                                                                                                                                                                                                                                                    consisting of an input action signal and its corresponding
+CH into our action-based VQ-VAE model, and make the                                                                                                                                                                                                                                                                        ground-truth action, we perform the following steps. (1)
+projected “action sentence” a better representation of the                                                                                                                                                                                                                                                                 We first project the action signal into an “action sentence”
+input action signal.                                                                                                                                                                                                                                                                                                       of discrete tokens through the action-based VQ-VAE
+                                                                                                                                                                                                                                                                                                                           model learned in the first stage. (2) We then instruct the
+3.2. Overall Training and Testing                                                                                                                                                                                                                                                                                          large language model to act as an action recognizer via
+                                                                                                                                                                                                                                                                                                                           a simple instruction as: “Given a sequence of
+Above we describe how we perform the linguistic projec-
+                                                                                                                                                                                                                                                                                                                           action tokens [tokens], please predict
+tion process in our framework to project each input action
+                                                                                                                                                                                                                                                                                                                           the corresponding action.”, where [tokens]
+signal into an “action sentence”. Below, we introduce the
+                                                                                                                                                                                                                                                                                                                           represent the word tokens of the “action sentence” derived
+overall training and testing scheme of our framework.
+                                                                                                                                                                                                                                                                                                                           in step (1). (3) Finally, during LoRA process, we pass
+    Training. The training process of our framework con-
+                                                                                                                                                                                                                                                                                                                           the above instruction into the large language model and
+sists of the following two stages: (1) optimizing the action-
+                                                                                                                                                                                                                                                                                                                           encourage the similarity between the tokens tp predicted
+based VQ-VAE model incorporated with the hyperbolic
+                                                                                                                                                                                                                                                                                                                           by the large language model and the tokens tg representing
+codebook CH to acquire the ability to project each action
+                                                         d                                                                                                                                                                                                                                                                 the ground-truth action as:
+signal s1:V into its corresponding “action sentence” fe1:W  ;
+and (2) perform low-rank adaptation (LoRA) [23] on the                                                                                                                                                                                                                                                                                           \label {eq:loss_second} \setlength {\abovedisplayskip }{3pt} \setlength {\belowdisplayskip }{3pt} \begin {aligned} L_{LoRA} = L_{ce}(t_p, t_g) \end {aligned}  (13)
+large language model for it to better understand the pro-                                                                                                                                                                                                                                                                  where Lce (·, ·) represents the cross-entropy loss.
+jected “action sentences”.                                                                                                                                                                                                                                                                                                    Testing. During testing, for each testing action signal,
+    At the first stage, to optimize the action-based VQ-VAE                                                                                                                                                                                                                                                                we first use the learned action-based VQ-VAE model to de-
+model, given a batch of action signals, we first follow pre-                                                                                                                                                                                                                                                               rive its corresponding “action sentence”. After that, we use
+vious VQ-VAE works [57, 75, 77] to use the following loss                                                                                                                                                                                                                                                                  the same instruction as in step (2) above to instruct the large
+functions, including the reconstruction loss, the embedding                                                                                                                                                                                                                                                                language model to predict the corresponding action.
+loss, and the commitment loss. Among them, the recon-
+struction loss Lre is designed to regularize the difference                                                                                                                                                                                                                                                                4. Experiments
+between the input action signal and the action signal recon-
+structed from the decoder D, the embedding loss Lembed                                                                                                                                                                                                                                                                     To evaluate the efficacy of our framework, we conduct
+is designed to learn the tokens in the codebook, and the                                                                                                                                                                                                                                                                   experiments on 4 datasets including NTU RGB+D, NTU
+commitment loss Lcommit is designed to encourage each                                                                                                                                                                                                                                                                      RGB+D 120, Toyota Smarthome, and UAV-Human.
+4.1. Datasets                                                     Table 1. Performance comparison on the NTU RGB+D and NTU
+                                                                  RGB+D 120 datasets.
+NTU RGB+D [52] is a large-scale dataset popularly used in
+                                                                                              NTU RGB+D           NTU RGB+D 120
+human action recognition. It contains around 56k skeleton               Method
+sequences from 60 activity classes. On this dataset, follow-                                X-Sub      X-View     X-Sub          X-Set
+ing [52], we evaluate our method under the Cross-Subject              ST-GCN [70]            85.7       92.4       82.1          84.5
+                                                                     Shift-GCN [7]           87.8       95.1       80.9          83.2
+(X-Sub) and Cross-View (X-View) evaluation protocols.                 InfoGCN [8]            89.8       95.2       85.1          86.3
+NTU RGB+D 120 [41] is an extension of the NTU RGB+D                   PoseC3D [11]           93.7       96.5       85.9          89.7
+dataset. It consists of more than 114k skeleton sequences             FR-Head [78]           90.3       95.3       85.5          87.3
+across 120 activity classes. Following [41], we evaluate our         Koopman [62]            90.2       95.2       85.7          87.4
+                                                                        GAP [65]             90.2       95.6       85.5          87.0
+method on this dataset under the Cross-Subject (X-Sub) and           HD-GCN [31]             90.6       95.7       85.7          87.3
+Cross-Setup (X-Set) evaluation protocols.                             STC-Net [30]           91.0       96.2       86.2          88.0
+Toyota Smarthome [10] contains 16,115 video samples                  DSTformer [80]          93.0       97.2        -              -
+over 31 activity classes. On this dataset, we use the skeleton        SkeleTR [12]           94.8       97.7       87.8          88.3
+sequences pre-processed by [71] and we follow it to evalu-                Ours               95.0       98.4       88.7          91.5
+ate our method under the Cross-Subject (X-Sub) and two
+Cross-View (X-View1 & X-View2) evaluation protocols.              Table 2. Performance comparison on the Table 3. Performance
+                                                                  Toyota Smarthome dataset.              comparison on the
+UAV-Human [35] is a dataset that is captured by unmanned
+                                                                                                         UAV-Human dataset.
+aerial vehicles (UAV). It contains more than 20k skeleton
+                                                                       Method       X-Sub    X-View1   X-View2      Method        X-Sub
+sequences over 155 activity classes, and it is collected from       2S-AGCN [54]     58.8      32.2      57.9     ST-GCN [69]      30.3
+119 distinct subjects. Following [35], we use 89 subjects          SSTA-PRS [71]     62.1      22.8      54.0    2S-AGCN [54]      34.8
+for training and 30 subjects for testing.                             UNIK [72]      62.1      33.4      63.6    Shift-GCN [7]     38.0
+                                                                   ML-STGNet [81]    64.6      29.9      63.5      ACFL [61]       44.2
+                                                                        Ours         67.0      36.1      66.6         Ours         46.3
+4.2. Implementation Details
+We conduct our main experiments on Nvidia V100 GPU
+and we use LLaMA-13B [56] as the large language model.            report results on the Toyota Smarthome dataset in Tab. 2,
+During the training process of the action-based VQ-VAE            and on the UAV-Human dataset in Tab. 3. As shown, our
+model, we optimize the model for 300,000 iterations using         method consistently achieves the best performance on these
+the AdamW [42] optimizer with an initial learning rate of         datasets. This further shows the efficacy of our method.
+2e-4. We set the batch size B to 256, the number of tokens
+U to 512, and the curvature c of the hyperbolic codebook to
+                                                                  4.4. Ablation Studies
+1. Additionally, we set the dimension of each word token du       We conduct extensive ablation experiments on the X-Set
+to the same size (5120) as the word token in LLaMA-13B.           protocol of the NTU RGB+D 120 dataset. More ablation
+Moreover, we set w1 to 0.02 following previous VQ-VAE             studies such as experiments w.r.t. hyperparameters are
+works [44, 75] and set w2 to 0.2. Besides, we set the length      in supplementary.
+(W ) of each sequence of latent features to be a quarter of the   Impact of the human- Table 4.                    Evaluation on
+length (V ) of its corresponding input action signal. Dur-        inductive-biases-guided           the human-inductive-biases-
+ing the LoRA process, we develop our code based on the            learning strategy. In our guided learning strategy.
+Github repo [1], set the number of iterations to 75,000, and      framework, to lead the for-         Method             Accuracy
+use the AdamW optimizer with an initial learning rate of          mulated “action sentences”          w/o biases           87.6
+                                                                                                      w/o LZipf            89.9
+3e-3. Moreover, we set the batch size to 256, partitioned         to be more friendly to large        w/o Lcontext         89.8
+into micro-batches of 4. Besides, we set the two hyperpa-         language models, we design          w/o MMD alignment    90.3
+rameters of the LoRA process, i.e., rLoRA and αLoRA , to          a     human-inductive-biases-       LLM-AR               91.5
+64 and 16 respectively.                                           guided learning strategy consisting of three components (as
+                                                                  shown in Eq. 7). To evaluate the efficacy of this strategy,
+4.3. Comparison with State-of-the-art Methods
+                                                                  we test four variants. In the first variant (w/o biases), we
+On NTU RGB+D and NTU RGB+D 120 datasets, fol-                     remove the whole strategy (i.e., all its three components
+lowing the experimental setting of recent works [12, 80],         LZipf , Lcontext , and MMD alignment) from the learning
+we only use the joint modality of human skeletons dur-            process. In the second variant (w/o LZipf ), we still utilize
+ing our experiments. We report the results in Tab. 1. As          the strategy but remove its LZipf component. Moreover,
+shown, compared to existing skeleton-based action recogni-        in the third variant (w/o Lcontext ), we remove the Lcontext
+tion methods, our method consistently achieves the best per-      component from the strategy, whereas in the fourth
+formance across all the evaluation protocols. This demon-         variant (w/o MMD alignment), we remove the MMD
+strates the effectiveness of our method. Besides, we also         alignment component. As shown in Tab. 4, compared to
+our framework, the performance of the first variant drops          Evaluation on unseen activity Table 8.                  Evalua-
+significantly. This shows the importance of formulating            classes. In the main experiments, tion on unseen activ-
+“action sentences” like sentences in human languages.              following [31, 52, 70], we evaluate ity classes.
+Moreover, our framework also outperforms all the other             our framework on activity classes           Method     Accuracy
+three variants. This further shows the effectiveness of all        that have been seen during training.        All tuning   37.7
+                                                                                                               LLM-AR       62.4
+the three components of our proposed learning strategy.            Here, inspired by that large language
+                                                                   models naturally could contain rich knowledge beyond the
+Impact of discretizing latent Table 5. Evaluation on dis-
+                                                                   training activity classes used in our experiments, we are
+features into “action sen- cretizing latent features into
+                                                                   curious, assuming we have a list of testing activity classes
+tences”. In our framework, “action sentences”.
+                                                                   unseen during training, can we also use our framework to
+we discretize the encoded           Method              Accuracy
+                                    w/o discretization    83.4     perform action recognition on these classes? To answer
+latent features to formulate
+                                    with discretization   91.5     this question, we first build a new evaluation protocol
+“action sentences” consisting
+                                                                   for unseen activity classes based on the NTU RGB+D
+of discrete word tokens (with discretization). To valid
+                                                                   120 dataset. Under this new protocol, during each time
+this design, we test a variant. In this variant (w/o dis-
+                                                                   of evaluation, we randomly select 3 classes to form the
+cretization), instead of discretizing the encoded latent
+                                                                   unseen class list (i.e., the list of testing classes), and use
+features into “action sentences”, we directly pass these
+                                                                   the remaining classes as the classes seen during training
+continuous features to the intermediate layers of the large
+                                                                   (i.e., the training classes). Besides, we instruct the large
+language model. As shown in Tab. 5, our framework with
+                                                                   language model as: “Given a sequence of action tokens
+discretization outperforms this variant. This shows the
+                                                                   [tokens], please predict the corresponding action from
+advantage of discretizing latent features into “action sen-
+                                                                   [list].”, where [tokens] represent the word tokens of the
+tences”, which are more “like” human sentences consisting
+                                                                   “action sentence” and [list] represents the unseen class
+of discrete word tokens, and thus are more friendly to the
+                                                                   list. We then perform the above evaluation for five times
+large language model pre-trained over human sentences.
+                                                                   and report the average performance. As shown in Tab. 8,
+Impact of the hyperbolic codebook Table 6.          Evalua-        even testing on activity classes unseen during training, our
+CH . In our framework, we incorpo- tion on the hyper-              framework can still achieve a relatively good performance,
+rate our action-based VQ-VAE model bolic codebook CH .             while the afore-defined all tuning variant performs much
+with a hyperbolic codebook CH (with      Method    Accuracy        worse. This can be analyzed as, large language models
+CH ). To validate the efficacy of CH ,   w/o CH       89.7         could contain rich pre-learned knowledge w.r.t. the list of
+                                         with CH      91.5
+we test a variant (w/o CH ) in which                               unseen classes. Thus, our framework that maintains such
+the codebook is set up in the Euclidean instead of hyper-          rich knowledge can still perform promising recognition on
+bolic space. As shown in Tab. 6, our framework involving           these unseen classes, while the all tuning variant that can
+CH performs better than this variant. This shows the effi-         lose amount of pre-learned knowledge of the large language
+cacy of CH in the hyperbolic space, which can facilitate the       model would yield a much worse performance. This further
+“action sentences” in representing the tree-like-structured        shows the advantage of our framework in maintaining the
+input action signals better.                                       pre-learned rich knowledge of the large language model.
+Impact of the LoRA process. In Table 7. Evaluation
+our framework, to make the large on the LoRA process.
+                                                                   5. Conclusion
+language model understand the “ac-      Method     Accuracy        In this paper, we have proposed a novel action recognition
+tion sentences” while keeping its pre-  All tuning   79.6          framework LLM-AR. In LLM-AR, we treat the large lan-
+                                        LLM-AR       91.5
+trained weights untouched to pre-                                  guage model as an action recognizer, and instruct the large
+serve its rich pre-learned knowledge, we tune the large            language model to perform action recognition using its con-
+language model through a LoRA process. To validate                 tained rich knowledge. Specifically, to lead the input action
+this scheme, here we also test a variant (all tuning) on           signals (i.e., the skeleton sequences) to be more friendly to
+A100 GPU. In this variant, during tuning, after initializ-         the large language model, we first propose a linguistic pro-
+ing the large language model with its pre-trained weights,         jection process to project each action signal into an “action
+all the parameters of the model will undergo gradient up-          sentence”. Moreover, we also introduce several designs to
+dates. As shown in Tab. 7, our framework achieves much             further facilitate this process. Our framework consistently
+better performance than this variant. This shows the su-           achieves SOTA performance across different benchmarks.
+periority of our framework in choosing to perform tun-             Acknowledgement. This project is supported by the Min-
+ing via LoRA, which enables the large language model’s             istry of Education, Singapore, under the AcRF Tier 2
+pre-trained weights to be untouched and maintains its pre-         Projects (MOE-T2EP20222-0009 and MOE-T2EP20123-
+learned rich knowledge.                                            0014).
+References                                                               augmented and virtual reality applications based on binary
+                                                                         descriptor. In Augmented Reality, Virtual Reality, and Com-
+ [1] Lit-llama. https://github.com/Lightning-AI/                         puter Graphics: 5th International Conference, AVR 2018,
+     lit-llama. 7                                                        Otranto, Italy, June 24–27, 2018, Proceedings, Part I 5,
+ [2] Tom Brown, Benjamin Mann, Nick Ryder, Melanie Sub-                  pages 252–260. Springer, 2018. 1
+     biah, Jared D Kaplan, Prafulla Dhariwal, Arvind Neelakan-      [14] Faisal Firdous, Saimul Bashir, Syed Zoofa Rufai, and San-
+     tan, Pranav Shyam, Girish Sastry, Amanda Askell, et al. Lan-        jeev Kumar. Openai chatgpt as a logical interpreter of code.
+     guage models are few-shot learners. Advances in neural in-          In 2023 2nd International Conference on Edge Computing
+     formation processing systems, 33:1877–1901, 2020. 1, 3              and Applications (ICECAA), pages 1192–1197. IEEE, 2023.
+ [3] Dongqi Cai, Yangyuxuan Kang, Anbang Yao, and Yurong                 1, 3
+     Chen. Ske2grid: Skeleton-to-grid representation learning for   [15] Lin Geng Foo, Tianjiao Li, Hossein Rahmani, Qiuhong Ke,
+     action recognition. 2023. 1, 3                                      and Jun Liu. Unified pose sequence modeling. In Proceed-
+ [4] Jinghong Chen, Chong Zhao, Qicong Wang, and Hongy-                  ings of the IEEE/CVF Conference on Computer Vision and
+     ing Meng. Hmanet: Hyperbolic manifold aware network                 Pattern Recognition, pages 13019–13030, 2023. 1, 3
+     for skeleton-based action recognition. IEEE Transactions on    [16] Lin Geng Foo, Hossein Rahmani, and Jun Liu. Ai-generated
+     Cognitive and Developmental Systems, 2022.                          content (aigc) for various data modalities: A survey, 2023. 3
+ [5] Yuxin Chen, Ziqi Zhang, Chunfeng Yuan, Bing Li, Ying           [17] Luca Franco, Paolo Mandica, Bharti Munjal, and Fabio
+     Deng, and Weiming Hu. Channel-wise topology refinement              Galasso. Hyperbolic self-paced learning for self-supervised
+     graph convolution for skeleton-based action recognition. In         skeleton-based action representations. In The Eleventh In-
+     Proceedings of the IEEE/CVF international conference on             ternational Conference on Learning Representations, 2023.
+     computer vision, pages 13359–13368, 2021. 1, 2, 3                   3
+ [6] Ke Cheng, Yifan Zhang, Congqi Cao, Lei Shi, Jian Cheng,        [18] Octavian Ganea, Gary Bécigneul, and Thomas Hofmann.
+     and Hanqing Lu. Decoupling gcn with dropgraph module                Hyperbolic neural networks. Advances in neural informa-
+     for skeleton-based action recognition. In Computer Vision–          tion processing systems, 31, 2018. 2, 5, 6
+     ECCV 2020: 16th European Conference, Glasgow, UK, Au-          [19] Jia Gong, Lin Geng Foo, Yixuan He, Hossein Rahmani, and
+     gust 23–28, 2020, Proceedings, Part XXIV 16, pages 536–             Jun Liu. Llms are good sign language translators. In Pro-
+     553. Springer, 2020. 1, 2                                           ceedings of the IEEE/CVF Conference on Computer Vision
+ [7] Ke Cheng, Yifan Zhang, Xiangyu He, Weihan Chen, Jian                and Pattern Recognition, 2024. 3
+     Cheng, and Hanqing Lu. Skeleton-based action recognition       [20] Arthur Gretton, Karsten Borgwardt, Malte Rasch, Bernhard
+     with shift graph convolutional network. In Proceedings of           Schölkopf, and Alex Smola. A kernel method for the two-
+     the IEEE/CVF conference on computer vision and pattern              sample-problem. Advances in neural information processing
+     recognition, pages 183–192, 2020. 3, 7                              systems, 19, 2006. 5
+ [8] Hyung-gun Chi, Myoung Hoon Ha, Seunggeun Chi,                  [21] Ryo Hachiuma, Fumiaki Sato, and Taiki Sekii. Unified
+     Sang Wan Lee, Qixing Huang, and Karthik Ramani. In-                 keypoint-based action recognition framework via structured
+     fogcn: Representation learning for human skeleton-based             keypoint pooling. In Proceedings of the IEEE/CVF Con-
+     action recognition. In Proceedings of the IEEE/CVF Con-             ference on Computer Vision and Pattern Recognition, pages
+     ference on Computer Vision and Pattern Recognition, pages           22962–22971, 2023. 3
+     20186–20196, 2022. 3, 7                                        [22] Steffen Herbold, Annette Hautli-Janisz, Ute Heuer, Zlata
+ [9] Bernat Corominas-Murtra, Jordi Fortuny, and Ricard V Solé.         Kikteva, and Alexander Trautsch. Ai, write an essay for me:
+     Emergence of zipf’s law in the evolution of communication.          A large-scale comparison of human-written versus chatgpt-
+     Physical Review E, 83(3):036115, 2011. 4                            generated essays. arXiv preprint arXiv:2304.14276, 2023. 1,
+[10] Srijan Das, Rui Dai, Michal Koperski, Luca Minci-                   3
+     ullo, Lorenzo Garattoni, Francois Bremond, and Gianpiero       [23] Edward J Hu, Yelong Shen, Phillip Wallis, Zeyuan Allen-
+     Francesca. Toyota smarthome: Real-world activities of daily         Zhu, Yuanzhi Li, Shean Wang, Lu Wang, and Weizhu Chen.
+     living. In Proceedings of the IEEE/CVF international con-           Lora: Low-rank adaptation of large language models. arXiv
+     ference on computer vision, pages 833–842, 2019. 7                  preprint arXiv:2106.09685, 2021. 2, 6
+[11] Haodong Duan, Yue Zhao, Kai Chen, Dahua Lin, and Bo            [24] Eric Jang, Shixiang Gu, and Ben Poole. Categorical
+     Dai. Revisiting skeleton-based action recognition. In Pro-          reparameterization with gumbel-softmax. arXiv preprint
+     ceedings of the IEEE/CVF Conference on Computer Vision              arXiv:1611.01144, 2016. 4
+     and Pattern Recognition, pages 2969–2978, 2022. 7              [25] Biao Jiang, Xin Chen, Wen Liu, Jingyi Yu, Gang Yu, and
+[12] Haodong Duan, Mingze Xu, Bing Shuai, Davide Mod-                    Tao Chen. Motiongpt: Human motion as a foreign language.
+     olo, Zhuowen Tu, Joseph Tighe, and Alessandro Bergamo.              arXiv preprint arXiv:2306.14795, 2023. 2
+     Skeletr: Towards skeleton-based action recognition in the      [26] Wenxiang Jiao, Wenxuan Wang, JT Huang, Xing Wang, and
+     wild. In Proceedings of the IEEE/CVF International Con-             ZP Tu. Is chatgpt a good translator? yes with gpt-4 as the
+     ference on Computer Vision, pages 13634–13644, 2023. 1,             engine. arXiv preprint arXiv:2301.08745, 2023. 3
+     3, 7                                                           [27] Aravind K Joshi, K Vijay Shanker, and David Weir. The con-
+[13] Abassin Sourou Fangbemi, Bin Liu, Neng Hai Yu, and Yanx-            vergence of mildly context-sensitive grammar formalisms.
+     iang Zhang. Efficient human action recognition interface for        Technical Reports (CIS), page 539, 1990. 2, 4
+[28] Qiuhong Ke, Mohammed Bennamoun, Senjian An, Ferdous                 action recognition. In Proceedings of the IEEE conference on
+     Sohel, and Farid Boussaid. A new representation of skele-           computer vision and pattern recognition, pages 1647–1656,
+     ton sequences for 3d action recognition. In Proceedings of          2017. 3
+     the IEEE conference on computer vision and pattern recog-      [41] Jun Liu, Amir Shahroudy, Mauricio Perez, Gang Wang,
+     nition, pages 3288–3297, 2017. 3                                    Ling-Yu Duan, and Alex C Kot. Ntu rgb+ d 120: A large-
+[29] Valentin Khrulkov, Leyla Mirvakhabova, Evgeniya Usti-               scale benchmark for 3d human activity understanding. IEEE
+     nova, Ivan Oseledets, and Victor Lempitsky. Hyperbolic              transactions on pattern analysis and machine intelligence,
+     image embeddings. In Proceedings of the IEEE/CVF Con-               42(10):2684–2701, 2019. 7
+     ference on Computer Vision and Pattern Recognition, pages      [42] Ilya Loshchilov and Frank Hutter. Decoupled weight decay
+     6418–6428, 2020. 6                                                  regularization. arXiv preprint arXiv:1711.05101, 2017. 7
+[30] Jungho Lee, Minhyeok Lee, Suhwan Cho, Sungmin Woo,             [43] Benoit Mandelbrot. Structure formelle des textes et commu-
+     Sungjun Jang, and Sangyoun Lee. Leveraging spatio-                  nication: Deux études par. Word, 10(1):1–27, 1954. 4
+     temporal dependency for skeleton-based action recognition.     [44] Evonne Ng, Sanjay Subramanian, Dan Klein, Angjoo
+     In Proceedings of the IEEE/CVF International Conference             Kanazawa, Trevor Darrell, and Shiry Ginosar. Can language
+     on Computer Vision, pages 10255–10264, 2023. 7                      models learn to listen? In Proceedings of the IEEE/CVF In-
+[31] Jungho Lee, Minhyeok Lee, Dogyoon Lee, and Sangyoun                 ternational Conference on Computer Vision, pages 10083–
+     Lee. Hierarchically decomposed graph convolutional net-             10093, 2023. 7
+     works for skeleton-based action recognition. In Proceedings    [45] Maximillian Nickel and Douwe Kiela. Poincaré embeddings
+     of the IEEE/CVF International Conference on Computer Vi-            for learning hierarchical representations. Advances in neural
+     sion, pages 10444–10453, 2023. 7, 8                                 information processing systems, 30, 2017. 5
+[32] Zikang Leng, Hyeokhyen Kwon, and Thomas Plötz. On the         [46] Long Ouyang, Jeffrey Wu, Xu Jiang, Diogo Almeida, Car-
+     benefit of generative foundation models for human activity          roll Wainwright, Pamela Mishkin, Chong Zhang, Sandhini
+     recognition. arXiv preprint arXiv:2310.12085, 2023. 3               Agarwal, Katarina Slama, Alex Ray, et al. Training lan-
+[33] Lei Li, Tingting Liu, Chengyu Wang, Minghui Qiu, Cen                guage models to follow instructions with human feedback.
+     Chen, Ming Gao, and Aoying Zhou. Resizing codebook of               Advances in Neural Information Processing Systems, 35:
+     vector quantization without retraining. Multimedia Systems,         27730–27744, 2022. 1, 3
+     pages 1–14, 2023. 2, 5                                         [47] Isabel Papadimitriou and Dan Jurafsky. Pretrain on just
+[34] Maosen Li, Siheng Chen, Xu Chen, Ya Zhang, Yanfeng                  structure: Understanding linguistic inductive biases using
+     Wang, and Qi Tian. Actional-structural graph convolutional          transfer learning. arXiv preprint arXiv:2304.13060, 2023.
+     networks for skeleton-based action recognition. In Proceed-         2, 4
+     ings of the IEEE/CVF conference on computer vision and         [48] Steven T Piantadosi. Zipf’s word frequency law in natural
+     pattern recognition, pages 3595–3603, 2019. 3                       language: A critical review and future directions. Psycho-
+[35] Tianjiao Li, Jun Liu, Wei Zhang, Yun Ni, Wenqian Wang,              nomic bulletin & review, 21:1112–1130, 2014. 2, 4
+     and Zhiheng Li. Uav-human: A large benchmark for human         [49] Yiwei Qin, Graham Neubig, and Pengfei Liu. Searching for
+     behavior understanding with unmanned aerial vehicles. In            effective multilingual fine-tuning methods: A case study in
+     Proceedings of the IEEE/CVF conference on computer vi-              summarization, 2022. 1
+     sion and pattern recognition, pages 16266–16275, 2021. 7       [50] Haoxuan Qu, Xiaofei Hui, Yujun Cai, and Jun Liu.
+[36] Weiyao Lin, Ming-Ting Sun, Radha Poovendran, and                    Lmc: Large model collaboration with cross-assessment for
+     Zhengyou Zhang. Activity recognition using a combination            training-free open-set object recognition. Advances in Neu-
+     of category components and local models for video surveil-          ral Information Processing Systems, 36, 2024. 1, 3
+     lance. IEEE Transactions on Circuits and Systems for Video     [51] Acquaviva Sam. Hyperbolic vq-vaes. 2, 3, 5
+     Technology, 18(8):1128–1139, 2008. 1                           [52] Amir Shahroudy, Jun Liu, Tian-Tsong Ng, and Gang Wang.
+[37] Hong Liu, Qinqin He, and Mengyuan Liu. Human action                 Ntu rgb+ d: A large scale dataset for 3d human activity anal-
+     recognition using adaptive hierarchical depth motion maps           ysis. In Proceedings of the IEEE conference on computer
+     and gabor filter. In 2017 IEEE International Conference on          vision and pattern recognition, pages 1010–1019, 2016. 7, 8
+     Acoustics, Speech and Signal Processing (ICASSP), pages        [53] Lei Shi, Yifan Zhang, Jian Cheng, and Hanqing Lu.
+     1432–1436. IEEE, 2017. 1                                            Skeleton-based action recognition with directed graph neu-
+[38] Haotian Liu, Chunyuan Li, Qingyang Wu, and Yong Jae Lee.            ral networks. In Proceedings of the IEEE/CVF conference on
+     Visual instruction tuning. arXiv preprint arXiv:2304.08485,         computer vision and pattern recognition, pages 7912–7921,
+     2023. 2                                                             2019. 1, 2, 3
+[39] Jun Liu, Amir Shahroudy, Dong Xu, and Gang Wang.               [54] Lei Shi, Yifan Zhang, Jian Cheng, and Hanqing Lu. Two-
+     Spatio-temporal lstm with trust gates for 3d human action           stream adaptive graph convolutional networks for skeleton-
+     recognition. In Computer Vision–ECCV 2016: 14th Euro-               based action recognition. In Proceedings of the IEEE/CVF
+     pean Conference, Amsterdam, The Netherlands, October 11-            conference on computer vision and pattern recognition,
+     14, 2016, Proceedings, Part III 14, pages 816–833. Springer,        pages 12026–12035, 2019. 1, 2, 3, 7
+     2016. 3                                                        [55] Stuart M Shieber. Evidence against the context-freeness of
+[40] Jun Liu, Gang Wang, Ping Hu, Ling-Yu Duan, and Alex C               natural language. In The Formal complexity of natural lan-
+     Kot. Global context-aware attention lstm networks for 3d            guage, pages 320–334. Springer, 1985. 2, 4
+[56] Hugo Touvron, Thibaut Lavril, Gautier Izacard, Xavier                 AAAI Conference on Artificial Intelligence, pages 2866–
+     Martinet, Marie-Anne Lachaux, Timothée Lacroix, Baptiste             2874, 2022. 3
+     Rozière, Naman Goyal, Eric Hambro, Faisal Azhar, et al.         [69] Hongliang Yan, Yukang Ding, Peihua Li, Qilong Wang,
+     Llama: Open and efficient foundation language models.                 Yong Xu, and Wangmeng Zuo. Mind the class weight bias:
+     arXiv preprint arXiv:2302.13971, 2023. 1, 3, 7                        Weighted maximum mean discrepancy for unsupervised do-
+[57] Aaron Van Den Oord, Oriol Vinyals, et al. Neural discrete             main adaptation. In Proceedings of the IEEE conference on
+     representation learning. Advances in neural information pro-          computer vision and pattern recognition, pages 2272–2281,
+     cessing systems, 30, 2017. 3, 6                                       2017. 7
+[58] Vivek Veeriah, Naifan Zhuang, and Guo-Jun Qi. Differen-          [70] Sijie Yan, Yuanjun Xiong, and Dahua Lin. Spatial tempo-
+     tial recurrent neural networks for action recognition. In Pro-        ral graph convolutional networks for skeleton-based action
+     ceedings of the IEEE international conference on computer             recognition. In Proceedings of the AAAI conference on arti-
+     vision, pages 4041–4049, 2015. 2                                      ficial intelligence, 2018. 1, 2, 3, 7, 8
+[59] Lei Wang and Piotr Koniusz. 3mformer: Multi-order multi-         [71] Di Yang, Rui Dai, Yaohui Wang, Rupayan Mallick, Luca
+     mode transformer for skeletal action recognition. In Pro-             Minciullo, Gianpiero Francesca, and Francois Bremond. Se-
+     ceedings of the IEEE/CVF Conference on Computer Vision                lective spatio-temporal aggregation based pose refinement
+     and Pattern Recognition, pages 5620–5631, 2023. 1, 3                  system: Towards understanding human activities in real-
+[60] Limin Wang, Yuanjun Xiong, Zhe Wang, Yu Qiao, Dahua                   world videos. In Proceedings of the IEEE/CVF Winter Con-
+     Lin, Xiaoou Tang, and Luc Van Gool. Temporal segment net-             ference on Applications of Computer Vision, pages 2363–
+     works: Towards good practices for deep action recognition.            2372, 2021. 7
+     In European conference on computer vision, pages 20–36.          [72] Di Yang, Yaohui Wang, Antitza Dantcheva, Lorenzo Garat-
+     Springer, 2016. 2                                                     toni, Gianpiero Francesca, and François Brémond. Unik:
+[61] Xuanhan Wang, Yan Dai, Lianli Gao, and Jingkuan Song.                 A unified framework for real-world skeleton-based action
+     Skeleton-based action recognition via adaptive cross-form             recognition. arXiv preprint arXiv:2107.08580, 2021. 1, 7
+     learning. In Proceedings of the 30th ACM International Con-      [73] Jiahang Zhang, Lilang Lin, and Jiaying Liu. Hierarchi-
+     ference on Multimedia, pages 1670–1678, 2022. 7                       cal consistent contrastive learning for skeleton-based action
+[62] Xinghan Wang, Xin Xu, and Yadong Mu. Neural koop-                     recognition with growing augmentations. In Proceedings of
+     man pooling: Control-inspired temporal dynamics encod-                the AAAI Conference on Artificial Intelligence, pages 3427–
+     ing for skeleton-based action recognition. In Proceedings of          3435, 2023. 3
+     the IEEE/CVF Conference on Computer Vision and Pattern           [74] Jiahui Zhang, Fangneng Zhan, Christian Theobalt, and Shi-
+     Recognition, pages 10597–10607, 2023. 1, 3, 7                         jian Lu. Regularized vector quantization for tokenized im-
+[63] Shenghua Wei, Yonghong Song, and Yuanlin Zhang. Human                 age synthesis. In Proceedings of the IEEE/CVF Conference
+     skeleton tree recurrent neural network with joint relative mo-        on Computer Vision and Pattern Recognition, pages 18467–
+     tion feature for skeleton based action recognition. In 2017           18476, 2023. 3
+     IEEE international conference on image processing (ICIP),        [75] Jianrong Zhang, Yangsong Zhang, Xiaodong Cun, Shaoli
+     pages 91–95. IEEE, 2017. 2, 5                                         Huang, Yong Zhang, Hongwei Zhao, Hongtao Lu, and Xi
+[64] Rongxiang Weng, Wen Sen Cheng, and Min Zhang. G-                      Shen. T2m-gpt: Generating human motion from textual
+     tuning: Improving generalization of pre-trained language              descriptions with discrete representations. arXiv preprint
+     models with generative adversarial network. In Findings of            arXiv:2301.06052, 2023. 2, 3, 6, 7
+     the Association for Computational Linguistics: ACL 2023,         [76] Yuhan Zhang, Bo Wu, Wen Li, Lixin Duan, and Chuang Gan.
+     pages 4747–4755, 2023. 2                                              Stst: Spatial-temporal specialized transformer for skeleton-
+[65] Wangmeng Xiang, Chao Li, Yuxuan Zhou, Biao Wang,                      based action recognition. In Proceedings of the 29th ACM
+     and Lei Zhang. Generative action description prompts for              International Conference on Multimedia, pages 3229–3237,
+     skeleton-based action recognition. In Proceedings of the              2021. 3
+     IEEE/CVF International Conference on Computer Vision,            [77] Yaqi Zhang, Di Huang, Bin Liu, Shixiang Tang, Yan Lu, Lu
+     pages 10276–10285, 2023. 3, 7                                         Chen, Lei Bai, Qi Chu, Nenghai Yu, and Wanli Ouyang. Mo-
+[66] Wentian Xin, Qiguang Miao, Yi Liu, Ruyi Liu, Chi-Man                  tiongpt: Finetuned llms are general-purpose motion genera-
+     Pun, and Cheng Shi. Skeleton mixformer: Multivariate                  tors. arXiv preprint arXiv:2306.10900, 2023. 2, 3, 6
+     topology representation for skeleton-based action recogni-       [78] Huanyu Zhou, Qingjie Liu, and Yunhong Wang. Learn-
+     tion. In Proceedings of the 31st ACM International Con-               ing discriminative representations for skeleton based action
+     ference on Multimedia, pages 2211–2220, 2023.                         recognition. In Proceedings of the IEEE/CVF International
+[67] Haojun Xu, Yan Gao, Zheng Hui, Jie Li, and Xinbo                      Conference on Computer Vision, 2023. 1, 7
+     Gao. Language knowledge-assisted representation learn-           [79] Lanyun Zhu, Tianrun Chen, Deyi Ji, Jieping Ye, and Jun Liu.
+     ing for skeleton-based action recognition. arXiv preprint             Llafs: When large-language models meet few-shot segmen-
+     arXiv:2305.12398, 2023. 3                                             tation. arXiv preprint arXiv:2311.16926, 2023. 3
+[68] Kailin Xu, Fanfan Ye, Qiaoyong Zhong, and Di Xie.                [80] Wentao Zhu, Xiaoxuan Ma, Zhaoyang Liu, Libin Liu, Wayne
+     Topology-aware convolutional neural network for efficient             Wu, and Yizhou Wang. Motionbert: A unified perspective
+     skeleton-based action recognition. In Proceedings of the              on learning human motion representations. In Proceedings
+     of the IEEE/CVF International Conference on Computer Vi-
+     sion, 2023. 1, 3, 7
+[81] Yisheng Zhu, Hui Shuai, Guangcan Liu, and Qingshan
+     Liu. Multilevel spatial–temporal excited graph network for
+     skeleton-based action recognition. IEEE Transactions on Im-
+     age Processing, 32:496–508, 2022. 7
+[82] G. K. Zipf. The psycho-biology of language, 1935. 2, 4
+

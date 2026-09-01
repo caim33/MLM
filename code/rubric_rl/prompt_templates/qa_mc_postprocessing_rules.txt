@@ -1,0 +1,93 @@
+QA multiple-choice rubric RL post-processing rules
+
+```text
+inputs:
+  criteria: qa_mc criteria JSON
+  candidate: raw candidate response text
+  judge: online judge JSON
+
+fixed weights:
+  answer_correctness = 30
+  reasoning_quality = 55
+  format_compliance = 10
+  language_conciseness = 5
+  contradiction_penalty in {0, -5, -10, -15, -20}
+
+parse:
+  think_blocks = all exact case-sensitive <think>...</think> spans
+  answer_blocks = all exact case-sensitive <answer>...</answer> spans
+  has_one_think = len(think_blocks) == 1
+  has_one_answer = len(answer_blocks) == 1
+  parsed_answer =
+    stripped answer_blocks[0] if has_one_answer and stripped content full-matches [A-D]
+    else null
+
+answer_score:
+  if parsed_answer == criteria.correct_option:
+    answer_score = 30
+  else:
+    answer_score = 0
+
+format_score:
+  format_score = 0
+  if has_one_think: format_score += 2
+  if has_one_answer: format_score += 2
+  if parsed_answer is not null: format_score += 3
+  if has_one_think and has_one_answer and think block appears before answer block
+     and there is no extra final answer statement outside <answer>:
+    format_score += 3
+  format_score = clamp(format_score, 0, 10)
+
+sanitize judge output:
+  valid_reasoning_ids = ids(criteria.reasoning_criteria)
+  valid_negative_ids = ids(criteria.negative_criteria)
+  satisfied_ids = set(judge.reasoning_quality.satisfied_ids) intersect valid_reasoning_ids
+  contradicted_ids = set(judge.reasoning_quality.contradicted_ids) intersect valid_reasoning_ids
+  triggered_negative_ids = set(judge.negative_criteria.triggered_ids) intersect valid_negative_ids
+  invalid_ids_removed = all judge-returned ids not in their valid id sets
+  satisfied_ids = satisfied_ids - contradicted_ids
+  if not has_one_think:
+    satisfied_ids = empty set
+    contradicted_ids = empty set
+  missed_ids = valid_reasoning_ids - satisfied_ids
+
+reasoning_score:
+  total_reasoning = max(len(valid_reasoning_ids), 1)
+  reasoning_score = 55 * len(satisfied_ids) / total_reasoning
+
+language_score:
+  language_score = clamp(round(judge.language_conciseness_score), 0, 5)
+
+penalty:
+  penalty = nearest_allowed(judge.contradiction_penalty, {0, -5, -10, -15, -20})
+  if triggered_negative_ids is not empty and penalty == 0:
+    penalty = -5
+  if any triggered negative criterion has type contradiction or wrong_option_support
+     and penalty > -10:
+    penalty = -10
+
+raw_score:
+  raw_score = answer_score + reasoning_score + format_score + language_score + penalty
+  total_score = clamp(raw_score, 0, 100)
+
+caps:
+  applied_caps = []
+  if parsed_answer != criteria.correct_option:
+    total_score = min(total_score, 50)
+    applied_caps.append("wrong_answer_max_50")
+  if parsed_answer is null:
+    total_score = min(total_score, 20)
+    applied_caps.append("no_valid_answer_max_20")
+  if not has_one_think:
+    total_score = min(total_score, 45)
+    applied_caps.append("no_visible_reasoning_max_45")
+
+reward:
+  reward = total_score / 100
+
+debug:
+  return parsed_answer, correct_option, answer_score, format_score,
+  reasoning_score, language_score, penalty, raw_score, total_score,
+  reward, satisfied_ids, missed_ids, contradicted_ids,
+  triggered_negative_ids, invalid_ids_removed, applied_caps
+```

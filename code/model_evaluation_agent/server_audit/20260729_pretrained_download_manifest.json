@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0",
+  "motionllm": {
+    "source": "https://huggingface.co/EvanTHU/MotionLLM-7B",
+    "revision": "feda751a8c906a0c5d18e241b3140bc6badd5913",
+    "license": "idea",
+    "files": [
+      {
+        "path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/codex_runs/unified_model_eval/shared_assets/pretrained/downloads/EvanTHU--MotionLLM-7B/motionllm-ckpt/lora.pth",
+        "size": 67129238,
+        "sha256": "c28beab8172cab510f6f414bea8bcec1ac27dca8f54d0f0189a7bda0c53e0977"
+      },
+      {
+        "path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/codex_runs/unified_model_eval/shared_assets/pretrained/downloads/EvanTHU--MotionLLM-7B/motionllm-ckpt/linear.pth",
+        "size": 83920656,
+        "sha256": "682606481c2724dfc9340257102b746657d2f0ec520695244e55691884608753"
+      }
+    ]
+  },
+  "motionclip": {
+    "source": "https://drive.google.com/file/d/1VTIN0kJd2-0NW1sKckKgXddwl4tFZVDp/view",
+    "revision": "upstream-paper-model-download",
+    "license": "MIT code; model/data dependency terms also apply",
+    "archive": {
+      "path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/codex_runs/unified_model_eval/shared_assets/pretrained/downloads/MotionCLIP/paper-model.zip",
+      "size": 175279995,
+      "sha256": "9ae86358a82f38338c70c8275f8f6af6d8658e1a1f6a9a124b27208751e9128d"
+    },
+    "checkpoint": {
+      "path": "/wangbenyou-sulongjie/Motion-r1/caimeng/MLLM/codex_runs/unified_model_eval/shared_assets/pretrained/downloads/MotionCLIP/paper-model/checkpoint_0100.pth.tar",
+      "size": 189423984,
+      "sha256": "acafc4bc0d3300ff92a01fc8b75e1a9d129fa253899a2c4648c2260298358e21"
+    }
+  }
+}

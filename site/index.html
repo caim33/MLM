@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="MotionLLM 论文地图、代码诊断与优化路线图">
+  <title>MotionLLM Research Atlas</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+  <header class="topbar">
+    <a class="brand" href="#top" aria-label="回到顶部">
+      <span class="brand-mark">M</span>
+      <span><strong>MotionLLM</strong><small>Research Atlas</small></span>
+    </a>
+    <nav class="topnav" aria-label="主导航">
+      <a href="#verdict">先看结论</a>
+      <a href="#project">代码诊断</a>
+      <a href="#roadmap">优化路线</a>
+      <a href="#papers">论文地图</a>
+      <a href="#method">研究口径</a>
+      <a href="guide/dataset-statistics.html">数据统计</a>
+      <a href="guide/qwen-codebase.html">Qwen 使用手册</a>
+    </nav>
+    <button class="theme-toggle" id="themeToggle" type="button" aria-label="切换明暗主题">◐</button>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="top">
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <p class="eyebrow">CODE × PAPERS × ACTIONS · 2026-08-20</p>
+          <h1>别再把 motion<br>只当成另一种 token。</h1>
+          <p class="hero-lede">这是一份围绕你的 Motion-R1 / Qwen-VL Motion / SFT / GRPO / Rubric / Eval 真实代码制作的中文研究网页。每篇论文都被放进项目链路中的具体位置，并明确标注：它解决什么、没有解决什么、下一步怎么验证。</p>
+          <div class="hero-actions">
+            <a class="button primary" href="#verdict">从关键判断开始</a>
+            <a class="button ghost" href="#papers">浏览论文主图</a>
+            <a class="button ghost" href="guide/dataset-statistics.html">查看数据统计</a>
+            <a class="button ghost" href="guide/qwen-codebase.html">打开 Qwen 使用手册</a>
+          </div>
+        </div>
+        <div class="hero-panel" aria-label="研究统计">
+          <div class="signal-line"><span>PROJECT SIGNAL</span><strong>VM → V 对照</strong></div>
+          <div class="hero-metric"><strong id="paperCount">—</strong><span>精读论文</span></div>
+          <div class="hero-metric"><strong id="figureCount">—</strong><span>论文主图</span></div>
+          <div class="hero-metric"><strong id="directCount">—</strong><span>直接可借鉴</span></div>
+          <div class="hero-note"><span class="pulse"></span> 结论来自代码证据与论文原文，不引用历史 accuracy 作为新结果。</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="verdict">
+      <div class="section-heading">
+        <p class="kicker">EXECUTIVE VERDICT</p>
+        <h2>先看五个判断</h2>
+        <p>如果只读这一屏，它应该能改变下一轮实验设计。</p>
+      </div>
+      <div class="verdict-grid">
+        <article class="verdict-card accent-blue">
+          <span class="verdict-index">01</span>
+          <h3>最大瓶颈更像“对齐”，不是“推理长度”</h3>
+          <p>motion 经 VQ-VAE 后被插值到文本占位长度，再由两层 MLP 投到 LLM 隐空间。先证明这些 embedding 保留了节奏、左右、局部关节与阶段边界，再扩 GRPO。</p>
+        </article>
+        <article class="verdict-card accent-lime">
+          <span class="verdict-index">02</span>
+          <h3>VM/V 奖励不是因果的“使用 motion”证明</h3>
+          <p>当前 bonus 奖励“VM 组均值不低于 V”，但正确答案仍可能来自视频捷径。应加入反事实 motion、时间打乱与同视频错 motion 三类 hard negative。</p>
+        </article>
+        <article class="verdict-card accent-orange">
+          <span class="verdict-index">03</span>
+          <h3>训练格式与正式评估协议还没完全同构</h3>
+          <p>奖励与部分评估代码会在 <code>&lt;answer&gt;</code> 内兜底提取独立 A-D；正式主表只接受完整的单字母标签。训练期就应使用同一 parser。</p>
+        </article>
+        <article class="verdict-card accent-violet">
+          <span class="verdict-index">04</span>
+          <h3>Rubric 已有好骨架，但缺“校准层”</h3>
+          <p>细粒度动作、身体、数值、左右、时序和推理拆分是优势；但空 criterion 会拿满该维度，judge 也没有 schema 校验、重试、双评审或人类校准集。</p>
+        </article>
+        <article class="verdict-card accent-red">
+          <span class="verdict-index">05</span>
+          <h3>下一轮应做最小可证伪实验，而不是再堆模型</h3>
+          <p>围绕 motion 表示、模态增益、奖励鲁棒性、严格生成四条假设做 2×2/消融；每条都冻结数据、parser、seed 和当前批 checkpoint。</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section project-section" id="project">
+      <div class="section-heading inverse">
+        <p class="kicker">YOUR SYSTEM, AS IMPLEMENTED</p>
+        <h2>代码里的真实链路</h2>
+        <p>这里保留历史 snapshot 的诊断结论，并链接到当前重构实现与迁移说明；历史缺陷与现行保护会明确区分。</p>
+      </div>
+
+      <div class="pipeline" aria-label="MotionLLM 数据流">
+        <div class="pipeline-node">
+          <span class="node-tag">INPUT · M</span>
+          <strong>263-D motion</strong>
+          <small>Mean / Std 归一化</small>
+        </div>
+        <span class="pipeline-arrow">→</span>
+        <div class="pipeline-node">
+          <span class="node-tag">TOKENIZER</span>
+          <strong>VQ-VAE encoder</strong>
+          <small>512-D motion feature</small>
+        </div>
+        <span class="pipeline-arrow">→</span>
+        <div class="pipeline-node risk">
+          <span class="node-tag">ALIGNMENT</span>
+          <strong>MLP + resize</strong>
+          <small>512 → 4096 → 2560</small>
+        </div>
+        <span class="pipeline-arrow">→</span>
+        <div class="pipeline-node">
+          <span class="node-tag">FUSION · VM</span>
+          <strong>Qwen3-VL embeds</strong>
+          <small>video + motion + text</small>
+        </div>
+        <span class="pipeline-arrow">→</span>
+        <div class="pipeline-node">
+          <span class="node-tag">POST-TRAIN</span>
+          <strong>SFT → GRPO</strong>
+          <small>accuracy + format + VM/V</small>
+        </div>
+      </div>
+
+      <div class="diagnosis-grid">
+        <article class="diagnosis-card">
+          <div class="diagnosis-title"><span>协议层</span><b>P0</b></div>
+          <h3>两套并存代码使用不同 motion-token 协议</h3>
+          <p>旧 GRPO 数据写入字面 boundary span，根版本可能把完整动作插值压进少量文本槽；<code>remote_edit</code> 才补了逐时间步 placeholder 与长度校验。没有 source hash 就无法复现。</p>
+          <a class="code-link" href="guide/qwen-codebase.html#evidence-motion-protocol">查看现行实现与迁移说明 →</a>
+        </article>
+        <article class="diagnosis-card">
+          <div class="diagnosis-title"><span>SFT 链</span><b>P0</b></div>
+          <h3>续训 checkpoint 与有效序列长度都可能静默偏离</h3>
+          <p>启动脚本定义了 <code>init_model_or_path</code> 却仍把 base <code>llm</code> 传给训练；脚本宣称 8192，但 processor 又无条件截到 4096。两者都不会自然报错。</p>
+          <a class="code-link" href="guide/qwen-codebase.html#evidence-sft-binding">查看现行实现与迁移说明 →</a>
+        </article>
+        <article class="diagnosis-card">
+          <div class="diagnosis-title"><span>模态治理</span><b>KEEP</b></div>
+          <h3>VM/V 输入隔离做得对，应该保留</h3>
+          <p>VM 缺 motion、缺 anchor 会硬失败；V 携带 motion 也会硬失败。这个 fail-closed 设计是可信消融的基础，应扩展到数据 manifest 与 evaluator。</p>
+          <a class="code-link" href="guide/qwen-codebase.html#evidence-modality-isolation">查看现行保护 →</a>
+        </article>
+        <article class="diagnosis-card">
+          <div class="diagnosis-title"><span>奖励层</span><b>P1</b></div>
+          <h3>VM/V bonus 测的是相对正确率，不是信息利用</h3>
+          <p>gate 只比较同组 VM/V 的 option accuracy 均值，再给正确 VM 样本加常数。需要反事实 pairing 才能区分“真的用 motion”与“视频已经够答”。</p>
+          <a class="code-link" href="guide/qwen-codebase.html#evidence-group-bonus">查看现行问题位置 →</a>
+        </article>
+        <article class="diagnosis-card">
+          <div class="diagnosis-title"><span>协议层</span><b>P1</b></div>
+          <h3>reward parser 比正式协议更宽松</h3>
+          <p><code>&lt;answer&gt;The answer is B&lt;/answer&gt;</code> 仍会得到 option reward；这会奖励正式主表判 invalid 的输出。训练、smoke 与 full eval 必须共享一个 parser 包。</p>
+          <a class="code-link" href="guide/qwen-codebase.html#evidence-strict-parser">查看现行保护 →</a>
+        </article>
+        <article class="diagnosis-card">
+          <div class="diagnosis-title"><span>Rubric</span><b>P0</b></div>
+          <h3>空 criteria 可确定性得到 80/100</h3>
+          <p>空维度直接返满分、无 reasoning 直接给 20 分；错误数值又会并入 semantic 集合拿 0.25。应把缺失/非法 rubric 标 invalid，并仅对实际存在维度重归一化。</p>
+          <a class="code-link" href="guide/qwen-codebase.html#evidence-rubric">查看现行保护 →</a>
+        </article>
+        <article class="diagnosis-card">
+          <div class="diagnosis-title"><span>GRPO 验证</span><b>P1</b></div>
+          <h3>VM-only validation 让 VM/V bonus 恒为 0</h3>
+          <p>group bonus 只有同组同时存在 VM 与 V 时才生效；当前带 eval 的配置却指向 VM-only validation。它只能测答案，不能测本轮独有的模态增益目标。</p>
+          <a class="code-link" href="guide/qwen-codebase.html#evidence-vm-validation">查看现行问题位置 →</a>
+        </article>
+        <article class="diagnosis-card">
+          <div class="diagnosis-title"><span>可维护性</span><b>P2</b></div>
+          <h3>projector 写死维度，post-norm 还是死模块</h3>
+          <p><code>512→4096→2560</code> 把 connector 绑死到单一 hidden size；<code>motion_postnorm</code> 被创建却未用于 encode path。应从 config 构造并做预期梯度断言。</p>
+          <a class="code-link" href="guide/qwen-codebase.html#evidence-projector">查看现行实现与迁移说明 →</a>
+        </article>
+      </div>
+      <div class="security-alert">
+        <strong>独立安全 P0</strong>
+        <p>历史快照的 <code>scripts/full_sft.sh:31</code> 含明文实验跟踪凭据。网页和报告均不复述其值；应立即撤销/轮换、清理版本历史，并改为进程级 secret 注入。</p>
+      </div>
+    </section>
+
+    <section class="section" id="roadmap">
+      <div class="section-heading">
+        <p class="kicker">EXPERIMENT ROADMAP</p>
+        <h2>按证据价值排序的优化路线</h2>
+        <p>每一步都有可证伪的判断标准；不把“训练跑通”当成“方法有效”。</p>
+      </div>
+
+      <div class="roadmap">
+        <article class="roadmap-row">
+          <div class="roadmap-time"><strong>P0</strong><span>1–2 周</span></div>
+          <div class="roadmap-body">
+            <h3>先建立四个不依赖大规模 RL 的诊断</h3>
+            <ul>
+              <li><b>Motion probe：</b>冻结模型，用 embedding 预测左右、速度、身体部位、阶段边界；与 raw motion / VQ code / projector 后表示对比。</li>
+              <li><b>Counterfactual VM：</b>原 motion、时间打乱、同类错 motion、全零 motion；报告 Δaccuracy 与 flip matrix。</li>
+              <li><b>Strict parser parity：</b>reward、离线 eval、统一主表只调用同一正则和错误枚举。</li>
+              <li><b>Rubric calibration：</b>先做 100–200 条双人标注集，测 judge 的维度级准确率、方差和顺序偏差。</li>
+            </ul>
+          </div>
+          <div class="roadmap-gate">通过条件<br><b>motion 反事实显著影响 motion-dependent 子集，且不伤 non-motion 子集</b></div>
+        </article>
+        <article class="roadmap-row">
+          <div class="roadmap-time"><strong>P1</strong><span>2–4 周</span></div>
+          <div class="roadmap-body">
+            <h3>重做 motion–LLM 对齐，而不是直接重训全部参数</h3>
+            <ul>
+              <li>比较 continuous projector、离散 motion code token、Q-Former/resampler 三种接口。</li>
+              <li>让 token 数由 motion 时间结构决定，并显式带 frame/time position；禁止由 prompt 占位数决定。</li>
+              <li>先做 motion-only caption/QA 对齐，再做 VM instruction mix；按任务和模态控制 batch 比例。</li>
+              <li>用 hard negative 学“motion 与 video 是否一致”，再进入答案 RL。</li>
+            </ul>
+          </div>
+          <div class="roadmap-gate">通过条件<br><b>probe + counterfactual + MoVid/Motion QA 同时改善</b></div>
+        </article>
+        <article class="roadmap-row">
+          <div class="roadmap-time"><strong>P2</strong><span>4–8 周</span></div>
+          <div class="roadmap-body">
+            <h3>把 GRPO 从“答案奖励”升级为“受控的信息增益奖励”</h3>
+            <ul>
+              <li>保留 verifiable answer/format reward，把 VM gain 单独作为条件奖励并做组内归一化。</li>
+              <li>只在经标注的 motion-dependent 样本上施加模态增益奖励；其他样本不强迫 motion 胜过 video。</li>
+              <li>对 rubric reward 做 judge ensemble / random order / held-out calibration；监控 reward–human gap。</li>
+              <li>跟踪 entropy、clip fraction、zero-variance groups、长度、invalid rate，而不只看平均 reward。</li>
+            </ul>
+          </div>
+          <div class="roadmap-gate">通过条件<br><b>held-out 严格生成主指标提升，且 reward hacking 套件不退化</b></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section papers-section" id="papers">
+      <div class="section-heading">
+        <p class="kicker">PAPER ATLAS</p>
+        <h2>按“与你的项目距离”读论文</h2>
+        <p>主图来自论文 PDF 或官方项目页；点击图片可放大。每张卡都把结论映射到具体实验。</p>
+      </div>
+
+      <div class="paper-controls" aria-label="论文筛选">
+        <label class="search-box">
+          <span>⌕</span>
+          <input id="paperSearch" type="search" placeholder="搜索论文、机制、数据集或 know-how…" autocomplete="off">
+        </label>
+        <div class="filter-row" id="filterRow" role="group" aria-label="类别筛选">
+          <button class="filter active" type="button" data-filter="all">全部</button>
+          <button class="filter" type="button" data-filter="direct">直接竞争 / 直接借鉴</button>
+          <button class="filter" type="button" data-filter="representation">Motion 表示</button>
+          <button class="filter" type="button" data-filter="rl">RL / GRPO</button>
+          <button class="filter" type="button" data-filter="rubric">Rubric / Judge</button>
+          <button class="filter" type="button" data-filter="evaluation">评估治理</button>
+        </div>
+        <div class="sort-row">
+          <span id="resultCount" aria-live="polite">—</span>
+          <label>排序
+            <select id="paperSort">
+              <option value="relevance">项目相关度</option>
+              <option value="year-desc">年份：新到旧</option>
+              <option value="year-asc">年份：旧到新</option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <div class="paper-grid" id="paperGrid"></div>
+      <div class="empty-state" id="emptyState" hidden>没有匹配的论文。试试更短的关键词或切回“全部”。</div>
+    </section>
+
+    <section class="section matrix-section" id="matrix">
+      <div class="section-heading inverse">
+        <p class="kicker">READING MATRIX</p>
+        <h2>论文不是一个赛道，而是五层栈</h2>
+        <p>相同的 benchmark 分数，可能来自完全不同层的改进，不能混为“MotionLLM 方法”。</p>
+      </div>
+      <div class="matrix-wrap">
+        <table>
+          <thead><tr><th>层</th><th>核心问题</th><th>你的当前实现</th><th>优先吸收的论文思想</th><th>验证指标</th></tr></thead>
+          <tbody>
+            <tr><td>数据 / 标注</td><td>覆盖哪些动作与粒度？</td><td>Motion-X QA / rubric 派生</td><td>Motion-X++、MoVid、HumanML3D 的层级标签与严格划分</td><td>coverage、重复率、泄漏率</td></tr>
+            <tr><td>表示 / tokenizer</td><td>motion 信息如何压缩？</td><td>VQ-VAE continuous feature</td><td>T2M-GPT / MotionGPT 的离散 code、时间结构和 codebook 诊断</td><td>reconstruction、code usage、linear probe</td></tr>
+            <tr><td>多模态对齐</td><td>motion 如何进入 LLM？</td><td>MLP 投影 + embedding 注入</td><td>MotionLLM / MoChat / LLaMo 的分阶段对齐、motion-aware connector</td><td>counterfactual gain、retrieval、caption</td></tr>
+            <tr><td>后训练 / 奖励</td><td>怎样得到可靠推理行为？</td><td>SFT + GRPO + VM/V bonus</td><td>DeepSeekMath、Video-R1、MM-Eureka、RaR 的稳定性与奖励拆分</td><td>strict accuracy、KL、entropy、hack rate</td></tr>
+            <tr><td>评估 / 治理</td><td>结果是否可信且可复现？</td><td>MCQ + rubric judge + 多 runner</td><td>MVBench、Video-MME、RewardBench、LLaVA-Critic 的维度化与校准</td><td>固定分母、parser parity、judge–human agreement</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section" id="method">
+      <div class="section-heading">
+        <p class="kicker">EVIDENCE & SCOPE</p>
+        <h2>这份网页如何得出结论</h2>
+      </div>
+      <div class="method-grid">
+        <article><strong>01 · 代码优先</strong><p>先追踪 snapshot 的 forward、数据处理、reward、runner、rubric post-process 与 evaluator，再选择论文。代码证据链接到页面内的现行代码索引，并标出路径与行号。</p></article>
+        <article><strong>02 · 一手论文</strong><p>摘要只用于初筛；入选条目核对论文 PDF 的方法、实验、局限和主图。外链优先 arXiv、会议页与官方代码仓库。</p></article>
+        <article><strong>03 · 明确区分</strong><p>“直接竞争”表示任务/模态/输出高度重合；“直接借鉴”表示可移植机制；“基础/邻近”只解决上游表示或评估，不冒充端到端方案。</p></article>
+        <article><strong>04 · 评估边界</strong><p>历史 checkpoint、accuracy、prediction、proxy、option-score 不进入新批主结果。任何下一批都必须先完成所有模型的 fresh finetune / blocked barrier。</p></article>
+      </div>
+      <div class="source-note">
+        <strong>本地研究包</strong>
+        <p>论文 PDF、agent 精读报告与主图均保存在本网页目录。若通过 <code>file://</code> 打开，全部核心内容与图片仍可离线浏览；论文外链需要联网。</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>MotionLLM Research Atlas</span>
+    <span>Built from project snapshot 20260729_144801 · Research review 2026-08-20</span>
+  </footer>
+
+  <dialog class="figure-dialog" id="figureDialog">
+    <button class="dialog-close" id="dialogClose" type="button" aria-label="关闭">×</button>
+    <img id="dialogImage" alt="">
+    <div class="dialog-caption"><strong id="dialogTitle"></strong><p id="dialogCaption"></p></div>
+  </dialog>
+
+  <script src="papers.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
