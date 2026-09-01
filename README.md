@@ -1,36 +1,102 @@
-# Qwen / MotionLLM Codebase
+# MotionLLM / Qwen Clean Codebase
 
-MotionLLM / Qwen 的活动代码、研究网页、数据审计工具和状态文档统一仓库。
+这是从原 `/wangbenyou-sulongjie/qwen-vl-finetune` 与后续 MotionLLM refactor 中重新整理的活动代码库。目标是模块边界清楚、容易修改、CPU 可检查、GPU 运行显式，并且不再依赖个人硬编码路径。
 
-服务器规范路径为 `/wangbenyou-sulongjie/caimeng/qwen-codebase`。
-
-## 目录
-
-- `code/`：可维护的 MotionLLM / Qwen codebase。新核心逻辑位于 `code/src/`。
-- `site/`：MotionLLM Research Atlas、Qwen 使用手册与数据统计网页。
-- `tools/data_audit/`：数据盘点、配对检查和兼容视图工具。
-- `tools/site_qa/`：静态网页链接检查。
-- `tools/monitor/`：AIStation 监控源码；依赖 Windows、Chrome 和已登录会话，不能在 Linux 服务器原样运行。
-- `reports/`：当前数据统计报告。
-- `docs/`：仓库级当前状态与交接边界。
-
-## 从这里开始
-
-1. 阅读 `docs/CURRENT_SERVER_STATUS_20260901.md`，了解当前服务器验证结果和未完成项。
-2. 阅读 `code/docs/STATUS.md` 与 `code/docs/ARCHITECTURE.md`。
-3. 开发和运行命令见 `code/docs/USAGE_GUIDE.md`。
-4. 网页入口为 `site/index.html`，数据统计页为 `site/guide/dataset-statistics.html`。
-
-## 不进入 Git 的内容
-
-数据集、模型权重、checkpoint、运行环境、GPU lease、训练输出、实验预测和历史交接包不属于本仓库。服务器上的规范数据入口仍是：
+服务器目标目录：
 
 ```text
-/wangbenyou-sulongjie/caimeng/dataset
+/wangbenyou-sulongjie/caimeng/qwen-codebase
 ```
 
-服务器兼容入口会继续保留，现有脚本无需因为目录收口立即修改。
+## 先从这里开始
 
-## 发布边界
+1. `docs/STATUS.md`：现在能做什么、还缺什么。
+2. `docs/ARCHITECTURE.md`：模块边界与依赖方向。
+3. `docs/GPU_SMOKE_20260830.md`：真实 A100 单样本端到端推理证据。
+4. `docs/USAGE_GUIDE.md`：推理、SFT、GRPO、Rubric 和评估命令。
+5. `docs/DEVELOPMENT.md`：环境、修改顺序和分层测试。
+6. `docs/MIGRATION.md`：旧 QwenVL 代码如何迁入新结构。
+7. `docs/ENGINEERING_REQUIREMENTS.md`：新版本的工程验收合同。
+8. `docs/SOURCE_PROVENANCE.md`：旧 Git、refactor 包和新实现的来源边界。
+9. `docs/CURRENT_SERVER_STATUS_20260901.md`：当前 V100 服务器的真实复跑结果。
 
-仓库应先保持私有。网页包含论文 PDF、研究提取内容和内部数据统计；代码的 `legacy/` 与历史审计材料也可能含内部路径。公开发布或启用公开 GitHub Pages 前，必须另做版权、保密和凭据复核。
+## 一眼看懂目录
+
+```text
+src/motionllm/        MotionLLM 权威核心（含 data、motion、qwen、training、grpo）
+src/motion_eval/      统一评估、批次、GPU 与发布控制器
+qwenvl/               Qwen 训练/推理过渡入口；data 子包是薄兼容层
+models/               Qwen3-VL-Motion 过渡模型实现与旧 import
+rubric_rl/            Rubric 过渡实现与旧 CLI
+model_evaluation_agent/ registry、worker facade 与运维文档
+configs/              数据、训练、GRPO 和评估配置
+tests/                unit / contract / integration / stress
+legacy/               只读来源证据，活动代码不得导入
+docs/                 状态、架构、使用、开发和迁移文档
+motionllm-page/       静态研究网页、Qwen 使用手册和数据统计页
+reports/              当前数据审计与统计报告
+```
+
+核心原则：新逻辑写在 `src/`；现有顶层 Qwen/model/Rubric 大文件属于待继续
+下沉的过渡实现，不能把它们误称为已经完成迁移；`legacy/` 永远不进入 import path。
+
+网页保持在独立的 `motionllm-page/` 子目录中，但与代码一起版本化。`.github/workflows/pages.yml` 只发布该子目录，不会把 Python 源码作为网页内容上传。AIStation monitor 不属于当前代码库，历史副本保存在服务器 `history/archive/monitor-20260901/`。
+
+## 快速建立 CPU 开发环境
+
+```bash
+cd /wangbenyou-sulongjie/caimeng/qwen-codebase
+python3 -m venv .venv
+. .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -e '.[dev]'
+```
+
+基础检查：
+
+```bash
+python -c "import motionllm, motion_eval"
+python -m motion_eval --help
+python -m pytest tests/unit tests/contract -q
+```
+
+只有需要 Qwen、Torch、CUDA 或训练时才安装：
+
+```bash
+python -m pip install -e '.[sft]'
+```
+
+交付服务器因缺 `python3-venv/ensurepip`，已使用不覆盖系统 CUDA/Torch 的独立
+依赖目录；登录后的 `PYTHONPATH` 设置和验证命令见 `docs/USAGE_GUIDE.md` 第 1 节。
+
+## 数据与模型路径
+
+活动代码不接受写死的个人服务器路径。数据集 alias 必须通过 `configs/datasets/` 中的显式配置解析；模型、checkpoint、VQ-VAE、媒体 root 和输出目录由 CLI 或配置传入。
+
+旧 `qwenvl/data` 的 3 个源码文件与 2 个 normalization 资产保存在
+`legacy/qwen_vl_original/`，仅用于迁移对照。它包含旧绝对路径和宽松数据行为，
+不能直接作为活动实现运行。旧 GRPO 配置和个人运维脚本也已隔离到
+`legacy/refactor_snapshot/`。
+
+## 运行资格
+
+- `inspect`：只读配置与 schema 检查。
+- `dev`：小样本调试，产物不可发布。
+- `preflight`：依赖、GPU、数据和 reload 检查，产物不可发布。
+- `production`：必须显式启用并通过完整 verifier。
+
+历史 checkpoint、prediction、accuracy、proxy 或 smoke 产物不会自动获得新 codebase 的 production 资格。
+
+## 当前验证
+
+请以 `docs/STATUS.md` 的当前复跑结果为准。当前已完成一次真实 A100、历史
+checkpoint、MotionX 视频与 motion 的端到端 smoke；它证明运行链路可用，不代表
+模型精度或 production release。旧 refactor 报告中的
+`922 passed, 14 skipped, 2 warnings` 只作为历史证据，不能代表本目录当前状态。
+
+## 安全
+
+- 不把密码、token、私钥、连接文件或个人绝对路径写入活动代码与活动配置。
+  `legacy/` 和 dated `server_audit/` 只可作为不可执行来源证据保留旧路径。
+- 不手工删除 GPU lease，不按模糊进程名批量终止任务。
+- `legacy/`、历史数据和模型资产跨组织分发前必须单独做版权与保密审查。

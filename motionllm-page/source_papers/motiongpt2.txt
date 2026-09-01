@@ -1,0 +1,1286 @@
+                                        JOURNAL OF LATEX CLASS FILES, VOL. 14, NO. 8, AUGUST 2021                                                                                                                  1
+
+
+
+
+                                                 MotionGPT-2: A General-Purpose Motion-Language Model for
+                                                                                        Motion Generation and Understanding
+                                                       Yuan Wang1,5‡ Di Huang2‡ Yaqi Zhang3 Wanli Ouyang4,5 , Senior Member, IEEE
+                                                              Jile Jiao1,6 Xuetao Feng1,7 Dan Xu8 , Member, IEEE Shixiang Tang4♣
+                                                 1 Tsinghua University    2 The University of Sydney    3 University of Science and Technology of China
+                                                           4 The Chinese University of Hong Kong     5 Shanghai Artificial Intelligence Laboratory
+                                                 6 Intime Department Store     7 Deepeleph    8 HKUST     ‡ Equal Contribution    ♣ Corresponding Author
+
+
+
+
+                                                                                                                                        Unified Motion-Language Vocabulary
+arXiv:2410.21747v2 [cs.CV] 8 Jun 2026
+
+
+
+
+                                                                                                                                            person         <Body_1>       <Hand_1>
+                                                                  Text                                                                      walking        <Body_2>       <Hand_2>
+                                                           a person is walking                   person walks forward, turns to             forward        <Body_3>       <Hand_3>
+                                                             around casually                       the right and walks back             Text-Vocab      Body-Vocab    Hand-Vocab
+
+                                            Text & Initial Token
+                                          a person is walking
+                                                                                                                                                                                     a person walks in an arc to
+                                                                                                                                                      MotionGPT-2                         the left then stops
+                                            around casually
+                                                                          (Text,Motion)-to-
+                                                                               motion
+                                            Text & Last Token                                    The person is playing soccer
+                                          a person is walking                                                                                  Motion-Related Task
+                                            around casually
+                                                                                                                                          Text-based Motion Generation
+                                                                                                                                                 Motion Captioning
+                                                         Text & Key Tokens
+                                                                                                                                         Multiple Signal Motion Generation
+                                               a person is walking                               Can you generate a motion that             Holistic Motion Generation
+                                                 around casually                                person is walking and making the
+                                                                                                           OK gesture?
+                                                                             MotionGPT                                                                MotionGPT-2
+
+
+                                        Fig. 1: This paper proposes a versatile motion-language framework via fine-tuned LLMs given different instructions, named
+                                        MotionGPT-2. Compared with the previous MotionGPT [1], our MotionGPT-2 not only retains the unique capability of
+                                        accommodating multiple control conditions, but also solve various motion-related tasks using a unified model.
+
+                                           Abstract—Generating lifelike human motions from descriptive                               Despite the impressive performance achieved by existing
+                                        texts has experienced remarkable research focus in recent years,                          motion generation methods [16]–[19], current methods suffer
+                                        propelled by the emerging requirements of digital humans. Despite                         from three major limitations: (1) Limited control conditions.
+                                        impressive advances, existing approaches are often constrained by
+                                        limited control modalities, task specificity, and focus solely on body                    Some text-to-motion approaches typically target only a single
+                                        motion representations. In this paper, we present MotionGPT-                              type of control condition, i.e., either textual descriptions or mul-
+                                        2, a unified Large Motion-Language Model (LMLM) that                                      tiple frame poses. This narrow scope constrains their practical
+                                        addresses these limitations. MotionGPT-2 accommodates multiple                            applications in scenarios that require the generation of motion
+                                        motion-relevant tasks and supports multimodal control conditions                          sequences conditioned on both text descriptions and multiple
+                                        through pre-trained Large Language Models (LLMs). It quantizes
+                                        multimodal inputs—such as text and single-frame poses—into                                key-frame human poses, e.g., social robotics and film animation.
+                                        discrete, LLM-interpretable tokens, seamlessly integrating them                           Although methods in [20]–[23] aim to integrate additional con-
+                                        into the LLM’s vocabulary. These tokens are then organized                                trol modalities, they treat control signals as separate modalities,
+                                        into unified prompts, guiding the LLM to generate motion                                  neglecting to construct a unified multi-modal representation.
+                                        outputs through a pretraining-then-finetuning paradigm. We also                           (2) Task-specific frameworks without general world knowledge.
+                                        show that the proposed MotionGPT-2 is highly adaptable to the
+                                        challenging 3D holistic motion generation task, enabled by the                            Existing models are often task-specific, such as diffusion-based
+                                        innovative motion discretization framework, Part-Aware VQVAE,                             and GPT-based frameworks [17], [24]–[26]. These methods
+                                        which ensures fine-grained representations of body and hand                               lack the adaptability needed for multiple tasks (e.g., captioning,
+                                        movements. Extensive experiments and visualizations validate the                          in-betweening, prediction) and cannot fully leverage the world
+                                        effectiveness of our method, demonstrating the adaptability of                            knowledge embedded in Large Language Models (LLMs).
+                                        MotionGPT-2 across motion generation, motion captioning, and
+                                        generalized motion completion tasks.                                                      While recent efforts [27], [28] present unified frameworks, their
+                                                                                                                                  reliance on relatively small language models means the broader
+                                         Index Terms—3D Human Motion Generation, Large Language                                   potential of LLMs in motion understanding and generation
+                                        Models, SMPL, Vector Quantized-Variational AutoEncoder
+                                                                                                                                  remains unexplored. (3) Body-only motion representations.
+                                                                             I. I NTRODUCTION                                     Existing text-based motion generation solutions [17], [24], [26],
+                                                                                                                                  [29], [30] primarily focus on generating body-only motions
+                                        H    UMAN motion [2]–[8] plays a pivotal role in various
+                                             applications, including video gaming, robotic assistance,
+                                        and VR/AR. Recent years have witnessed a rapid development
+                                                                                                                                  rather than holistic motions. However, their plausibility and
+                                                                                                                                  expressiveness remain unsatisfactory in certain scenarios (e.g.,
+                                        of Generative Artificial Intelligence (GenAI) [9]–[15], paving                            sports activities and playing musical instruments), as important
+                                        the way for novel methods to motion synthesis.                                            details of human motion—e.g., fine-grained hand gestures, are
+JOURNAL OF LATEX CLASS FILES, VOL. 14, NO. 8, AUGUST 2021                                                                      2
+
+
+
+frequently overlooked.                                            kinematic structure priors and design an innovative Part-Aware
+   To overcome these limitations, we propose MotionGPT-2, VQ-VAE for holistic motion tokenization. Compared to the
+a unified Large Motion-Language Model (LMLM) capable of vanilla motion VQ-VAE used in MotionGPT [1], the proposed
+handling diverse control signals, performing various motion- Part-Aware VQ-VAE utilizes two-level discrete codebooks
+relevant tasks, and generating holistic human motions. The and motion encoders to learn body-hand representations. The
+key innovations of MotionGPT-2 include: (1) Formulating key insight of our Part-Aware VQ-VAE lies in its ability to
+Multimodal Control Signals into a Unified Representa- learn informative and compact representations of fine-grained
+tion: MotionGPT-2 designs a versatile framework and task- holistic motions. This two-level discretization framework
+aware prompts for human motion synthesis. This framework, captures subtle hand movements while maintaining global
+in particular, allows for the generation of human motions body dynamics. Finally, the hand and body motion tokens are
+governed by multimodal control conditions, described by integrated into the LLM’s vocabulary, enabling MotionGPT-
+Mout , Tout = f (Tin , task, Min ). Here Min and Tin refer to the 2 to correctly interpret and generate holistic motion-related
+input motions and texts, while Mout and Tout represent the sequences in response to instructions.
+resulting outputs. The variable task indicates the task-aware       We conduct extensive experiments on the HumanML3D [30],
+prompts that adapt the model to specific motion-related tasks. KIT-ML [37] dataset, demonstrating that MotionGPT-2 has
+Compared to MotionGPT [1], MotionGPT-2 broadens the scope strong adaptability and efficiency across multiple motion-related
+by incorporating additional motion-related tasks, i.e., motion tasks by fine-tuning an LLM. With only 1% of additional
+captioning, general motion completion.                            parameters, MotionGPT-2 achieves highly competitive per-
+   (2) Building a Task-Agnostic Framework with Strong formance across tasks while significantly reducing training
+Generalization: Our conference version, MotionGPT [1], time—requiring only 10% of the time compared to other
+argued that this challenge can be naturally addressed with the methods. We also observe that joint training under multiple
+assistance of LLMs. There are several compelling reasons. First, control instructions surpasses training with singular control
+recent investigations indicate that LLMs have the ability to signals, highlighting the effectiveness of the unified motion-
+comprehend inputs from multiple modalities (e.g., images [31]– language fine-tuning paradigm. Experiments on the Motion-
+[34] and videos [35]) through lightweight adapters [36]. X [38] benchmark verify that the MotionGPT-2 is adaptable to
+Therefore, we expect that with suitable adapters, LLMs will the challenging 3D holistic motion generation task. MotionGPT-
+be capable of understanding motion sequences. Second, LLMs 2 sets a new benchmark for motion-related foundational models.
+have learned a broad range of motion patterns from their            In summary, we extend our conference version [1] by
+extensive text training, which allows them to offer diverse making several additional novel contributions:
+human motion contexts for generating motion. Consequently,           • We propose an enhanced version of the previous Mo-
+our motion generator, adapted from LLMs, can produce motions           tionGPT, MotionGPT-2. Compared to its predecessor,
+with a wide range of rich patterns. Third, because LLMs                MotionGPT-2 serves as a unified Large Motion-Language
+generate tokens in a sequential manner, generating human               Model to handle multiple motion-related tasks, enabling us
+motion with adaptable sequences is now easily achievable.              to establish new state-of-the-art performance benchmarks.
+   In this work, we introduce MotionGPT-2, an enhanced               • By creating an enriched motion-language vocabulary, we
+version of MotionGPT [1] by using LLMs to jointly represent            empower the pre-trained LLMs with the ability to unify
+motion and language. We first embed the human motions into             the understanding and generation of body kinetics.
+discrete motion tokens via the Vector Quantized Variational-         • We further extend the proposed MotionGPT-2 to tackle the
+AutoEncoder (VQ-VAE), which efficiently captures the under-            challenging 3D whole-body motion generation task by in-
+lying structure of human motion. Then, we expand the LLM’s             troducing a whole-body motion discretization framework,
+vocabulary with these motion tokens, creating an enriched              Part-Aware VQ-VAE, which encodes body motions and
+motion-language vocabulary. By incorporating human motion              hand gestures with two structured codebooks for fine-
+and language into a unified vocabulary, our model fosters a            grained motion representations.
+more transparent understanding of the complex relationships         We conduct extensive experiments on the HumanML3D,
+between the two. Further, MotionGPT-2 integrates tokens from KIT-ML, and Motion-X datasets to validate the superiority
+both language and motion prompts to generate instructions. of our proposed LLM-based unified motion-language model
+We implement a multimodal pre-training combined with an across multiple motion-related tasks. We provide an in-depth
+instruction-tuning approach to train MotionGPT-2 efficiently, analysis and visualizations of MotionGPT-2, indicating that
+utilizing the established LoRA adaptation method. The motion further advancements in LLM technology hold the potential to
+instruction tuning framework we have developed allows for the enhance its performance in the future.
+integration of pose sequence information into the fine-tuned
+LLM, while capitalizing on the strong motion priors inherent
+                                                                                       II. R ELATED W ORK
+in the origin LLM. With mere 1% parameters, the generalized
+MotionGPT-2 achieves competitive results in multiple motion- A. LLMs and Multi-modal Large Language Models
+related tasks compared to those trained-from-scratch models         Large Language Models (LLMs) [39]–[44] have experienced
+with specialized frameworks.                                      rapid development recently, e.g., BERT [39], GPT [40], and
+   (3) Achieving Precise Discrete Representations of Holistic Google T5 [45]. Notably, models like GPT-4 [43] show
+Human Motions: To address this issue, we incorporate outstanding performance on various language tasks due to
+JOURNAL OF LATEX CLASS FILES, VOL. 14, NO. 8, AUGUST 2021                                                                         3
+
+
+
+their extensive training datasets (GPT-4 utilizes 45 gigabytes) (LMLM) capable of multimodal control, handling diverse
+and numerous parameters. Traditionally, language models were motion-related tasks, and providing a comprehensive repre-
+crafted for specific tasks like translation or sentiment analysis, sentation of motion.
+but recent innovations, such as ChatGPT, have broadened their             III. M OTION G ENERAL -P URPOSE GENERAT OR
+functional scope. Built on the GPT-4 framework, ChatGPT                                    (M OTION GPT)
+can engage in interactive dialogues, showcasing strong natural
+                                                                      Our conference version MotionGPT acts as a Motion General-
+language understanding. This effectiveness opens new avenues
+                                                                   Purpose generator that is driven by multi-modal inputs. To align
+for downstream applications achievable through the fine-tuning
+                                                                   with the LLM’s token-in-token-out nature, we first quantize
+of these LLMs. Nevertheless, fine-tuning these extensive models
+                                                                   the human motions into code representations via the well-
+poses significant challenges. To mitigate this issue, several
+                                                                   established motion VQ-VAE [66] (Section III-A). These motion
+efficient fine-tuning techniques have emerged, including prompt
+                                                                   discrete codes, along with text control conditions and specially-
+tuning [46]–[48], adapters [49]–[51], and LoRA [36]. Our study
+                                                                   crafted task-aware instructions, are organized into a unified
+is inspired by recent developments in LLMs while tackling a
+                                                                   question template (Section III-B). By adjusting the task-aware
+different problem through the integration of a novel modality.
+                                                                   instructions, MotionGPT reveals its potential as a generic
+B. Human Motion Generation                                         baseline framework for tasks involving motion generation.
+   Motion generation has a long-standing history in re- A. 3D Human Motion Quantization
+search [16]–[18], [52]–[56] and can be conditioned on various        VQ-VAE proposed in [66] is designed to learn discrete
+inputs, including motion descriptions, specific actions, and representations with semantic-rich codebooks in an encoding-
+music. For instance, HP-GAN [57] and [58] adopt a sequence- decoding fashion. To discretely represent human motions as
+to-sequence model to forecast future poses from earlier ones. semantic tokens, we introduce the motion VQVAE model,
+Moreover, ACTOR [59] utilizes a transformer-based VAE which consists of a motion encoder E, a motion decoder D,
+for both unconditional generation and action-driven motion and a codebook Bm = {b1 , b2 , . . . , bN }, where N denotes
+generation. TRAJEVAE [60] generates motion sequences that the codebook size. We denote a human motion as m =
+align with a given trajectory when provided with an initial pose. {m1 , m2 , ..., mT } ∈ RT ×d , where T is the motion sequence
+Recently, a significant focus has been placed on text-conditional length, and d is the dimension per frame.
+motion generation, which involves creating human motion              To learn the codebook of human motions, the estimated
+sequences based on textual prompts.Previous researches [24], motion embedding E(m) is transformed into a collection of
+[30], [52], [61], [62] focus on modeling a joint latent space for codebook entries through quantization. Further, the quantized
+motion and text alignment. In TEMOS [16], a VAE model is motion vector is obtained by searching the nearest correspond-
+proposed that creates a shared latent space for motion and text ing embedding in a learnable codebook Bm , which can be
+interactions. T2M-GPT [24] formulates the motion generation mathematically formulated as:
+as the next index prediction task and leverages small language
+                                                                                     e = arg min ∥E(m) − bk ∥2 .              (1)
+models to model the translation mapping between discrete                                   bk ∈B
+motion indices and text. MotionCLIP [52] and TM2T [63]
+                                                                     Based on the estimation latent representation e, the motion
+align the shared space of text and motion with the expressive
+                                                                  decoder D employs several 1-D deconvolutional layers to
+CLIP [64] embedding space. MotionDiffuse [17] introduces a
+                                                                  extract frame-wise motion features, decoding the sequential
+diffusion model into its framework for generating motion from
+                                                                  codes e to the raw motion space as the motion m̂: m̂ = D(e).
+textual descriptions, which leads to impressive outcomes. In
+                                                                  The motion code p of the human pose m can be calculated as
+a different approach, MDM [18] aims to boost the coherence
+                                                                  the index of its nearest embedding in the codebook, i.e.,
+between motion and textual inputs by implementing CLIP [64]
+as the text encoder, thereby enhancing the model with more                            p = arg min ∥E(m) − bk ∥2 .             (2)
+                                                                                               k
+effective textual priors. However, it is challenging to model
+semantically complex relationships of human motions and              The standard motion VQ-VAE can be trained by the
+texts, particularly in the absence of general world knowledge, three tailored loss: 1) a reconstruction loss to minimize the
+e.g., how specific gestures convey intentions and how to distance between the decoded motion m̂ and the origin motion
+interpret body language in different context. Current efforts, m, 2) a codebook loss to encourage the bk to be drawn
+such as MotionGPT [27], MotionLLM [65], M3-GPT [28] closer to the encoded embedding E(m), aligning the discrete
+have initiated the development of a unified motion-language code representation with origin motion embeddings. 3) a
+model aimed at generating plausible human motions along with commitment loss to guide the encoded embedding e to remain
+textual descriptions driven by prompt instructions. Although close to the corresponding discrete code bk , stabilizing the
+remarkable achievements have been made in multiple motion- training process and reducing codebook oscillation. The total
+related tasks, these approaches, which only utilize relatively loss function LVQVAE can be formulated as follows:
+small language models, overlook exploration of the potential            LVQVAE = ||D(E(m)) − m||2 + ∥ sg[E(m)] − e∥22
+of LLMs in understanding and generating human motions.                                                                        (3)
+Moreover, they are inadequate in addressing the complex body-                                          +β∥E(m) − sg[e]∥22 .
+hand representations. Unlike prior approaches, MotionGPT-2 Here, sg indicates the stop gradient operation and β is the
+is distinguished as the first Large Motion-Language Model hyper-parameter to control the weight of the commitment
+JOURNAL OF LATEX CLASS FILES, VOL. 14, NO. 8, AUGUST 2021                                                                                                                                       4
+
+
+
+
+                                                                                                                     a person walks
+                              Text Vocabulary                          <Text_Token1>                               in an arc to the left
+       Text                              ......                                                                         then stops
+      Encoder                                                          <Text_Token2>
+                                                              ......
+                                                                                               Motion                                      Motion                     Motion
+                           Motion Vocabulary                           <Motion_Token1>         Decoder                                     Decoder                    Decoder
+
+      Motion                                                           <Motion_Token2>
+                                                                                             MotionGPT-2: LLM       + LoRA                           MotionGPT-2: LLM      + LoRA
+      Encoder
+                                                                       <Motion_Token3>
+                                                                                             Stage2: Motion-Language Alignment                        Stage3: Instruction Tuning
+                                                                       <Motion_Token4>
+                                  ......
+
+                                           ......
+
+                                                    ......
+                         ......
+
+
+
+
+      Motion                                                           <Motion_Token5>
+      Decoder
+                                                                       <Motion_Token6>
+                                                                                         Task Prompt
+                                                                                                       person walks forward,                         The person is      person is walking and
+     Stage1: Human Motion Quantization                       Multimodal Vocabulary                     turns to the right and                        playing soccer       making the OK
+                                                                                                            walks back                                                         gesture
+
+
+
+Fig. 2: MotionGPT-2 consists of multi-modal tokenizers (Section III-A) and a motion-language model (Section IV-B). With
+unified multimodal vocabulary and task-aware instructions (Section III-B). It enables to accept multiple control conditions
+(Section IV-C). MotionGPT-2 is learned by the Motion-Language Alignment stage and Instruction Tuning stage (Section IV-D).
+
+loss. To enhance the quality of the generated motion, we                                                 C. Model Optimization
+incorporate L1 smooth loss and velocity regularization loss                                                 In the previous MotionGPT [1], we utilize a decoder-
+in the reconstruction loss. The codebook is optimized with                                               only LLM following [65], which effectively handles complex
+Exponential Moving Average (EMA) operation and codebook                                                  relationships and underlying patterns between text and mo-
+reset techniques following [1], [24], [27].                                                              tion. The token-in-token-out LLM maximizes the probability
+B. Instruction Generation                                                                                pθ (xt | x<t , T , c) of succeeding token in an autoregressive
+   In our previous conference version, we design instructions                                            manner. Here, T represents the Task Prompts, c is the control
+that integrate task prompts and control conditions to en-                                                signal, x1:T denotes the target token sequence. Therefore,
+able (text, motion)-motion generation tasks. Given the task                                              during the training process, the Cross Entropy loss is applied
+prompts T = {t1 , t2 , ..., tnt }, the text control conditions                                           to ensure the correspondence between the estimated tokens and
+X = {x1 , x2 , ..., xnx } and the pose control conditions P =                                            the real tokens, fine-tuning the LLM by LoRA [36], which is
+{p1 , p2 , ..., pnp } where nt , nx and np are the number of codes                                       mathematically formalized as:
+                                                                                                                                   X
+in T , X and P, the instruction template I is formulated as:                                                         LLoRA = −        log pθ (xt | xx<t , T , c) .  (4)
+
+  % General control conditions format                                IV. M OTION GPT-2: A V ERSATILE M ODEL S UPPORTING
+  Control Conditions: {The Text control condition X                  H OLISTIC M OTION U NDERSTANDING AND G ENERATION
+  <x1 , x2 , ..., xnx >} {The Pose control condition P                Building upon the MotionGPT, MotionGPT-2 (as shown
+  <p1 , p2 , ..., pnp >}                                           in Figure. 2) is to formulate a multi-task unified (motion
+  % General instruction format                                     generation, motion captioning, and generalized motion comple-
+  Instruction (I): {The Task Prompt T <t1 , t2 , ..., tnt >}       tion) framework to support holistic motion representations
+  {Control Conditions}                                             (fine-grained body and hand movements). The key designs
+                                                                   are as follows: (1) Part-Aware VQ-VAE for Body-hand Tok-
+   Pose control conditions P = {p1 , p2 , ..., pnp }, representing enization. By designing an innovative Part-Aware VQVAE, our
+pose codes produced by the previously mentioned motion VQ- MotionGPT-2 achieves informative and compact representations
+VAE. The entire instruction I is conceptualized as a series of fine-grained holistic motions, making it adaptable to holistic
+of specialized text inputs. By formulating diverse instruction motion generation tasks (Section IV-A). (2) A Unified Motion-
+prompts, the MotionGPT [1] tackles both traditional motion Language Vocabulary. By expanding the text vocabulary of
+generation tasks and emerging challenges in motion synthesis. LLM, we develop a unified Large Motion-Language Model
+   Specifically, for text-based motion generation task, Mo- (LMLM) (Section IV-B) for the seamless integration of motion
+tionGPT address it by instantiating following instruction I:       and language modalities. This vocabulary extension enables
+                                                                   MotionGPT-2 to support a broader range of novel motion-
+   Instruction (I): {Task Prompts: “Generate a sequence            related tasks by different instructions (Section IV-C). (3) Three-
+   of motion tokens matching the following human motion            Stage Training Strategy. To enhance alignment between motions
+   description.”} {Control Conditions: Text control condi-         and texts, we develop a three-stage training pipeline (Sec-
+   tion X }                                                        tion IV-D), including Motion Tokenization, Motion-Language
+                                                                   Alignment, and Instruction Fine-tuning.
+By adjusting instructions, MotionGPT is seamlessly adapted to A. Part-Aware VQVAE for Holistic Motion Representations
+a wide variety of control conditions, e.g. the textual description
+                                                                      Our previous MotionGPT is limited to the generation of
+and an arbitrary number of human poses, making it a highly
+                                                                   body-only motions. Yet, advancing toward holistic motion
+versatile and flexible solution for motion-related tasks.
+JOURNAL OF LATEX CLASS FILES, VOL. 14, NO. 8, AUGUST 2021                                                                                    5
+
+
+
+                                                                                   Codebook ℬ𝑏
+
+                                                                                         …
+           Hand Split
+
+                           Body                                                       Body
+                          Encoder                   C                 …                               …                   Body-Hand Motion
+                                                                                    Tokenizer
+                            ℰ𝑏
+
+                                                                                                             Motion
+                                                  Projection Layer                                           Encoder
+                           Hand                                                                                𝒟
+                                                        Hand
+                          Encoder        …                                  …
+                            ℰℎ                       Tokenizer
+           Body Split
+                                                            …
+                                                                     Codebook ℬℎ
+
+Fig. 3: The framework overview of our proposed Part-Aware VQVAE for body-hand motion tokenization. The Part-Aware
+VQVAE splits SMPL-X-based human representations into body-hand motions mb and mh . Then, it quantizes fine-grained
+body-hand motion into two discrete codebooks Bb and Bh with hierarchical body priors.
+generation is essential for achieving more realistic and lifelike          special tokens Bs into the LLM’s vocabulary, e.g., ⟨motion⟩
+animations. Holistic motions are considerably more complex                 and ⟨/motion⟩, which signify the beginning and end of the
+than their body-only counterparts, necessitating the detailed              motion. This extends the vocabulary into a unified text-motion
+and coordinated motion generation involving the body and                   set, B = {Bt , Bm , Bs }. The newly incorporated parameters
+hand features. In this section, our MotionGPT-2 emphasizes                 are initialized randomly. Expanding the LLM’s vocabulary, a
+the representation of body-hand motions. With the above single             human motion is denoted as a token sequence that is LLM-
+motion vocabulary approach, the embedding of holistic human                understandable. Equipped with the vocabulary B, we model the
+motion inevitably leads to ambiguities where similar actions               joint distribution of textual descriptions and human motions in
+are represented by the same motion token. To model distinct                a unified space. It allows us to formulate motion-related tasks
+semantic granularity for body and hand, we design a Part-                  in a general framework, leveraging the task-aware instructions.
+Aware VQVAE module, which utilizes the codebook Bb and
+Bh to learn discrete representations for body and hand, in a               C. Instruction Prompts in New Motion-Related Tasks
+more structured and coordinated manner.
+   As illustrated in Fig. 3, we input the SMPL-X based body-                  Our previous MotionGPT primarily focused on motion
+hand representations mB = {mB               B        B
+                                      1 , m2 , ..., mT } ∈ R
+                                                             T ×d
+                                                                  and      generation tasks. In contrast, our MotionGPT-2 enhances its
+mH = {mH   1 , mH
+                2  , ..., m H
+                            T } ∈ R T ×d
+                                          into two  separate encoders.     capabilities by defining several core motion-related tasks,
+As shown in Fig. 3, the hand embedding eh is first quantized               including motion captioning, motion prediction, and motion
+by the hand codebook Bh and we then fuse the body and                      interpolation. For each task, we construct unique instruction
+hand tokens via the concatenation operator before quantizing               prompts tailored to the specific task requirements. For instance,
+the body embedding eb using the body codebook Bb . The                     given a LLM F, the instruction template I for motion
+interaction of body and hand motions is tightly coupled and                captioning and motion prediction task as well as the answer
+articulated, shaped by biomechanical and physical restrictions             of the LLM P̂ = F(I) are defined as:
+in the context of complex activities. Such a fuse-before-quantize
+                                                                                Below is an instruction that describes a task, paired with
+method for body tokens effectively enhances the overall
+                                                                                an input that provides further context. Write a response
+naturalness and coordination of holistic motion representations.
+                                                                                that appropriately completes the request.
+Akin to the [67], the Body-hand Decoder is designed to take
+                                                                                % Task Prompts: Motion Captioning Task Prompts
+body tokens pB and hand tokens pH as input to accurately
+                                                                                % Control Conditions: Code Sequences of Control
+reconstruct corresponding motions.
+                                                                                Conditions (Motion Tokens)
+B. A Unified Motion-Language Vocabulary                                         Instruction I: {Task Prompts T }{Control Conditions}
+                                                                                Answer P̂: {Sequences of Text Tokens}
+   Most previous motion-related studies [1], [24], [29], [63],                  % Task Prompts: Motion Prediction Task Prompts
+[68] have viewed textual descriptions and motions as separate                   % Control Conditions: Code Sequences of Control
+modalities. However, similar to sentences in natural language, a                Conditions (Initial Several Motion Tokens)
+continuous motion m is compressed into motion tokens, serving                   Instruction I: {Task Prompts T } {Control Conditions}
+as a type of “body language”. Therefore, our MotionGPT-2                        Answer P̂: {Sequences of Human Motion Tokens}
+naturally uses LLMs to jointly model motion and language
+representations. It reflects how humans execute body motions,                 In the text-based holistic motion generation task, the in-
+allowing for seamless transitions across motion-related modali-            struction tuning phase proceeds after obtaining the discrete
+ties in real-life scenarios.                                               motion tokens pB and pH . During this stage, we formulate
+   Specifically, to merge multi-modal discrete tokens with the             the instruction template I and the answer P of the LLM for
+pre-trained LLM, the original vocabulary Bt is expanded to                 motion generation. Inspired by MLLMs [31], [33], we unify the
+incorporate motion tokens Bm . Further, we also insert several             discrete body-hand tokens within a general prompt template.
+JOURNAL OF LATEX CLASS FILES, VOL. 14, NO. 8, AUGUST 2021                                                                                                                                        6
+
+
+
+
+                                   Text + Initial Motion Token                                                                      Text + Last Motion Token
+
+
+
+
+  the man walks in a circle twice,                                   a person starts walking         a person walks briskly in a                                      a man reaches to something
+                                   walking a one-sided jagged circle                                                                 a person slowly and quietly
+    beginning with his left foot                                       then starts leaping        counterclockwise direction with                                      places it on the table then
+                                     clockwise with arms swaying                                                                      sneaks down the hallway
+      and ending on his right                                           counterclockwise                arms swaying at side                                           reaches for another thing.
+
+
+
+
+     a person trying to walk in       the person was facing forward a person walks in a clockwise       a person walks slightly     The man jogs in place quickly      a man walks forward while
+     high heels, but unable to          and then turn to the side   half circle, then climbs stairs    right and walks forward       before squatting down and           swinging his shoulders
+           do so steadily                    facing sideways          with both arms and legs.                                         doing a walking squat.              from side to side.
+
+                                                                             Text + Random Key Tokens
+
+
+
+
+  a person walks forward, bends
+                                     a motion that a person walks     a man walks forward sits        Can you generate a motion
+   over, picks up an object with                                                                                                       the person is walking very       a person walks forward,
+                                       while holding a hand rail       in a chair then with his         that a person walking
+  both hands, then turns around                                                                                                      carefully over a balance beam.    then steps up some stairs.
+                                                                              left hand.                  forward in lunges?
+ and walks back with the object.
+
+
+
+
+ a person moves forward quickly       Can you generate a motion      a motion that starting with   A person bends down then         Can you generate a motion that   Can you generate a
+and lifts both legs before landing    that a figure carefully tip      their left foot, a person   proceeds to pretend throw        person walks to the right then motion that the person is
+ and continuing to move forward.         toes across a path?        proceeds down a set of stairs.    something underhand            turns around and walks left?       playing soccer?
+
+
+Fig. 4: Gallery showcasing the results of generated human motions by MotionGPT-2 with multiple control conditions on the
+HumanML3D dataset [30], i.e., Text+Initial Motion Token, Text+Last Motion Token, and Text+Random Key Motion Token. With
+these diverse control signals, our MotionGPT-2 demonstrates the ability to generate physically realistic human motions.
+Below is an instruction that describes a task, paired with                                        stability in LLM optimizing, we subsequently freeze weights
+an input that provides further context. Write a response that                                     of motion-aware VQVAE during further training stages.
+appropriately completes the request.                                                                 Stage 2: Motion-Language Alignment. Inspired by current
+% Task Prompts: Motion Generation Task Prompts T                                                  Multi-modal Large Language Models (MLLMs) [31], [33], to
+% Control Conditions: Sequences of Control Conditions                                             align the motion and language feature space of MotionGPT-2,
+(Text Tokens)                                                                                     the LLaMA [44] model is fine-tuned on a wide range of motion-
+Instruction I: {Task Prompts T } {Control Conditions}                                             related tasks. To accurately interpret contextual ‘body language’
+Answer P̂: {< Motion Body Token >< Body Token ><                                                  semantics while preserving the text generation capability of
+/Motion Body Token >< Motion Hand Token ><                                                        the LLM. We finetune the LLM with LoRA using a mixture of
+Hand Token >< /Motion Body Token >}                                                               language and motion data in both unsupervised and supervised
+                                                                                                  manners. Similar to LLaVA [33], we learn the complex rela-
+                                                                                                  tionship of language and motions with the paired text-motion
+D. Three-Stage Training Strategy
+                                                                                                  datasets. Further, we ensure the text generation capability
+   Our previous MotionGPT [1] is founded on a two-stage                                           through the LLM’s next-token prediction mechanism on text-
+approach. Nevertheless, the absence of motion-language align-                                     only data. Compared with our conference MotionGPT [1], with
+ment hinders model from interpreting the complex relationships                                    the additional motion-language alignment stage, MotionGPT-2
+between motions and texts. Towards this issue, MotionGPT-2                                        offers improved semantic consistency and fine-grained control
+proposes a comprehensive three-stage training strategy:                                           of human motions and textual descriptions.
+   Stage 1: Training of Motion Tokenizer. As depicted in                                             Stage 3: Fine-tuning LLM by Motion Instructions.
+Section III-A, we first learn the discrete motion representations                                 Instruction tuning enables LLMs to handle various motion
+to align with the LLM’s token-in-token-out nature. Guided by                                      generation and understanding tasks by asking LLM questions
+the objective outlined in Eq. 3, the quantization process allows                                  in different instructions. Hence, we devise a set of instructions
+human motions m to be expressed as a sequence of tokens,                                          that merge task descriptions with control signals and employ
+which seamlessly integrates with descriptive text. To maintain                                    the efficient LoRA [36] technique to fine-tune LLMs.
+JOURNAL OF LATEX CLASS FILES, VOL. 14, NO. 8, AUGUST 2021                                                                                7
+
+
+
+TABLE I: Quantitative results of text-based motion generation on the HumanML3D dataset. “Real” denotes the results
+computed with GT motions. “→” indicates metrics that are better when closer to “Real” distribution. “MultiModal Dist.” denotes
+the Multi-Modality Distance. We conduct each evaluation 20 times, presenting the average metric and a 95% confidence interval,
+with the top scores marked in bold.
+
+                                        R-Precision ↑
+         Model                                                          FID ↓      MultiModal Dist. ↓   Diversity →    MultiModality ↑
+                             Top 1         Top 2            Top 3
+          Real            0.511±.003     0.703±.003     0.797±.002    0.002±.000       2.974±.008       9.503±.065            —
+                                ±.003         ±.003           ±.002        ±.046            ±.008             ±.058
+     TM2T [63]            0.424          0.618          0.729         1.501            3.467            8.589             2.424±.093
+      T2M [30]            0.457±.002     0.639±.003     0.740±.003    1.067±.002       3.340±.008       9.188±.002        2.090±.083
+     MDM [69]             0.319±.005     0.498±.004     0.611±.007    0.544±.001       5.566±.027       9.559±.086        2.799±.072
+  MotionDiffuse [17]      0.491±.001     0.681±.001     0.782±.001    0.630±.001       3.113±.001       9.410±.049        1.553±.042
+      MLD [25]            0.481±.003     0.673±.003     0.772±.002    0.473±.013       3.169±.010       9.724±.082        2.413±.079
+   T2M-GPT [24]           0.491±.003     0.680±.003     0.775±.002    0.116±.004       3.118±.011       9.761±.081        1.856±.011
+    MoMask [26]           0.521±.002     0.713±.002     0.807±.002    0.045±.002       2.958±.008       9.620±.064        1.241±.040
+  ReMoDiffuse [29]        0.510±.005     0.698±.006     0.795±.004    0.103±.004       2.974±.016       9.018±.075        1.795±.043
+    AttT2M [70]           0.499±.003     0.690±.002     0.786±.002    0.112±.006       3.038±.007       9.700±.090        2.452±.051
+  GraphMotion [71]        0.504±.003     0.699±.002     0.785±.002    0.116±.007       3.070±.008       9.692±.067        2.766±.096
+   MotionGPT [1]          0.364±.005     0.533±.003     0.629±.004    0.805±.002       3.914±.013       9.972±.026        2.473±.041
+   MotionGPT [27]         0.492±.003     0.681±.003     0.733±.006    0.232±.008       3.096±.008       9.528±.071        2.008±.084
+   MotionLLM [65]         0.482±.004     0.672±.003     0.770±.002    0.491±.019       3.138±.010       9.838±.244            —
+  MotionGPT-2 (Ours)      0.496±.002     0.691±.003     0.782±.004    0.191±.004       3.080±.013       9.860±.026        2.137±.022
+
+
+                        V. E XPERIMENTS                                 TABLE II: Assessment of motion generation across conditions.
+                                                                        With initial/key tokens, MotionGPT(†) and MotionGPT-2(‡)
+A. Experimental Setup                                                   show superior performance compared to the text-only version.
+   The HumanML3D dataset [30] stands as the largest available
+dataset focused solely on 3D body motion and associated                                   FID↓ Dist.↓ Diversity↑ FID↓ Dist.↓ Diversity↑
+                                                                          Methods
+                                                                                             HumanML3D(†)              HumanML3D(‡)
+textual descriptions. It comprises 14,616 motion clips paired
+with 44,970 meticulously annotated descriptions derived from             Text-Only        0.567  3.775     9.006    0.191 3.080 9.860
+                                                                    Text + Initial Pose 0.520 3.844 9.588 0.183 3.285 10.066
+a vocabulary of 5,371 unique words. These motion sequences           Text + Last Pose 0.591 3.718 9.251 0.358 3.673 9.582
+are sourced from the AMASS [72] and HumanAct12 [55] Text + Random Pose 0.367 3.598 9.176 0.182 3.031 10.102
+motion capture collections, showcasing a diverse array of
+                                                                                                 KIT-ML(†)                KIT-ML(‡)
+human activities, including everyday tasks, sports, acrobatics,
+and artistic expressions. Each motion clip is linked with 3-             Text-Only        0.597  3.394    10.540    0.614 3.164 11.256
+                                                                    Text + Initial Pose 0.664 3.445 10.390 0.756 3.362 11.053
+4 descriptive texts. For training, one sentence is randomly
+                                                                     Text + Last Pose 0.856 3.336 10.580 0.784 3.483 11.460
+chosen as the match, while for testing, the first text description Text + Random Pose 0.671 3.411 10.760 0.807 3.173 11.447
+is consistently used to evaluate model performance. The motion
+clips are down-sampled to 20 FPS and vary in duration from 2
+to 10 seconds. The dataset is divided into training, validation, with 13.7M frame-level 3D whole-body pose annotations. In
+and test subsets, allocated in an 80%, 5%, and 15% ratio, this paper, we standardize the Motion-X dataset by selecting
+respectively, with no overlaps among them.                         52 joints from the human body and hands.1
+   The KIT-ML [37] dataset is comprised of 3,911 motion
+sequences along with 6,278 textual descriptions. Each se- B. Implementation Details
+quence is associated with one to four sentences, with the
+                                                                      Motion Data Pre-processing. We follow the dataset pre-
+average description containing 9.5 words. This dataset merges
+                                                                   processing procedures outlined in [1], [24], [30]. The raw
+selected elements from the KIT WholeBody Human Motion
+                                                                   3D motion coordinates are first aligned with a default human
+Database [73] and the CMU Graphics Lab Motion Capture
+                                                                   skeletal model. The Y-axis is then set perpendicular to the
+Database [74], with an emphasis on locomotion motions. The
+                                                                   ground, allowing individuals to face the Z+ direction. These
+motion sequences in KIT-ML have been down-sampled to a
+                                                                   coordinates are then processed into motion features, including
+frame rate of 12.5 fps.
+                                                                   foot contact, global rotations and translations, local joint
+   The Motion-X [38] dataset is currently the largest whole-
+                                                                   positions, velocities, and 6D rotations. The final dimensions are
+body expressive motion repository, comprising 95,642 high-
+                                                                   263 for the HumanML3D dataset, 251 for the KIT-ML dataset,
+fidelity 3D motion sequences based on the SMPL-X model [75],
+                                                                   and 623 for the Motion-X dataset. For SMPL-based motion
+paired with corresponding pose descriptions and semantic
+                                                                   representations, the maximum motion length is set to 196, with
+labels for each sequence. The Motion-X dataset gathers 15K
+                                                                   minimums of 40 for HumanML3D and 24 for KIT-ML. In
+monocular videos from various online sources and public video
+dataset, capturing a wide range of scenarios such as daily           1 More experiments results and visualizations on the KIT-ML benchmark
+actions, sports activities, and many domain-specific scenes, are available in the Supplementary Materials.
+JOURNAL OF LATEX CLASS FILES, VOL. 14, NO. 8, AUGUST 2021                                                                                                                                                   8
+
+
+
+TABLE III: Experiments of motion captioning task on the HumanML3D [30] benchmark. Results marked with * are from
+MotionGPT [27], and were computed using unprocessed ground truth texts for linguistic metrics.
+
+                                                   R Precision↑
+             Methods                                                                           MultiModal Dist.↓                     Lengthavg ↑   Bleu1↑     Bleu4↑     Rouge↑     Cider↑     BertScore↑
+                                               Top1   Top2     Top3
+         Real Desc                            0.523            0.725           0.828                       2.901                          —          —          —          —          —               —
+           RAEs                               0.100            0.188           0.261                       6.337                          —         33.3       10.2       37.5       22.1            10.7
+        Seq2Seq(Att)                          0.436            0.611           0.706                       3.447                          —         51.8       17.9       46.4       58.4            29.1
+          SeqGAN                              0.332            0.457           0.532                       4.895                          —         47.8       13.5       39.2       50.2            23.4
+       TM2T*                                  0.516            0.720           0.823                       2.935                         10.67      48.9       7.00       38.1       16.8            32.2
+    MotionGPT*                                0.543             —              0.827                       2.821                         13.04      48.2       12.5       37.4       29.2            32.4
+ MotionGPT-2 (Ours)                           0.558            0.738           0.838                       2.767                         15.27      48.7       13.8       37.6       29.8            32.6
+
+TABLE IV: Ablations on the effects of LLM types and scales on text-based motion generation, evaluated on the HumanML3D [30]
+benchmark. In addition to full fine-tuning of the T5-base model, LoRA is used for optimizing other decoder-only LLMs.
+
+                                                               Trainable                        R-Precision ↑                                      MultiModal
+                      Model                                                                                                                FID ↓                      Diversity →    MultiModality ↑
+                                                              Parameters                   Top 1   Top 2     Top 3                                  Dist. ↓
+                       Real                                          —                     0.511             0.703               0.797     0.002      2.974              9.503                —
+      T5-base (Pretrain)                                    Full-Finetune                  0.314             0.457               0.554     0.493      4.662             9.634                1.793
+      T5-base (Finetune)                                    Full-Finetune                  0.417             0.581               0.668     0.148      3.989              9.961               1.985
+    Gemma-2b-It (Pretrain)                                       34M                       0.385             0.546               0.643     0.207      4.559              9.733               2.351
+   Gemma-2b-It (Finetune)                                        34M                       0.436             0.600               0.697     0.228      3.589             10.081               2.269
+    Gemma-7b-It (Pretrain)                                      101M                       0.404             0.575               0.673     0.219      3.768              9.964               2.364
+   Gemma-7b-It (Finetune)                                       101M                       0.446             0.622               0.715     0.177      3.545              9.652               2.198
+    LLaMA3-8B (Pretrain)                                        89M                        0.438             0.619               0.717     0.314      3.514             10.010               2.252
+    LLaMA3-8B (Finetune)                                         89M                       0.482             0.668               0.760     0.282      3.288             10.212               2.261
+   LLaMA3.1-8B (Pretrain)                                       89M                        0.456             0.630               0.732     0.291      3.417             9.884                2.145
+   LLaMA3.1-8B (Finetune)                                        89M                       0.496             0.691               0.782     0.191      3.080              9.860               2.137
+
+
+              Can you generate a motion   a person, bent over, is   Can you generate a motion that    a person walks forward       AdamW optimizer [76], with a weight decay of 1 × 10−5 for
+ Method       that person walks forward   dragging his right leg     a person walks forward, turns   slowly while holding both
+              then jumps up and down？       while trying to walk.   to the right and walks back？         arms straight up.         model optimization. Following previous studies [24], [27], we
+                                                                                                                                   set the codebook Bm ∈ R512×512 for motion VQ-VAE and
+  MDM                                                                                                                              the codebook Bb ∈ R512×512 and Bh ∈ R512×512 for Part-
+                                                                                                                                   Aware VQ-VAE. The motion encoder applies a temporal down-
+                                                                                                                                   sampling rate of 4. Our MotionGPT-2 leverages a learning
+                                                                                                                                   rate of 2×10−4 during the pre-training phase and 1×10−4 in
+ T2M-GPT
+                                                                                                                                   the instruction tuning phase of the unified motion-language
+                                                                                                                                   learning process. The mini-batch size is 32. The pre-trained
+                                                                                                                                   LLM undergoes 100 epochs in the Motion-Language Alignment
+ MotionGPT
+                                                                                                                                   phase and 50 epochs during the Instruction Tuning phase.
+                                                                                                                                   MotionGPT-2 and the re-implemented models are built using
+                                                                                                                                   PyTorch, with all experiments on 4 NVIDIA 80G A100 GPUs.
+                                                                                                                                   C. Results on Human Motion Generation
+MotionGPT-2
+                                                                   Text-based Body-only Motion Generation. The quantitative
+                                                                results of motion quality are depicted in Table I. Among these,
+                                                                Table I provide quantitative comparisons on the SMPL-based
+Fig. 5: Showcase of visualization results for the text-based HumanML3D [30] dataset and the KIT-ML [73] dataset. The
+motion generation task using the HumanML3D [30] dataset. results presented reflect the performance of MotionGPT-2,
+We compare our MotionGPT-2 with the state-of-the-art method, which has been pre-trained across multiple motion-related tasks
+i.e., MDM [69], T2M-GPT [24], MotionGPT [1].                    and subsequently fine-tuned for the specific text-based motion
+                                                                generation task. By tuning mere 1% of LLM parameters, our
+SMPL-X-based Motion-X dataset, the maximum motion length general-purpose MotionGPT-2 exhibits a performance that is
+frames is 300, with a minimum of 40.                            competitive with state-of-the-art approaches. Compared to our
+   Training Details. In the following experiments, we adopt the previous version, the MotionGPT-2 yields a significant 10.4%
+decoder-only LLaMA 3.1-8B [44] model as the foundational improvement in R-Precision Top-3 and a 0.254 reduction in
+LLM, keeping its parameters frozen while applying fine-tuning FID score on HumanML3D. Through the tailored Motion-
+through the LoRA [36] method. The motion tokenizer is Language Alignment stage, our MotionGPT-2 exhibits greater
+trained over 1,200 epochs, with an initial learning rate of semantic consistency with the textual description, improving
+1 × 10−4 . We set the mini-batch size to 256 and use the interpretation of body language semantics. Further, compared
+JOURNAL OF LATEX CLASS FILES, VOL. 14, NO. 8, AUGUST 2021                                                                                                                                                                                        9
+
+
+
+
+                                                                                                                               Input
+                              PA-VQVAE                               PA-VQVAE                                      PA-VQVAE
+                                                                                                                              Motions
+
+
+
+
+                               VQVAE                                   VQVAE                                        VQVAE                  a person walks forward,       the toon is walking in a a person throws
+   A woman wears a                       The person is walking and                A man is walking while shaking                                                                                  something, then             person walks
+                                                                                                                                          picks something up off of         zig zag motion,
+   Katana Handschuh.                      making the OK gesture.                    hands and saying goodbye.                   Real                                                                                          forward and
+                                                                                                                                          the floor, then puts it on a   shuffling a bit at the catches something,
+                                                                                                                                                                                                   then throws it          curves to the left.
+                                                                                                                                             low shelf or object.          end of the "plane"
+
+                                                                                                                                              a person is walking         this person walks in   a person throws           person is standing
+                              PA-VQVAE                               PA-VQVAE                                      PA-VQVAE                     forward, grabs              a zig zag motion     something and then           still, slightly
+                                                                                                                              MotionGPT    something, turns around,                                                          shifting their
+                                                                                                                                                                          from back to front     catches something.
+                                                                                                                                           and sit the object down.                                                        weight to the left.
+                                                                                                                                            a person walks forward.      a man strolls slowly,   person looks like he is
+                               VQVAE                                   VQVAE                                         VQVAE                                                                                                  a person walks in
+                                                                                                                                           they stop and bend down       and staggers to the      throwing a baseball
+  A person is walking while              The person performs a Plank                A woman pushes the door                     Ours                                                                                          an arc to the
+                                                                                     to enter and walks in at                                to pick something up,         left in a zig zag     then catches one and
+    clenching their fists.                Walk Lift with their arms.                                                                                                                                                        left then stops.
+                                                                                         the same time.                                      then continue walking.            pattern              throws it again
+
+
+
+                              PA-VQVAE
+                                                                                                                              Fig. 7: Comparison of other methods on motion captioning
+                                                                       PA-VQVAE                                    PA-VQVAE
+                                                                                                                              task. The results demonstrate that our MotionGPT-2 generates
+                                                                                                                              more conceptually and semantically rich motion descriptions.
+                               VQVAE                                    VQVAE                                       VQVAE
+       Someone does                            this person jogs                      someone makes an I Love
+                                                                                                                              Specific words are marked to highlight the semantic similarity
+      small arm circles.                   quickly moving forward                    You gesture while walking.
+                                                                                                                              of the generated captions and the real one.
+Fig. 6: Qualitative results of our method on Motion-X [38]. Uti-
+lizing world knowledge of LLMs, our PA-VQVAE demonstrates      performance when initial or key tokens are provided, achieving
+the capability to effectively capture lifelike hand interactions.
+                                                               FID scores of 0.183 or 0.182, an improvement over the text-only
+                                                               model’s 0.191 on the HumanML3D benchmark, demonstrating
+                           Recon      Vel    Recon     Vel
+       Initial token                                           its flexibility in handling diverse control modalities.In fact,
+                             MotionGPT         MotionGPT-2
+                                                               MotionGPT-2 shows superior performance when initial or
+         Text-only         24.70     1.095    19.19   0.846
+   Text + Initial poses    13.78     0.549    7.59    0.328
+                                                               key tokens are provided, achieving FID scores of 0.183 or
+                                                               0.182, an improvement over the text-only model’s 0.191 on
+        Last token           MotionGPT         MotionGPT-2     the HumanML3D benchmark. In spite of this, MotionGPT-
+         Text-only         19.70     1.172    11.77   0.735    2’s performance is still notable, reinforcing its proficiency in
+    Text + Last poses      6.831     0.397    4.376   0.291    generating high-quality and diverse motions across a range
+        Key tokens           MotionGPT         MotionGPT-2     of control conditions. As demonstrated in Fig. 4, the motions
+         Text-only         8.035     3.813    6.591   1.932    produced by our model align closely with the specified poses
+  Text + Random poses      5.383     2.423    4.139   1.055    and consistently follow the textual descriptions.
+                                                                  Holistic Motion Generation. In this part, we focus on the
+TABLE V: Evaluation of the consistency with pose control holistic motion generation task. As shown in Figure 9, we
+conditions on the HumanML3D [30] test sub-set using the evaluate various LLMs on the SMPL-X-based Motion-X [38]
+pre-trained LLaMA 3.1-8B model.                                dataset. Our tailored PA-VQVAE consistently outperforms
+                                                               the original VQVAE across multiple scales and types of
+to other LLM-based methods, our MotionGPT-2 fine-tunes LLMs, demonstrating the effectiveness of our innovative
+the LLM and relate world knowledge to 3D human motions, motion discretization framework. For instance, compared to
+achieving superior generation beyond existing solutions.       its VQVAE counterpart, Part-Aware VQVAE (LLaMA 3.1-8B)
+   As shown in Fig. 5, we conduct visualization experiments achieves an improvement in Top-1 R-Precision from 0.332
+on the text-based motion generation task to vividly illustrate to 0.349, and a decrease in FID from 0.666 to 0.619. The
+the capabilities of our MotionGPT-2 model. In Fig. 5, we superior performance of Part-Aware VQVAE over the original
+observe that the diffusion-based MDM [69] method generates VQVAE can be attributed to its more fine-grained discretization
+fewer semantic motions aligned with the provided descriptions. representation and hierarchical modeling capability for human
+By utilizing discrete motion tokens, T2M-GPT [24] can motion. Moreover, utilizing distinct motion vocabularies for
+better learn motion patterns and semantics which leads to body and hand reduces the ambiguity, where similar actions
+more coherent and contextually rich motions. Our conference could be represented by the same token. As shown in Fig. 6,
+version MotionGPT [1], with fine-tuned LLMs, generalizes our MotionGPT-2 is capable of generating vivid motions that
+well to more diverse and complex text prompts. In contrast accurately correspond to the given text descriptions.
+to MotionGPT, our MotionGPT-2 extends motion vocabulary           Perceptual Studies. We assess visual realism and semantic
+to original LLMs for jointly modeling motion and language fidelity of generated 3D motions by rendering 2,000 repre-
+representations in a unified space.                            sentative clips from multiple camera views and evaluating
+   Multiple Signal Controlled Body-only Motion Generation. them with Qwen2.5-VL-72B [77], which scores each sample
+Besides text inputs, MotionGPT-2 is capable of incorporating across five dimensions: Naturalness, Semantic Consistency,
+human poses as an additional control modality, with the Fluency, Detail, and Overall Preference (definitions in the
+resulting motion quality detailed in Table II. Introducing supplementary material). In Figure 8, MotionGPT-2 consistently
+extra controls, such as initial, last, or key poses, does not surpasses three strong baselines (MotionGPT, Gemma-2B-
+degrade motion quality. In fact, MotionGPT-2 shows superior It, Gemma-7B-It) across all dimensions, demonstrating its
+JOURNAL OF LATEX CLASS FILES, VOL. 14, NO. 8, AUGUST 2021                                                                                                                                                                                                                                       10
+
+
+
+TABLE VI: Comparisons between separate training for each task and joint training for multiple tasks on HumanML3D [30]
+test set using the LLaMA 3-8B model. We use orange and green markings to represent decrements and improvements in the
+metric, respectively. Joint training can achieve better performance for all tasks.
+
+                       Training                                                                                                    R-Precision ↑
+  Task                                 FID ↓         MultiModal Dist.↓                                                                                                                                                                                         Diversity ↑
+                       Strategy                                                            Top-1                                      Top-2                                                         Top-3
+  Text                                 0.523                3.627                           0.358                                              0.514                                                0.604                                                               9.108
+    + Initial token                    0.483                3.489                           0.378                                              0.549                                                0.647                                                               9.614
+                       Separate
+    + Last token                       0.974                4.208                           0.339                                              0.501                                                0.598                                                               9.598
+    + Key tokens                       0.428                3.276                           0.424                                              0.617                                                0.697                                                               9.929
+
+  Text                             0.482(-0.041)        3.295(-0.332)          0.419(+0.061)                                      0.597(+0.083)                                        0.683(+0.079)                                                       9.422(+0.314)
+    + Initial token                0.454(-0.029)        3.173(-0.316)          0.434(+0.056)                                      0.613(+0.064)                                        0.710(+0.063)                                                       9.573(-0.041)
+                         Joint
+    + Last token                   0.507(-0.467)        3.860(-0.348)          0.427(+0.088)                                      0.608(+0.107)                                        0.723(+0.125)                                                       9.688(+0.090)
+    + Key tokens                   0.406(-0.022)        3.459(-0.183)          0.445(+0.021)                                      0.616(-0.001)                                        0.722(+0.025)                                                       9.987(+0.058)
+
+TABLE VII: Evaluation of motion prediction and in-betweening                               Naturalness (mean=3.84)
+                                                                                                 T2M-GPT
+                                                                                                                                         1.0
+                                                                                                                                                                   Semantic (mean=3.74)
+                                                                                                                                                                   T2M-GPT
+                                                                                                                                                                                                           1.0
+                                                                                                                                                                                                                                                        Fluency (mean=3.45)
+                                                                                                                                                                                                                                                        T2M-GPT
+                                                                                                                                                                                                                                                                                               1.0
+                                                                                    3500         MDM                       3423                        3500        MDM                       3487
+                                                                                                                                                                                                                                                        MDM                       3104
+on part of the AMASS [72], considering only motion data. FID                        3000
+                                                                                                 MotionGPT
+                                                                                                 Ours                                    0.8           3000
+                                                                                                                                                                   MotionGPT
+                                                                                                                                                                   Ours                                    0.8
+                                                                                                                                                                                                                               3000                     MotionGPT
+                                                                                                                                                                                                                                                        Ours
+                                                                                                                                                                                                                                                                        2843
+                                                                                                                                                                                                                                                                                               0.8
+                                                                                                                                                                                                                               2500
+reflects the quality of the generated motions, while Diversity                      2500                                                               2500
+                                                                                                                                                                                  2262
+                                                                                                                2100                     0.6                                                               0.6                 2000                                                            0.6
+
+
+
+
+                                                                                                                                          Proportion
+
+
+
+
+                                                                                                                                                                                                            Proportion
+
+
+
+
+                                                                                                                                                                                                                                                                                                Proportion
+quantifies the motion variability within each condition.                            2000                                          1939
+
+
+
+
+                                                                            Count
+
+
+
+
+                                                                                                                                            Count
+                                                                                                                                                       2000
+
+
+
+
+                                                                                                                                                                                                              Count
+                                                                                                                                                                                                    1589                       1500
+                                                                                    1500                                                 0.4           1500                                                0.4                                                                                 0.4
+                                                                                                                                                                                                                               1000                           978                        907
+                                                                                    1000                                                               1000
+                      Motion Prediction            Motion In-between                                                                     0.2                            585                                0.2                                                                                 0.2
+  Methods                                                                           500               490
+                                                                                                                                                       500                                                                        500
+                                                                                                                                                                                                                                                168
+                                                                                                                                                              77
+              FID ↓ Diversity↑ ADE↓ FDE↓ FID ↓ Diversity↑ ADE↓                        0
+                                                                                           48
+                                                                                           1           2         3          4      5
+                                                                                                                                         0.0             0
+                                                                                                                                                              1          2         3          4      5
+                                                                                                                                                                                                           0.0                          0
+                                                                                                                                                                                                                                                    1         2          3         4     5
+                                                                                                                                                                                                                                                                                               0.0
+                                                                                                             Score (1 5)                                                       Score (1 5)                                                                          Score (1 5)
+                                                                                                FineGrain (mean=3.16)                                          Preference (mean=4.11)                                                                               Violin Plot
+    Real      0.002     9.503      —      —    0.002    9.503        —                           T2M-GPT        3140
+                                                                                                                                         1.0
+                                                                                                                                                       3500        T2M-GPT                   3299
+                                                                                                                                                                                                           1.0
+                                                                                                                                                                                                                                       5.0
+                                                                                                 MDM                                                               MDM
+                                                                                    3000         MotionGPT                                                         MotionGPT                                                           4.5
+                                                                                                 Ours                                    0.8           3000        Ours
+                                                                                                                                                                                                    2944
+                                                                                                                                                                                                           0.8
+   MDM      6.031       7.813     5.446 8.561 2.698     8.420       3.787           2500                                   2442                                                                                                        4.0
+                                                                                                                                                       2500
+MotionGPT 0.905         8.972     4.745 6.040 0.214     9.560       3.762           2000                                                 0.6                                                               0.6                         3.5
+
+
+
+
+                                                                                                                                                                                                                         Score (1-5)
+                                                                                                                                          Proportion
+
+
+
+
+                                                                                                                                                                                                            Proportion
+                                                                                                                                                       2000
+                                                                            Count
+
+
+
+
+                                                                                                                                            Count
+MotionGPT-2 0.537       9.414     4.512 5.823 0.408     9.327       3.704           1500
+                                                                                                     1517
+                                                                                                                                                       1500                       1456
+                                                                                                                                                                                                                                       3.0
+                                                                                                                                         0.4                                                               0.4                         2.5
+                                                                                    1000                                                               1000                                                                            2.0              Naturalness
+                                                                                                                                  540    0.2                                                               0.2                                          Semantic
+                                                                                    500    361                                                         500                                                                             1.5              Fluency
+                                                                                                                                                                        276                                                                             FineGrain
+                                                                                                                                                              25                                                                       1.0              Preference
+                                                                                      0                                                  0.0             0                                                 0.0
+clear perceptual superiority. MotionGPT-2 attains the highest                              1           2         3
+                                                                                                             Score (1 5)
+                                                                                                                            4      5                          1          2         3
+                                                                                                                                                                               Score (1 5)
+                                                                                                                                                                                              4      5
+                                                                                                                                                                                                                                             Natu
+                                                                                                                                                                                                                                                      ss      c     cy      in
+                                                                                                                                                                                                                                                 ralne Semanti Fluen FineGra Preferen
+                                                                                                                                                                                                                                                                                      ce
+
+
+mean scores in Naturalness (3.84) and Fluency (3.45), re-
+flecting physically coherent and temporally smooth motion                   Fig. 8: Subjective Assessment of Motion Quality. A subjective
+generation enabled by Part-Aware VQ-VAE. Its Semantic                       assessment of our model’s performance compared to T2M-GPT,
+Consistency (3.74) highlights accurate grounding between texts              MDM, and MotionGPT across five qualitative metrics.
+and motion dynamics through instruction tuning. In Fine-
+Grained Detail (3.16), the model captures subtle hand and                   D. Results on Motion Captioning
+body gestures, a long-standing challenge for prior methods.
+Finally, the Overall Preference (4.11)—obtained via pairwise                   Compared to the text-to-motion task, the motion-to-text
+comparison—confirms MotionGPT-2’s clear human-perceived                     task involves generating a textual description from a given
+advantage, with over 60% of evaluators preferring its outputs.              human motion sequence. As in [27], we rely on ground truth
+Together, these results provide strong human-centered evidence              descriptions for more accurate assessment. Table III presents the
+that the proposed PA-VQVAE and LLM designs of MotionGPT-                    results of quantitative evaluation for motion-to-text translation
+2 enhance motion quality, realism, and semantic fidelity.                   on the HumanML3D dataset. The comparisons in Table III
+                                                                            shows that our proposed MotionGPT-2 outperforms recent
+   User Study for Fine-Grained Hand Motion Evaluation.                      works in generating text descriptions for the given motions. The
+We conduct a small-scale user study involving 10 participants               generated language descriptions deliver substantial improve-
+with backgrounds in computer vision or human motion analysis.               ments in both linguistic quality (BLEU [78] and BertScore [79])
+Each participant is presented with 20 paired video clips                    and the precision of motion retrieval (R-Precision). By fine-
+generated by the vanilla VQ-VAE and our Part-Aware VQ-VAE                   tuning LLMs, our MotionGPT-2 emerges as a specialized tool
+under identical text prompts (e.g., “making the OK gesture”,                endowed with extensive world knowledge, thereby enhancing
+“playing the piano”). In each pair, the participants are asked to           its capacity to interpret human motion.
+select the sequence that appears more natural in terms of fine-
+                                                                               In Fig. 7, we provide further examples of translating motion
+grained hand articulations. Across the total of 200 pairwise
+                                                                            to text using the HumanML3D dataset. All methods are
+comparisons, 81.5% of the selections favor the outputs of
+                                                                            evaluated under the same training and inference conditions on
+PA-VQVAE. This strong and consistent preference indicates
+                                                                            HumanML3D. Compared to MotionGPT [27], our MotionGPT-
+that our hierarchical design not only improves objective
+                                                                            2, which leverages LLM-interpretable motion tokens, is capable
+reconstruction metrics but also yields perceptible gains in the
+                                                                            of generating more conceptual and semantically rich motion
+naturalness and plausibility of hand motions. These results
+                                                                            descriptions. For instance, it can produce descriptions such as
+provide compelling subjective evidence, complementing our
+                                                                            “walk in an arc shape” and “throwing a baseball”, offering
+quantitative evaluations, and directly address the reviewer’s
+                                                                            more intuitive understanding of the given motion motions.
+suggestion to assess hand motion quality through user studies.
+     JOURNAL OF LATEX CLASS FILES, VOL. 14, NO. 8, AUGUST 2021                                                                                                                                                                                                                           11
+
+
+
+                                                                                                                                         Impact of Hierarchical Modeling and Fusion Order Across Models
+                                                                                      Vanilla VQ-VAE                                        Body+Hand Concat                     Body-First PA-VQVAE    Alternating PA-VQVAE                Hand-First PA-VQVAE
+                               0.350                                                                                                         0.545                              0.640                  5.25                          6.60
+                               0.345                                               0.47                                                                                                                                                                           2.40
+T5-base
+
+
+
+                                                                                                                                             0.540                              0.635                                                6.58
+                               0.340                                                                                                                                                                   5.20                                                       2.35
+                                                                                   0.46
+                               0.335                                                                                                         0.535                              0.630                                                6.56
+                                                                                   0.45                                                                                                                5.15                                                       2.30
+                               0.330
+                               0.350                                                                                                                                            0.640                  5.04
+                                                                                 0.4750                                                       0.57                                                                                  6.850
+Gemma-2B-It
+
+
+
+
+                               0.345                                                                                                                                                                                                                              2.40
+                                                                                 0.4725                                                                                         0.635                                               6.825
+                               0.340                                                                                                                                                                   5.02                         6.800
+                                                                                 0.4700                                                       0.56                                                                                                                2.35
+                                                                                                                                                                                0.630                                               6.775
+                               0.335                                             0.4675                                                                                                                5.00
+                                                                                                                                              0.55                                                                                  6.750                         2.30
+                                0.38                                               0.51                                                      0.584                                                                                   6.45
+                                                                                                                                                                                0.620
+      Gemma-7B-It
+
+
+
+
+                                                                                                                                             0.582                                                                                                                2.25
+                                0.37                                                                                                                                                                    5.0                          6.40
+                                                                                   0.50                                                      0.580                              0.615
+                                0.36                                                                                                                                                                                                 6.35                         2.20
+                                                                                                                                             0.578                              0.610                   4.9
+                                0.35                                               0.49                                                                                                                                              6.30
+                                                                                                                                             0.576                              0.605                                                                             2.15
+                                0.34                                                                                                                                                                    4.8                          6.25
+
+                               0.390                                                                                                         0.594                                                     4.76                          6.58                         2.06
+                                                                                  0.512                                                                                         0.645
+LLaMA 3-8B
+
+
+
+
+                               0.385                                                                                                         0.592                              0.640                                                                             2.04
+                                                                                  0.510                                                                                                                4.74
+                                                                                                                                             0.590                                                                                   6.56
+                               0.380                                                                                                                                            0.635                                                                             2.02
+                                                                                  0.508
+                               0.375                                                                                                         0.588                              0.630                  4.72
+                                                                                  0.506                                                                                                                                              6.54                         2.00
+                                                                                                                                             0.586                              0.625
+                               0.400
+                                                                                  0.523
+LLaMA 3.1-8B
+
+
+
+
+                                                                                                                                             0.615                               0.66                  4.67                                                        2.8
+                               0.395                                                                                                                                                                                                 6.55
+                                                                                                                                             0.610                                                     4.66                                                        2.6
+                                                                                  0.522                                                                                          0.64                                                6.50
+                               0.390                                                                                                         0.605                                                     4.65
+                                                                                                                                                                                 0.62                                                6.45                          2.4
+                                                                                  0.521                                                      0.600                                                     4.64
+                               0.385
+                                              Top 1 Accuracy                                  Top 2 Accuracy                                             Top 3 Accuracy                      FID              MultiModal Distance                 Diversity              MultiModality
+
+     Fig. 9: Impact of Hierarchical Modeling and Fusion Order on Motion Generation Performance. This ablation study across
+     five LLM backbones demonstrates that our Hand-First PA-VQVAE consistently outperforms Vanilla VQ-VAE, Body+Hand
+     Concat, Body-First, and Alternating variants across key metrics (Top-1/2/3 Accuracy, FID, Diversity, MultiModality).
+
+                               1.0     Per-Participant Preference Rates (20 trials each)                                           1.0 Overall User Study (N=10 participants, 200 trials)
+                                       0.90                 0.90
+                                                                          0.95         Random Chance (50%)
+                                                                                              0.90
+                                                                                                                                                                                             generate contextually appropriate motion completions.
+Preference Rate for PA-VQVAE
+
+
+
+
+                                                                                                                                                 81.5%
+                               0.8            0.75
+                                                     0.80                         0.80 0.80
+                                                                                                                                   0.8                                                       F. Ablation Study
+                                                                                                             Preference Rate (%)
+
+
+
+
+                                                                   0.70
+                                                                                                     0.65
+                               0.6                                       Capability of Pre-trained LLM. As shown in Table IV,      0.6
+
+      0.4                                0.4                          we   delve into how different scales and types of LLMs
+                                                                      affect the performance of text-based human motion generation
+      0.2                                0.2                18.5%
+                                                                      tasks on the HumanML3D [30] and KIT-ML [73] datasets.
+      0.0 P1 P2 P3 P4 P5 P6 P7 P8 P9 P10 0.0 PA-VQVAE  Vanilla VQ-VAE We   observe that: (1) Larger LLMs (e.g., LLaMA 3.1-8B
+                                                                      and LLaMA 3-8B) offer distinct advantages over smaller
+    Fig. 10: Subjective Evaluation of Hand Motion Fidelity. counterparts, achieving significant improvements in fidelity
+    (Left) Individual preference rates from a 10-participant study (FID) and multimodal alignment (i.e., R Precision, MultiModal
+    comparing PA-VQVAE and Vanilla VQ-VAE under identical Dist.). To explain, the improved context understanding of
+    prompts. (Right) Aggregated outcomes reveal an 81.5% overall LLMs ensures that the output motion aligns closely with
+    preference for PA-VQVAE across 200 trials.                        intended actions. Further, LLMs with comprehensive world
+                                                                      knowledge can synthesize physically plausible motions even
+    E. Results on Generalized Motion Completion                       when   faced with linguistic ambiguity. (2) LLMs fine-tuned by
+                                                                      unified instructions demonstrate clear advantage in maintaining
+       Following [27], we classify both motion prediction and semantic consistency and producing motions that are better
+    in-betweening together as generalized motion completion in aligned with textual descriptions. For instance, the fine-tuned
+    Table VII. For the motion prediction task [80]–[82], only Gemma-7B-It outperforms its pre-trained counterpart, achieving
+    the first 20% of the sequence is used as the conditioning a 10% improvement in R-Precision Top-3 (from 0.673 to
+    input, while approximately 50% of the motion is intentionally 0.715) and a 19% reduction in FID (from 0.219 to 0.177). (3)
+    masked at random to assist in the completion process. Similar Compared to T5-base used in [27], [28], which requires full fine-
+    to text-based motion generation, as shown in Table VII, we tuning, fine-tuning the decoder-only LLaMA 3.1-8B yields a
+    also fine-tune the proposed MotionGPT-2 specifically for this higher R-Precision Top-3 (0.782) and a lower FID (0.191). This
+    specific task and utilize FID, ADE, and FDE as metrics. indicates that models with more parameters possess capacity
+    The unified motion-language framework of the MotionGPT- to capture complex relationships between text and motion.
+    2 leverages contextual information of fine-tuned LLM to              Consistency with pose control conditions. We assess
+    understand in-depth motion dynamics. Compared to [27], [69], the benefits of pose control by comparing the consistency
+    our MotionGPT-2 demonstrates a remarkable capability to between the controlled poses and the generated motions on
+JOURNAL OF LATEX CLASS FILES, VOL. 14, NO. 8, AUGUST 2021                                                                                       12
+
+
+
+the HumanML3D test sub-set. Concerning each specific task            demonstrates its versatility in addressing the complex 3D whole-
+(initial/last/key), motions are generated both with and without      body motion generation task, establishing a strong benchmark
+pose controls, utilizing the (text+pose)-to-motion and text-         for researchers. We envision that MotionGPT-2 paves the way
+to-motion methods, respectively. The results, displayed in           for more practical and versatile motion generation systems,
+Tab. V indicate that key-frame consistency is higher with pose       offering a fresh perspective in the field.
+controls than in text-only generation counterpart, proving the
+effectiveness of (text+pose)-to-motion with pose control. Such                                     R EFERENCES
+results highlight the critical role that pose controls play in
+coherent and contextually appropriate human motion synthesis.         [1] Y. Zhang, D. Huang, B. Liu, S. Tang, Y. Lu, L. Chen, L. Bai, Q. Chu,
+                                                                          N. Yu, and W. Ouyang, “Motiongpt: Finetuned llms are general-purpose
+   Comparison with Separate Training. We carry out task-                  motion generators,” 2023.
+specific training on the HumanML3D dataset [30] to test               [2] P. Ding and J. Yin, “Towards more realistic human motion prediction
+                                                                          with attention to motion coordination,” IEEE Transactions on Circuits
+the effectiveness of the proposed MotionGPT-2 model in                    and Systems for Video Technology, vol. 32, no. 9, pp. 5846–5858, 2022.
+motion generation. This experimental setup is implemented             [3] H. Yu, X. Fan, Y. Hou, W. Pei, H. Ge, X. Yang, D. Zhou, Q. Zhang, and
+to determine whether a multi-task learning framework can                  M. Zhang, “Toward realistic 3d human motion prediction with a spatio-
+enhance the performance of each distinct control condition                temporal cross-transformer approach,” IEEE Transactions on Circuits
+                                                                          and Systems for Video Technology, vol. 33, no. 10, pp. 5707–5720, 2023.
+independently. The comparison results are presented in Ta-            [4] H. Chen, J. Hu, W. Zhang, and P. Su, “Spatiotemporal consistency
+ble VI. Our findings indicate that joint training across all tasks        learning from momentum cues for human motion prediction,” IEEE
+significantly improves performance metrics across the board.              Transactions on Circuits and Systems for Video Technology, vol. 33,
+                                                                          no. 9, pp. 4577–4587, 2023.
+Notably, this enhancement is particularly pronounced when             [5] G. Xia, D. Luo, Z. Zhang, Y. Sun, and Q. Liu, “3d information guided
+utilizing text and the last pose token as input conditions. These         motion transfer via sequential image based human model refinement
+results illustrate the value of our multi-modal signals controlled        and face-attention gan,” IEEE Transactions on Circuits and Systems for
+                                                                          Video Technology, vol. 33, no. 7, pp. 3270–3283, 2022.
+motion generation. MotionGPT-2’s ability to generate motions          [6] R. Li, H. Wang, and Z. Liu, “Survey on mapping human hand motion
+under a specific input condition is strengthened by drawing               to robotic hands for teleoperation,” IEEE Transactions on Circuits and
+knowledge from other conditions.                                          Systems for Video Technology, vol. 32, no. 5, pp. 2647–2665, 2021.
+                                                                      [7] L. Zhou, Y. Chen, and J. Wang, “Dual-path transformer for 3d human
+   Impact of Hierarchical Modeling and Fusion Order. We                   pose estimation,” IEEE Transactions on Circuits and Systems for Video
+conduct comprehensive ablation studies across five backbone               Technology, 2023.
+models (T5-base, Gemma-2B/7B-It, LLaMA 3-8B, LLaMA                    [8] C. Liu and Y. Mu, “Multi-granularity interaction for multi-person 3d
+                                                                          motion prediction,” IEEE Transactions on Circuits and Systems for Video
+3.1-8B), comparing five fusion strategies: Vanilla VQ-VAE,                Technology, 2023.
+Body+Hand Concat, Body-First, Alternating, and our proposed           [9] M. Yuan and Y. Peng, “Bridge-gan: Interpretable representation learning
+Hand-First PA-VQVAE. As shown in Figure 9, results con-                   for text-to-image synthesis,” IEEE Transactions on Circuits and Systems
+                                                                          for Video Technology, vol. 30, no. 11, pp. 4258–4268, 2019.
+sistently demonstrate the superiority of the Hand-First design       [10] L. Yang, Y. Zhao, Z. Yu, B. Zeng, M. Xu, S. Hong, and B. Cui, “Spatio-
+across all backbones and metrics, particularly in semantic align-         temporal energy-guided diffusion model for zero-shot video synthesis
+ment (R-Precision, MultiModal Distance), temporal smoothness              and editing,” IEEE Transactions on Circuits and Systems for Video
+                                                                          Technology, 2025.
+(FID), and motion diversity. While Body+Hand Concat im-              [11] Q. Ren, Z. Lu, H. Wu, J. Zhang, and Z. Dong, “Hr-net: a landmark based
+proves over the vanilla baseline by decoupling representations,           high realistic face reenactment network,” IEEE Transactions on Circuits
+hierarchical variants further enhance performance, with Hand-             and Systems for Video Technology, vol. 33, no. 11, pp. 6347–6359, 2023.
+                                                                     [12] F. Ma, G. Xia, and Q. Liu, “Spatial consistency constrained gan for
+First achieving the best results (e.g., on LLaMA 3.1-8B, Top-1:           human motion transfer,” IEEE Transactions on Circuits and Systems for
+0.398, FID: 0.619, MultiModality: 2.821). This ordering effect            Video Technology, vol. 32, no. 2, pp. 730–742, 2021.
+is theoretically grounded: hand gestures often encode semantic       [13] J. Liang, W. Pei, and F. Lu, “Layout-bridging text-to-image synthesis,”
+intent that drives subsequent body dynamics. Modeling hands               IEEE Transactions on Circuits and Systems for Video Technology, vol. 33,
+                                                                          no. 12, pp. 7438–7451, 2023.
+first provides a natural causal prior, yielding more coherent and    [14] C. Wang, P. Hu, H. Zhao, Y. Guo, J. Gu, X. Dong, J. Han, H. Xu, and
+expressive motion generation. These results collectively validate         X. Liang, “Uniadapter: All-in-one control for flexible video generation,”
+that the performance gains stem not merely from hierarchical              IEEE Transactions on Circuits and Systems for Video Technology, 2025.
+                                                                     [15] Y. Hu, Y. Wang, and J. Zhang, “Dear-gan: Degradation-aware face
+modeling but specifically from the hand-first fusion order.               restoration with gan prior,” IEEE Transactions on Circuits and Systems
+                                                                          for Video Technology, vol. 33, no. 9, pp. 4603–4615, 2023.
+                                                                     [16] M. Petrovich, M. J. Black, and G. Varol, “Temos: Generating diverse
+                        VI. C ONCLUSION                                   human motions from textual descriptions,” in Computer Vision–ECCV
+                                                                          2022: 17th European Conference, Tel Aviv, Israel, October 23–27, 2022,
+   In this paper, we introduce the MotionGPT-2, a versatile               Proceedings, Part XXII. Springer, 2022, pp. 480–497.
+Large Motion-Language Model (LMLM), which can generate               [17] M. Zhang, Z. Cai, L. Pan, F. Hong, and X. Guo, “Motiondiffuse: Text-
+                                                                          driven human motion generation with diffusion model,” 2022.
+and comprehend human motions with general world knowledge
+                                                                     [18] G. Tevet, S. Raab, B. Gordon, Y. Shafir, D. Cohen-or, and
+of LLMs. Notably, MotionGPT-2 unifies motion-related tasks                A. H. Bermano, “Human motion diffusion model,” in The Eleventh
+with multi-modal control signals (e.g., text and single-frame             International Conference on Learning Representations, 2023. [Online].
+poses) as input by discretizing pose conditions and creating              Available: https://openreview.net/forum?id=SJ1kSyO2jwu
+                                                                     [19] W. Zhuang, C. Wang, J. Chai, Y. Wang, M. Shao, and S. Xia,
+a unified set of instructions from combined textual and pose              “Music2dance: Dancenet for music-driven dance generation,” ACM Trans-
+prompts. By constructing a unified motion-language vocabulary             actions on Multimedia Computing, Communications, and Applications
+of LLM, we empower the pre-trained LLMs with the ability                  (TOMM), vol. 18, no. 2, pp. 1–21, 2022.
+                                                                     [20] S. Cohan, G. Tevet, D. Reda, X. B. Peng, and M. van de Panne, “Flexible
+to integrate the understanding and generation of body kinetics.           motion in-betweening with diffusion models,” in ACM SIGGRAPH 2024
+With well-designed Part-Aware VQVAE, MotionGPT-2 also                     Conference Papers, 2024, pp. 1–9.
+JOURNAL OF LATEX CLASS FILES, VOL. 14, NO. 8, AUGUST 2021                                                                                                    13
+
+
+
+[21] K. Karunratanakul, K. Preechakul, S. Suwajanakorn, and S. Tang,              [47] X. Liu, K. Ji, Y. Fu, W. L. Tam, Z. Du, Z. Yang, and J. Tang, “P-tuning
+     “Guided motion diffusion for controllable human motion synthesis,” in             v2: Prompt tuning can be comparable to fine-tuning universally across
+     Proceedings of the IEEE/CVF International Conference on Computer                  scales and tasks,” 2021.
+     Vision, 2023, pp. 2151–2162.                                                 [48] S. Hu, N. Ding, H. Wang, Z. Liu, J. Wang, J. Li, W. Wu, and M. Sun,
+[22] Y. Xie, V. Jampani, L. Zhong, D. Sun, and H. Jiang, “Omnicontrol:                 “Knowledgeable prompt-tuning: Incorporating knowledge into prompt
+     Control any joint at any time for human motion generation,” arXiv                 verbalizer for text classification,” 2021.
+     preprint arXiv:2310.08580, 2023.                                             [49] N. Houlsby, A. Giurgiu, S. Jastrzebski, B. Morrone, Q. De Laroussilhe,
+[23] C. Diller and A. Dai, “Cg-hoi: Contact-guided 3d human-object in-                 A. Gesmundo, M. Attariyan, and S. Gelly, “Parameter-efficient transfer
+     teraction generation,” in Proceedings of the IEEE/CVF Conference on               learning for nlp,” in International Conference on Machine Learning.
+     Computer Vision and Pattern Recognition, 2024, pp. 19 888–19 901.                 PMLR, 2019, pp. 2790–2799.
+[24] J. Zhang, Y. Zhang, X. Cun, S. Huang, Y. Zhang, H. Zhao, H. Lu, and          [50] R. He, L. Liu, H. Ye, Q. Tan, B. Ding, L. Cheng, J.-W. Low, L. Bing,
+     X. Shen, “T2m-gpt: Generating human motion from textual descrip-                  and L. Si, “On the effectiveness of adapter-based tuning for pretrained
+     tions with discrete representations,” in Proceedings of the IEEE/CVF              language model adaptation,” 2021.
+     Conference on Computer Vision and Pattern Recognition (CVPR), 2023.          [51] H. Le, J. Pino, C. Wang, J. Gu, D. Schwab, and L. Besacier, “Lightweight
+[25] X. Chen, B. Jiang, W. Liu, Z. Huang, B. Fu, T. Chen, and G. Yu,                   adapter tuning for multilingual speech translation,” 2021.
+     “Executing your commands via motion diffusion in latent space,” in           [52] G. Tevet, B. Gordon, A. Hertz, A. H. Bermano, and D. Cohen-Or,
+     Proceedings of the IEEE Conference on Computer Vision and Pattern                 “Motionclip: Exposing human motion generation to clip space,” in
+     Recognition, 2023, pp. 18 000–18 010.                                             Computer Vision–ECCV 2022: 17th European Conference, Tel Aviv,
+[26] C. Guo, Y. Mu, M. G. Javed, S. Wang, and L. Cheng, “Momask:                       Israel, October 23–27, 2022, Proceedings, Part XXII. Springer, 2022,
+     Generative masked modeling of 3d human motions,” in Proceedings of                pp. 358–374.
+     the IEEE Conference on Computer Vision and Pattern Recognition, 2024,        [53] I. Habibie, D. Holden, J. Schwarz, J. Yearsley, and T. Komura, “A
+     pp. 1900–1910.                                                                    recurrent variational autoencoder for human motion synthesis,” in
+[27] B. Jiang, X. Chen, W. Liu, J. Yu, G. Yu, and T. Chen, “Motiongpt:                 Proceedings of the British Machine Vision Conference (BMVC), 2017.
+     Human motion as a foreign language,” Advances in Neural Information          [54] Z. Li, Y. Zhou, S. Xiao, C. He, Z. Huang, and H. Li, “Auto-conditioned
+     Processing Systems, vol. 36, pp. 20 067–20 079, 2023.                             recurrent networks for extended complex human motion synthesis,” 2017.
+[28] M. Luo, R. Hou, H. Chang, Z. Liu, Y. Wang, and S. Shan, “M3gpt: An           [55] C. Guo, X. Zuo, S. Wang, S. Zou, Q. Sun, A. Deng, M. Gong, and
+     advanced multimodal, multitask framework for motion comprehension                 L. Cheng, “Action2motion: Conditioned generation of 3d human motions,”
+     and generation,” arXiv preprint arXiv:2405.16273, 2024.                           in Proceedings of the 28th ACM International Conference on Multimedia,
+[29] M. Zhang, X. Guo, L. Pan, Z. Cai, F. Hong, H. Li, L. Yang, and                    2020, pp. 2021–2029.
+     Z. Liu, “Remodiffuse: Retrieval-augmented motion diffusion model,” in        [56] R. Li, S. Yang, D. A. Ross, and A. Kanazawa, “Ai choreographer:
+     Proceedings of the IEEE/CVF International Conference on Computer                  Music conditioned 3d dance generation with aist++,” in Proceedings of
+     Vision, 2023, pp. 364–373.                                                        the IEEE/CVF International Conference on Computer Vision, 2021, pp.
+[30] C. Guo, S. Zou, X. Zuo, S. Wang, W. Ji, X. Li, and L. Cheng, “Generating          13 401–13 412.
+     diverse and natural 3d human motions from text,” in Proceedings of           [57] E. Barsoum, J. Kender, and Z. Liu, “Hp-gan: Probabilistic 3d human
+     the IEEE/CVF Conference on Computer Vision and Pattern Recognition,               motion prediction via gan,” in Proceedings of the IEEE conference on
+     2022, pp. 5152–5161.                                                              computer vision and pattern recognition workshops, 2018, pp. 1418–
+[31] D. Zhu, J. Chen, X. Shen, X. Li, and M. Elhoseiny, “Minigpt-4: Enhancing          1427.
+     vision-language understanding with advanced large language models,”          [58] J. Martinez, M. J. Black, and J. Romero, “On human motion prediction
+     2023.                                                                             using recurrent neural networks,” in Proceedings of the IEEE conference
+[32] Y. Du, K. Konyushkova, M. Denil, A. Raju, J. Landon, and F. Hill,                 on computer vision and pattern recognition, 2017, pp. 2891–2900.
+     “Vision-language models as success detectors,” 2023.                         [59] M. Petrovich, M. J. Black, and G. Varol, “Action-conditioned 3d human
+[33] H. Liu, C. Li, Q. Wu, and Y. J. Lee, “Visual instruction tuning,” 2023.           motion synthesis with transformer vae,” in Proceedings of the IEEE/CVF
+                                                                                       International Conference on Computer Vision, 2021, pp. 10 985–10 995.
+[34] Q. Ye, H. Xu, G. Xu, J. Ye, M. Yan, Y. Zhou, J. Wang, A. Hu, P. Shi,
+                                                                                  [60] K. Kania, M. Kowalski, and T. Trzciński, “Trajevae: Controllable human
+     Y. Shi, C. Jiang, C. Li, Y. Xu, H. Chen, J. Tian, Q. Qi, J. Zhang, and
+                                                                                       motion generation from trajectories,” 2021.
+     F. Huang, “mplug-owl: Modularization empowers large language models
+     with multimodality,” 2023.                                                   [61] A. Ghosh, N. Cheema, C. Oguz, C. Theobalt, and P. Slusallek, “Synthesis
+                                                                                       of compositional animations from textual descriptions,” in Proceedings
+[35] K. Li, Y. He, Y. Wang, Y. Li, W. Wang, P. Luo, Y. Wang, L. Wang, and
+                                                                                       of the IEEE/CVF International Conference on Computer Vision, 2021,
+     Y. Qiao, “Videochat: Chat-centric video understanding,” 2023.
+                                                                                       pp. 1396–1406.
+[36] E. J. Hu, Y. Shen, P. Wallis, Z. Allen-Zhu, Y. Li, S. Wang, L. Wang, and
+                                                                                  [62] C. Ahuja and L.-P. Morency, “Language2pose: Natural language grounded
+     W. Chen, “Lora: Low-rank adaptation of large language models,” 2021.
+                                                                                       pose forecasting,” in 2019 International Conference on 3D Vision (3DV).
+[37] M. Plappert, C. Mandery, and T. Asfour, “The kit motion-language                  IEEE, 2019, pp. 719–728.
+     dataset,” Big data, vol. 4, no. 4, pp. 236–252, 2016.
+                                                                                  [63] C. Guo, X. Zuo, S. Wang, and L. Cheng, “Tm2t: Stochastic and tokenized
+[38] J. Lin, A. Zeng, S. Lu, Y. Cai, R. Zhang, H. Wang, and L. Zhang,                  modeling for the reciprocal generation of 3d human motions and texts,”
+     “Motion-x: A large-scale 3d expressive whole-body human motion dataset,”          in Computer Vision–ECCV 2022: 17th European Conference, Tel Aviv,
+     Advances in Neural Information Processing Systems, vol. 36, 2024.                 Israel, October 23–27, 2022, Proceedings, Part XXXV. Springer, 2022,
+[39] J. Devlin, M.-W. Chang, K. Lee, and K. Toutanova, “Bert: Pre-training             pp. 580–597.
+     of deep bidirectional transformers for language understanding,” 2018.        [64] A. Radford, J. W. Kim, C. Hallacy, A. Ramesh, G. Goh, S. Agarwal,
+[40] A. Radford, K. Narasimhan, T. Salimans, I. Sutskever et al., “Improving           G. Sastry, A. Askell, P. Mishkin, J. Clark et al., “Learning transferable
+     language understanding by generative pre-training,” 2018.                         visual models from natural language supervision,” in International
+[41] A. Radford, J. Wu, R. Child, D. Luan, D. Amodei, and I. Sutskever,                conference on machine learning. PMLR, 2021, pp. 8748–8763.
+     “Language models are unsupervised multitask learners,” 2019.                 [65] Q. Wu, Y. Zhao, Y. Wang, Y.-W. Tai, and C.-K. Tang, “Motionllm:
+[42] T. Brown, B. Mann, N. Ryder, M. Subbiah, J. D. Kaplan, P. Dhariwal,               Multimodal motion-language learning with large language models,” arXiv
+     A. Neelakantan, P. Shyam, G. Sastry, A. Askell et al., “Language models           preprint arXiv:2405.17013, 2024.
+     are few-shot learners,” Advances in neural information processing systems,   [66] A. Van Den Oord, O. Vinyals et al., “Neural discrete representation
+     vol. 33, pp. 1877–1901, 2020.                                                     learning,” Advances in neural information processing systems, vol. 30,
+[43] OpenAI, “Gpt-4 technical report,” 2023.                                           2017.
+[44] H. Touvron, T. Lavril, G. Izacard, X. Martinet, M.-A. Lachaux, T. Lacroix,   [67] S. Lu, L.-H. Chen, A. Zeng, J. Lin, R. Zhang, L. Zhang, and H.-Y.
+     B. Rozière, N. Goyal, E. Hambro, F. Azhar et al., “Llama: Open and               Shum, “Humantomato: Text-aligned whole-body motion generation,”
+     efficient foundation language models,” 2023.                                      arXiv preprint arXiv:2310.12978, 2023.
+[45] C. Raffel, N. Shazeer, A. Roberts, K. Lee, S. Narang, M. Matena,             [68] M. Zhang, Z. Cai, L. Pan, F. Hong, X. Guo, L. Yang, and Z. Liu,
+     Y. Zhou, W. Li, and P. J. Liu, “Exploring the limits of transfer learning         “Motiondiffuse: Text-driven human motion generation with diffusion
+     with a unified text-to-text transformer,” The Journal of Machine Learning         model,” IEEE Transactions on Pattern Analysis and Machine Intelligence,
+     Research, vol. 21, no. 1, pp. 5485–5551, 2020.                                    2024.
+[46] B. Lester, R. Al-Rfou, and N. Constant, “The power of scale for parameter-   [69] G. Tevet, S. Raab, B. Gordon, Y. Shafir, D. Cohen-or, and
+     efficient prompt tuning,” 2021.                                                   A. H. Bermano, “Human motion diffusion model,” in The Eleventh
+JOURNAL OF LATEX CLASS FILES, VOL. 14, NO. 8, AUGUST 2021                                                                                                 14
+
+
+
+     International Conference on Learning Representations, 2023. [Online].                              Yaqi Zhang received her master’s degree from the
+     Available: https://openreview.net/forum?id=SJ1kSyO2jwu                                             University of Science and Technology of China
+[70] C. Zhong, L. Hu, Z. Zhang, and S. Xia, “Attt2m: Text-driven human                                  and bachelor’s degree from Xidian University. Her
+     motion generation with multi-perspective attention mechanism,” in                                  research focuses on 3D human pose and AIGC.
+     Proceedings of the IEEE/CVF International Conference on Computer
+     Vision, 2023, pp. 509–519.
+[71] P. Jin, Y. Wu, Y. Fan, Z. Sun, W. Yang, and L. Yuan, “Act as you
+     wish: Fine-grained control of motion diffusion model with hierarchical
+     semantic graphs,” Advances in Neural Information Processing Systems,
+     vol. 36, 2024.
+[72] N. Mahmood, N. Ghorbani, N. F. Troje, G. Pons-Moll, and M. J. Black,                               Wanli Ouyang (Senior Member, IEEE) received
+     “Amass: Archive of motion capture as surface shapes,” in Proceedings of                            the Ph.D. degree from the Department of Electronic
+     the IEEE/CVF international conference on computer vision, 2019, pp.                                Engineering, The Chinese University of Hong Kong.
+     5442–5451.                                                                                         His research interests include deep learning and its
+[73] C. Mandery, Ö. Terlemez, M. Do, N. Vahrenkamp, and T. Asfour, “The kit                            application to computer vision and pattern recogni-
+     whole-body human motion database,” in 2015 International Conference                                tion, image, and video processing. He was awarded
+     on Advanced Robotics (ICAR). IEEE, 2015, pp. 329–336.                                              the Australian Research Council Future Fellowship,
+[74] C. G. Lab, “Cmu graphics lab motion capture database,” http://mocap.cs.                            meaning that he will be exempted from teaching and
+     cmu.edu/, 2000.                                                                                    can focus on research in the next four years.
+[75] G. Pavlakos, V. Choutas, N. Ghorbani, T. Bolkart, A. A. Osman,
+     D. Tzionas, and M. J. Black, “Expressive body capture: 3d hands, face,
+     and body from a single image,” in Proceedings of the IEEE Conference                               Jile Jiao received the B.S. degree from Central South
+     on Computer Vision and Pattern recognition, 2019, pp. 10 975–10 985.                               University, Changsha, China, in 2009 and the Ph.D.
+[76] I. Loshchilov and F. Hutter, “Decoupled weight decay regularization,”                              degree in control theory and control engineering from
+     2017.                                                                                              the Institute of Automation, Chinese Academy of
+[77] S. Bai, K. Chen, X. Liu, J. Wang, W. Ge, S. Song, K. Dang, P. Wang,                                Sciences, Beijing, China, in 2014. She is currently
+     S. Wang, J. Tang et al., “Qwen2. 5-vl technical report,” arXiv preprint                            an algorithm engineer in Shenxiang Department,
+     arXiv:2502.13923, 2025.                                                                            Alibaba Group, Beijing, China. She works closely
+[78] K. Papineni, S. Roukos, T. Ward, and W.-J. Zhu, “Bleu: a method for                                with Tsinghua University. Her research interests
+     automatic evaluation of machine translation,” in Proceedings of the 40th                           include computer vision, person reid, multimodal
+     annual meeting of the Association for Computational Linguistics, 2002,                             large language models and their application in retail
+     pp. 311–318.                                                                                       industry.
+[79] T. Zhang, V. Kishore, and F. Wu, “Bertscore: Evaluating text generation
+     with bert,” arXiv preprint arXiv:1904.09675, 2019.                                                 Xuetao Feng received the B.E. degree from the
+[80] H. Ma, J. Li, R. Hosseini, M. Tomizuka, and C. Choi, “Multi-objective                              Department of Automation, Tsinghua University,
+     diverse human motion prediction with knowledge distillation,” in                                   Beijing, China, in 2004, and the Ph.D. degree in
+     Proceedings of the IEEE Conference on Computer Vision and Pattern                                  computer application technology from the Institute of
+     Recognition, 2022, pp. 8161–8171.                                                                  Automation, Chinese Academy of Sciences, Beijing,
+[81] Y. Yuan and K. Kitani, “Dlow: Diversifying latent flows for diverse human                          in 2009. He is currently an algorithm engineer in
+     motion prediction,” in Computer Vision–ECCV 2020: 16th European                                    Intime Department, Alibaba Group, Beijing, China.
+     Conference, Glasgow, UK, August 23–28, 2020, Proceedings, Part IX                                  He works closely with Tsinghua University. His
+     16. Springer, 2020, pp. 346–364.                                                                   research interests include computer vision, image
+[82] Y. Zhang, M. J. Black, and S. Tang, “We are more than our joints:                                  processing, video understanding and their application
+     Predicting how 3d bodies move,” in Proceedings of the IEEE Conference                              in e-commerce and retail industry.
+     on Computer Vision and Pattern Recognition, 2021, pp. 3372–3382.
+                                                                                                       Dan Xu is an Assistant Professor in the Department
+                                                                                                       of Computer Science and Engineering at HKUST.
+                    VII. B IOGRAPHY S ECTION                                                           He was a Postdoctoral Research Fellow in Visual
+                                                                                                       Geometry Group (VGG) at the University of Oxford.
+                                                                                                       He was a Ph.D. in the Department of Computer
+                                                                                                       Science at the University of Trento. He was also a
+                                                                                                       student research assistant in MM Lab at the Chinese
+                                                                                                       University of Hong Kong. He received the best
+                                                                                                       scientific paper award at ICPR 2016, and a Best
+                         Yuan Wang received the B.S. degree from Harbin                                Paper Nominee at ACM MM 2018. He served as Area
+                         Institute of Technology, Harbin, China and the Master                         Chair/Senior PC at multiple main-stream conferences
+                         degree from the Institute of Automation, Chinese        including NeurIPS, CVPR, ECCV, AAAI, ACM Multimedia, WACV, and
+                         Academy of Sciences (CASIA). He is currently            ACCV.
+                         working toward the Ph.D. degree in the Department of
+                         Electronic Engineering, Tsinghua University, Beijing,                          Shixiang Tang received the Ph.D degree from the
+                         China. His research interests lie in 3D Computer                               University of Sydney. Prior to that, he received the
+                         Vision and Embodied Artificial Intelligence.                                   Master of Philosophy from the Chinese University of
+                                                                                                        Hong Kong in 2018 and Bachelor of Science from
+                                                                                                        Fudan University. His interests lie in machine learn-
+                                                                                                        ing and computer vision, especially self-supervised
+                                                                                                        learning and foundation models. He has published
+                                                                                                        about 10 papers in top-tier conferences and journals,
+                                                                                                        e.g., CVPR, ICCV, NeurIPS, Nature Physics and
+                         Di Huang is a Ph.D. student at the University                                  Nature Materials.
+                         of Sydney. He previously earned his Bachelor’s
+                         degree in Biosystems from Zhejiang University. His
+                         research interests include 3D vision, particularly
+                         in 3D generation and representation learning. He
+                         has published approximately 10 papers in top-tier
+                         conferences and journals, including CVPR, ICCV,
+                         NeurIPS, and ICML.
+

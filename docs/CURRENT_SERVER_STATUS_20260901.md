@@ -4,13 +4,14 @@
 
 ## 已确认完整
 
-- 活动 Git 仓库位于 `/wangbenyou-sulongjie/caimeng/qwen-codebase`。
+- 活动 Git 仓库位于 `/wangbenyou-sulongjie/caimeng/qwen-codebase`，Python 工程文件直接位于仓库根目录，网页位于 `motionllm-page/` 子目录。
 - 规范数据位于 `/wangbenyou-sulongjie/caimeng/dataset`。
 - Qwen 数据组织软链接共 10,524 个，断链 0。
 - 最新网页包含 3 个 HTML 页面，检查 103 个本地目标，失败 0。
 - 数据审计归档可以正常列出和解压。
 - 原始 `/wangbenyou-sulongjie/qwen-vl-finetune` 未被覆盖。
 - 当前代码模块、使用文档、架构文档和 GPU smoke 证据均已保留。
+- monitor 已移出活动仓库并保存在 `history/archive/monitor-20260901/`。
 
 ## 当前服务器测试
 

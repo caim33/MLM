@@ -21,9 +21,11 @@ Thumbs.db
 .env
 .env.*
 !.env.example
+dev_env_connection.txt
 *.pem
 *.key
 known_hosts
+/.codex_tmp/
 
 # Runtime outputs
 *.log
@@ -35,6 +37,7 @@ known_hosts
 /predictions/
 /checkpoints/
 /artifacts/
+/data/
 
 # Large assets that belong on the server, not in Git
 /dataset/
@@ -46,6 +49,9 @@ known_hosts
 *.safetensors
 *.npy
 *.npz
+*.mp4
+*.avi
+*.mov
 
 # Build artifacts
 build/

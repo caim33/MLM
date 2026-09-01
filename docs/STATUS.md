@@ -1,0 +1,68 @@
+# 当前状态
+
+更新日期：2026-08-30
+
+## 已完成
+
+- 从原 `/wangbenyou-sulongjie/qwen-vl-finetune` 的 live working tree 与可追溯
+  Git 历史中核验来源；旧仓库保持不动。
+- 恢复并重写 `motionllm.data`：严格 JSONL、路径 confinement、canonical
+  sample、消息适配、identity-preserving dataset 与 logical/physical collation。
+- 恢复 `motion_eval.data`：严格 JSON、固定 500 条 benchmark、冻结 receipt、
+  leakage 与 pretrained index 校验。
+- 建立 `motionllm.qwen` 正式适配层；顶层 `qwenvl.data` 只保留兼容 facade。
+- 清除活动 Python 中的个人硬编码路径和 package-local `Mean.npy/Std.npy`
+  回退；normalization 和 motion placeholder token 均显式绑定。
+- Motion + Video 与 video-only 推理的 `--help` 可在无 CUDA 情况使用。
+- 已用历史 merged checkpoint、真实 MotionX 视频与 motion、显式 Mean/Std 在
+  A100 上完成 1 条端到端 Motion + Video 推理，进程返回 0；详细证据见
+  `GPU_SMOKE_20260830.md`。
+- README、架构、工程要求、开发、迁移、来源和使用手册已按新结构重写。
+- wheel 已包含 `motionllm`、`motion_eval`、`qwenvl`、`models` 与 `rubric_rl`，
+  并完成仓库外 import 检查。
+
+## 本机验证结果
+
+环境：Windows、Python 3.12、Torch 2.13.0、Transformers 4.57.3、
+PEFT 0.18.0，无 CUDA。
+
+| 层级 | 结果 |
+|---|---:|
+| unit + contract | 729 passed，1 warning |
+| integration | 147 passed，2 skipped，1 warning |
+| stress | 78 passed |
+| 合计 | **954 passed，2 skipped，2 warnings** |
+
+另外：compileall、secret scan、wheel build/out-of-tree import、
+`motion_eval --help`、两个 Qwen 推理帮助入口与 Full/LoRA 帮助入口均通过。
+两个 skipped 是 Windows 主机没有 Bash 的 shell-facade 集成用例。
+
+服务器已部署到 `/wangbenyou-sulongjie/caimeng/qwen-codebase`。服务器基础
+Python 3.10 与 CUDA Torch 2.4 保持不动；由于系统缺 `python3-venv/ensurepip`，
+Qwen 依赖改为安装在独立的
+`/wangbenyou-sulongjie/caimeng/runtime/qwen-codebase-clean-py310`。该运行目录现有
+Transformers 4.57.3、PEFT 0.18.0、Accelerate 1.14.0、PyAV 12.3.0，并使用
+隔离的 protobuf 3.20.3 兼容服务器旧 ONNX。推理、Full SFT、LoRA SFT 的
+`--help` 均返回 0；本次 GPU 兼容修复的服务器定向回归为 **39 passed**。
+GPU 0 上另有受管理的 `caimeng-qwen-clean` keepalive；它绑定 GPU UUID、留有
+heartbeat，并与同卡正式 finetune/eval 互斥。
+
+## 尚未验证
+
+- 真实 GPU smoke 目前只有 1 条功能样本：目标为 D，预测为 A；它只证明代码链路
+  可运行，不证明精度，也不等于正式 500 条评测。
+- 尚未执行新的 CUDA Full/LoRA SFT 或 GRPO 训练。
+- formal Qwen SFT 仍因缺少 external-HMAC 绑定的 pre-spawn snapshot 与
+  verified in-memory worker bundle 而 fail-closed（exit 78）。
+- 统一控制器的 production backend 仍受各自 verifier/gate 约束；本次 CPU
+  回归不等于 15 模型 production release。
+- Qwen2/Qwen2.5 visual RoPE 与 legacy image-only 数据暂时 fail-closed；当前
+  维护并验证的是 Qwen3-VL Motion + Video 数据路径。
+- Full/LoRA SFT、`models/qwen3_vl_motion.py` 与部分 Rubric 代码仍是顶层过渡
+  实现，尚未全部下沉到 `src/`；模块归属已经标明，但结构迁移未宣称完成。
+
+## 历史数字说明
+
+旧 refactor 报告中的 `922 passed, 14 skipped, 2 warnings` 仅作为历史证据。
+本页的 `954 passed, 2 skipped, 2 warnings` 才是 clean codebase 在上述本机
+环境中的当前分层复跑结果；GPU 实跑证据另见 `GPU_SMOKE_20260830.md`。

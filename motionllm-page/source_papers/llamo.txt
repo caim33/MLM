@@ -1,0 +1,525 @@
+                                                                                    Human Motion Instruction Tuning
+
+
+                                                                 Lei Li1, 2, *, † , Sen Jia1, * , Jianhao Wang3 , Zhongyu Jiang1 , Feng Zhou4 ,
+
+                                                                       Ju Dai5 , Tianfang Zhang6 , Zongkai Wu1 , Jenq-Neng Hwang1
+
+                                                                      Abstract
+arXiv:2411.16805v4 [cs.AI] 26 Mar 2025
+
+
+
+
+                                             This paper presents LLaMo (Large Language and Hu-
+                                         man Motion Assistant), a multimodal framework for hu-
+                                         man motion instruction tuning. In contrast to conventional
+                                         instruction-tuning approaches that convert non-linguistic
+                                         inputs, such as video or motion sequences, into language
+                                         tokens, LLaMo retains motion in its native form for instruc-
+                                         tion tuning. This method preserves motion-specific details
+                                         that are often diminished in tokenization, thereby improv-
+                                         ing the model’s ability to interpret complex human behav-
+                                         iors. By processing both video and motion data alongside
+                                         textual inputs, LLaMo enables a flexible, human-centric
+                                         analysis. Experimental evaluations across high-complexity
+                                         domains, including human behaviors and professional ac-                  Figure 1. A comparison of MotionLLM [1], MotionGPT [2],
+                                         tivities, indicate that LLaMo effectively captures domain-               and LLaMo highlights LLaMo’s motion-specific capabilities.
+                                         specific knowledge, enhancing comprehension and predic-                  Equipped with a Motion Enhancer and Cross Talker module to
+                                         tion in motion-intensive scenarios. We hope LLaMo offers a               align motion and text, LLaMo supports both video and motion in-
+                                         foundation for future multimodal AI systems with broad ap-               puts, enabling text-aware, fine-grained motion analysis.
+                                         plications, from sports analytics to behavioral prediction.
+                                                                                                                  applications continue to expand, developing models that can
+                                                                                                                  leverage the unique characteristics of motion data becomes
+                                         1. Introduction                                                          increasingly crucial for achieving robust, context-aware be-
+                                         Understanding human motion is a central challenge in mul-                havior analysis.
+                                         timodal AI, impacting numerous fields such as digital hu-                    Recently, large language models (LLMs) have shown
+                                         man, human-computer interaction, sports analytics, health-               promise in motion analysis, leveraging their capacity to
+                                         care, and virtual human modeling [3–6]. Motion data,                     model temporal dependencies across multimodal data [1,
+                                         which captures skeletal movements and body dynamics,                     11]. State-of-the-art models, such as MotionGPT [12]
+                                         provides a structured, appearance-invariant representation               and MotionLLM [1], treat motion data as a multimodal
+                                         of human actions, concentrating on the essential movement                extension, encoding it as discrete tokens or translating it
+                                         patterns while excluding irrelevant visual details [7]. This             into language-like representations for processing by LLMs.
+                                         data has emerged as a privacy-conscious alternative to vi-               These models have yielded notable results in motion under-
+                                         sual inputs, offering finer control over action recognition              standing and recognition tasks, illustrating the adaptability
+                                         and facilitating analysis in applications ranging from digital           of language models to non-linguistic data. However, their
+                                         human avatars to behavioral monitoring in healthcare [8–                 reliance on tokenization or textual conversion can limit the
+                                         10]. As digital human representations and motion-centric                 richness of the motion representation, abstracting away crit-
+                                                                                                                  ical spatial-temporal details essential for high-fidelity hu-
+                                             ∗ These authors contributed equally to this work.
+                                                                                                                  man activity recognition.
+                                             † Corresponding Author. (lilei@di.ku.dk)
+                                         1 University of Washington 2 University of Copenhagen 3 Xi’an Jiaotong       Despite recent advancements, notable challenges remain
+                                         University 4 North China University of Technology 5 Peng Cheng Labo-     in current approaches to motion analysis using LLMs. First,
+                                         ratory 6 Tsinghua University                                             encoding motion data into language tokens, as implemented
+in models such as MotionGPT, relies on a quantization pro-        follows:
+cess that may obscure critical fine-grained motion informa-       • We introduce LLaMo, which treats motion data as an in-
+tion, potentially limiting the model’s capacity to accurately       dependent modality within LLMs, preserving essential
+capture detailed spatial-temporal dynamics [13, 14]. The            motion-specific details for robust analysis.
+common approach of translating motion data into text to-          • We propose Cross Talker, a text-guided mechanism
+kens further contributes to this issue, often resulting in the      that dynamically focuses on and aggregates key motion
+loss of essential motion-specific nuances that are critical for     frames features, optimizing computational efficiency and
+in-depth behavior interpretation [11, 15]. This translation         enabling the model to pick relevant motion features.
+process poses considerable challenges in understanding the        • LLaMo’s architecture supports the direct input of both
+intricate details of human movement, impeding the model’s           raw motion and video data, providing a generalized
+ability to achieve spatial and physical comprehension of hu-        framework for human-centric analysis across diverse ap-
+man actions. Moreover, motion data inherently contains 3D           plications, such as sports analytics, healthcare, and be-
+structural information and insights into connected human            havioral monitoring.
+behaviors, which are often difficult to fully capture when
+relying solely on language tokens, as this representation         2. Related Work
+can overlook the underlying spatial dependencies crucial to
+modeling human motion accurately.                                 2.1. Human-Centric Multimodal Representation
+    In addition, existing methods frequently treat video and      Multimodal representation learning is integral to human-
+motion data as isolated modalities, overlooking the poten-        centric analysis, especially for applications requiring
+tial benefits of a complementary, integrated approach [16].       spatial-temporal reasoning to decode complex behav-
+Processing these data types independently neglects the rich       iors [20–22]. Recent advances, such as Video-LLaVA, have
+environmental context and interaction cues provided by            made significant strides by embedding visual data from im-
+video inputs, which are crucial for accurately interpreting       ages and videos into a shared linguistic feature space, en-
+complex human behaviors [5, 8]. This separation limits the        abling sophisticated visual reasoning for behavioral analy-
+capacity for a holistic understanding of human motion, par-       sis tasks [20, 23]. Despite these achievements, many current
+ticularly in scenarios where context, spatial relations, and      models are optimized primarily for static images or discrete
+dynamic interactions play essential roles in behavior anal-       video frames, limiting their effectiveness in sequential, dy-
+ysis. Furthermore, video-based approaches, while poten-           namic scenarios where understanding progression and con-
+tially more informative, are computationally intensive, pos-      tinuity in motion is crucial [9, 21, 24]. Privacy concerns
+ing significant constraints for large-scale or real-time ap-      further challenge the adoption of video-based methods in
+plications, which limits their feasibility in practical motion    sensitive domains; thus, researchers are exploring motion
+analysis systems.                                                 data as a privacy-conscious alternative, enabling analysis
+    In response to these challenges, we propose LLaMo,            focused on human actions without revealing identifiable vi-
+a framework designed to integrate motion data as a dis-           sual information [25–27]. By combining visual and motion
+tinct modality within LLMs without translating it into tex-       data, emerging multimodal frameworks hold promise for
+tual intermediaries. LLaMo incorporates a Motion Es-              more comprehensive, privacy-aware human behavior anal-
+timator and an Enhancer to facilitate the direct input            ysis, leveraging the strengths of both modalities for adapt-
+of motion or/and video data, thereby offering a unified,          ability and depth across applications.
+human-centric analysis pipeline. The framework also in-
+troduces a Cross Talker module, which dynamically aligns          2.2. Human Motion Understanding
+the motion and text features, allowing for text-aware, fine-      Human motion understanding has traditionally relied on
+grained motion representations. This approach retains the         skeletal data represented as sequences of joint keypoints to
+original spatial-temporal characteristics of the motion data,     capture movement while preserving user privacy [13, 28–
+providing a more precise understanding of human actions           30]. Early models like 2s-AGCN [31] and more recent
+and enabling high-resolution behavior analysis in motion-         transformer-based methods, such as MotionCLIP [2], have
+intensive contexts [17, 18].                                      achieved success in tasks like activity recognition, cap-
+    Through extensive evaluations on benchmarks such              tioning, and behavior analysis by mapping motion data to
+as MoVid-Bench [1] and BABEL-QA [19], we demon-                   language tokens, effectively capturing structural aspects of
+strate that LLaMo achieves state-of-the-art performance in        movement. However, these methods often lack environ-
+motion-centric human activity recognition [11, 15]. These         mental context, which is crucial for nuanced interpreta-
+results underscore LLaMo’s potential to advance multi-            tions in real-world applications, as similar movements can
+modal AI, providing a robust foundation for human behav-          convey different meanings across varied scenarios [24, 32,
+ior understanding. Our contributions can be summarized as         33]. To address this limitation, recent frameworks inte-
+grate motion and visual data, allowing models to general-           Here, FV ∈ RT ×H and FM ∈ RT ×H represent the ex-
+ize across diverse, dynamic environments [34–36]. This fu-          tracted feature sets for the video and motion data, respec-
+sion of skeletal data with video-provided context has shown         tively, where T is the sequence length and H denotes the
+promise in applications like sports and professional activity       feature dimension.
+analysis, where contextual cues are essential. Additionally,            The feature enhancement module then aligns and fuses
+skeletal-based data remains valuable in privacy-sensitive           these modality-specific features. By using the motion fea-
+applications, such as healthcare and security, where it al-         tures FM as queries, this module selectively extracts se-
+lows for robust analysis without compromising personal              mantically relevant information from the video features FV .
+identity.                                                           This alignment and fusion process allows the motion fea-
+                                                                    tures to be enriched with contextual information from the
+3. Methods                                                          video, producing refined, contextually enriched representa-
+The LLaMo framework is composed of three primary mod-               tions that enhance the model’s understanding of nuanced
+ules to effectively process and integrate video, motion data        human behaviors. For the detailed design refer to the Ap-
+and text. An overview of this pipeline is provided in Fig-          pendix.
+ure 2. The architecture comprises the following compo-                  First, the video features and motion features will conduct
+nents:                                                              self-attention operations respectively to get their augmented
+1. Multimodal Feature Extraction Module: This mod-                  features FV′ and FM   ′
+                                                                                            . This allows the video and motion to
+   ule independently encodes the video or motion inputs,            initially capture the dependencies on their respective time
+   which makes LLaMo is a general human motion assis-               steps. Then, in order to enrich the motion data features with
+   tant with video input or motion input. Then the Motion           semantic information from the video, we subtly design a
+   features are enhanced by distilling valuable representa-         cross-attention block where augmented motion features as
+   tions in video.                                                  the query to extract valid semantic information in the video
+2. Cross Talker: Here, the enhanced motion features are             features. Finally, the selected video semantic representation
+   aggregated in a text-guided manner and aligned with              and motion features are connected by residuals followed by
+   text within a shared semantic space, allowing the natural        a feed-forward neural network to obtain the enhanced mo-
+   feature fusion between motion and text, which provides           tion features F˜M
+   fine-grained inputs for LLM.
+3. Behavior Generation Module: Using the aggregated                 3.2. Cross Talker Module
+   and text-aligned motion features, along with the text rep-
+   resentations, this module generates a contextually aware         Given the enhanced motion features F̃M from the feature
+   textual description of the observed human behavior.              enhancement module, directly feeding the entire sequence
+                                                                    of motion frames into the Large Language Model (LLM)
+3.1. Enhanced motion Feature Extraction Module                      incurs significant computational costs and may lead to sub-
+The enhanced motion feature extraction module consists of           optimal performance. This limitation arises from the self-
+four primary components: the motion estimator, followed             attention mechanism in transformers, which has a computa-
+by the motion and video encoders, and the feature enhance-          tional complexity of O(L2 ), where L denotes the sequence
+ment module. The motion estimator addresses scenarios               length. When incorporating both motion and text, the se-
+where motion data may be unavailable by estimating mo-              quence length becomes L = LT + T , where LT is the num-
+tion information directly from video frames. The motion             ber of text tokens and T is the number of motion frames.
+and video encoders then independently process the motion            As T increases, the quadratic growth in computational cost
+and video data, encoding them into their respective fea-            becomes prohibitive, leading to complexity proportional to
+ture spaces. This approach allows the system to leverage            (LT + T )2 .
+complementary information from both modalities, creating               Furthermore, computing attention over long sequences
+a richer representation of human behavior.                          can dilute attention weights, making it challenging for the
+    Given a sequence of video frames V = {v1 , v2 , . . . , vT },   model to focus on essential parts of the sequence and effec-
+the video encoder fv (·) extracts a set of visual features:         tively capture long-range dependencies. Furthermore, the
+                                                                    motion features are not well aligned with text either. To
+      FV = fv (V ) = {fv (v1 ), fv (v2 ), . . . , fv (vT )}.        address these issues, we propose the Cross Talker Module,
+Simultaneously, the motion encoder fm (·) processes the             which selectively distills key motion frames—referred to as
+motion data M = {m1 , m2 , . . . , mT } to generate motion-         viewpoint frames—based on their relevance to the text con-
+specific features:                                                  text, as well as aligning the motion features with the text.
+                                                                    An overview of the Cross Talker Module is shown in Fig-
+   FM = fm (M ) = {fm (m1 ), fm (m2 ), . . . , fm (mT )}.           ure 3.
+Figure 2. Overview of the LLaMo framework. It includes three main modules: (1) Multimodal Feature Extraction for encoding video
+and motion data; (2) Cross Talker for aligning and fusing motion and text features; and (3) Behavior Generation Module to produce text
+descriptions of human behavior based on integrated features.
+
+
+                                                                      features act as queries and motion features as keys and val-
+                                                                      ues:                                           !
+                                                                                                 FT WQ (F̃M WK )⊤
+                                                                                 A = Softmax             √             ,       (1)
+                                                                                                           d
+                                                                      where WQ , WK ∈ RH×d are learnable projection matrices,
+                                                                      and d is the dimensionality of the queries and keys. The
+                                                                      resulting attention matrix A ∈ RLT ×T contains attention
+                                                                      weights, with each element Ai,j indicating the relevance be-
+                                                                      tween the i-th text token and the j-th motion frame.
+                                                                         To determine the importance of each motion frame, we
+                                                                      aggregate attention weights across all text tokens using max
+                                                                      pooling:
+
+                                                                                  sj =     max        Ai,j ,   j = 1, . . . , T.   (2)
+                                                                                         i=1,...,LT
+
+                                                                      The resulting scores sj represent the significance of each
+                                                                      frame with respect to the text context. We then select the
+                                                                      top K frames with the highest relevance scores as viewpoint
+                                                                      frames, reducing the effective sequence length from T to K.
+Figure 3. Overview of the Cross Talker Module, which selects key
+                                                                      This reduction in sequence length lowers the self-attention
+frames based on text guidance and fuses them with text features       complexity from O((LT + T )2 ) to O((LT + K)2 ), which
+for enhanced analysis.                                                is computationally efficient when K ≪ T .
+
+                                                                      Adaptive Contextual Feature Aggregation For each se-
+Language-Guided Frame Selection Given the enhanced                    lected viewpoint frame, we enrich its representation by ag-
+motion features F̃M ∈ RT ×H and text embeddings FT ∈                  gregating both local and global contexts. An adaptive re-
+RLT ×H , we aim to identify K viewpoint frames that are               ceptive field size rk is predicted for each viewpoint frame
+most relevant to the textual context. This selection is               k using a receptive field regression module. The module
+achieved through a cross-attention operation, where text              performs a cross-attention operation where each viewpoint
+frame serves as a query, and the unselected motion features          3.3. Behavior Generation Module
+serve as keys and values, followed by a sigmoid activation
+                                                                     The Behavior Generation Module leverages the fused fea-
+to estimate rk . Based on rk , we define a local window Wk
+                                                                     tures Ffusion to generate a textual description Y that encap-
+around frame k:
+                                                                     sulates the observed human behavior. This module utilizes a
+                                                                     language model h(·) to transform Ffusion into a semantically
+               Wk = {j | |j − k| ≤ rk × T }.                  (3)
+                                                                     coherent and contextually relevant output sequence:
+
+   Within this window, we apply local attention to capture                           Y = h(Ffusion ) = {y1 , y2 , . . . , yL },     (9)
+fine-grained details:
+                                                                     where yt denotes the token generated at the t-th time step,
+Flocal (k) = F̃M (k)+Attention(F̃M (k), F̃M (Wk ), F̃M (Wk )),       and L is the length of the generated description. The prob-
+                                                         (4)         ability of generating each token yt is given by:
+where F̃M (Wk ) denotes the motion features within the local                   p(yt | y1:t−1 , Ffusion ) = Softmax(Wo ht ),        (10)
+window around frame k.
+   To incorporate global context, we partition the full mo-          where ht represents the hidden state of the language model
+tion sequence into N segments and compute segment-level              at time t, and Wo is an output projection matrix. The hid-
+features via average pooling:                                        den state ht is derived from the model’s internal mech-
+                                                                     anisms, which integrate attention over the input features
+                     seg
+                    FM   = {F̄M (n)}N
+                                    n=1 ,                     (5)    and previously generated tokens. This autoregressive ap-
+                                                                     proach enables LLaMo to produce detailed and contextually
+where the segment size is controlled by the hyperparameter           aligned descriptions that incorporate nuanced information
+Sn . We then apply global attention:                                 from both motion and text modalities.
+                                                                         By iteratively generating tokens based on the fused fea-
+                                                    seg    seg       tures and preceding context, the Behavior Generation Mod-
+  Fglobal (k) = Flocal (k) + Attention(Flocal (k), FM   , FM   ).
+                                                               (6)   ule constructs a meaningful and comprehensive narrative of
+The final representation for each viewpoint frame is ob-             human activity, grounded in the multimodal input data.
+tained by concatenating local and global features:
+                                                                     3.4. Training Objective
+                                                    2H               To train LLaMo, we finetune a pretrained language model
+           FM (k) = [Flocal (k); Fglobal (k)] ∈ R        ,    (7)
+                                                                     using supervised learning, guiding it to generate accurate
+allowing the model to capture both fine-grained motion de-           and contextually relevant descriptions based on the input
+tails and broader contextual information.                            motion, video, and text features. Both the motion and video
+                                                                     encoders remain frozen during training, focusing the op-
+                                                                     timization on the language model’s alignment with multi-
+Bidirectional Cross-Modal Fusion To integrate the en-                modal inputs. The training objective minimizes the discrep-
+hanced motion features with the text embeddings, we em-              ancy between the generated descriptions and the ground-
+ploy a bidirectional cross-attention mechanism. First, we            truth annotations in the dataset.
+update the motion features by performing a cross-attention              Given a training set of N samples, each with video
+operation, where the motion features act as queries and the          frames V (i) , motion data M (i) , and corresponding ground-
+text features serve as keys and values, and vice versa for the                                               (i) (i)            (i)
+                                                                     truth textual descriptions Ŷ (i) = {ŷ1 , ŷ2 , . . . , ŷL }, the
+text features. The updated features are then passed through          overall training objective is to minimize the negative log-
+feed-forward networks, and we concatenate the motion and             likelihood of the ground-truth tokens across all samples:
+text representations to form the input for the next stage:
+                                                                                          N L(i)
+                                                                              1 XX              (i)   (i)       (i)
+                Ffusion = [FT ; {FM (k)}k∈K ].                (8)         L=−           log p(ŷt | ŷ1:t−1 , Ffusion ),           (11)
+                                                                              N i=1 t=1
+
+   This bidirectional fusion enhances the interaction be-                      (i)
+                                                                     where Ffusion represents the fused input features for the i-
+tween motion and text, enabling a coherent, contextually                                        (i)     (i)      (i)
+grounded understanding of human behavior. By selectively             th sample. The term p(ŷt | ŷ1:t−1 , Ffusion ) denotes the
+                                                                                                             (i)
+focusing on key motion frames and integrating enriched               probability of the ground-truth token ŷt given the previous
+                                                                              (i)
+motion and text features, the Cross Talker Module reduces            tokens ŷ1:t−1 and the fused features.
+computational costs and improves the model’s ability to                 This objective ensures that the generated descriptions
+capture complex human actions.                                       are syntactically and semantically aligned with the target
+outputs, capturing the detailed aspects of human behavior       marily code motion into a codebook, which limits its rea-
+present in the video and motion inputs.                         soning ability on coiled motion data and leaves it vulnerable
+                                                                to hallucinations. Although MotionLLM provides improve-
+4. Experiments                                                  ments in understanding motion sequences, it still conducts
+                                                                translation on motion data, resulting in low accuracy on seq.
+To evaluate LLaMo, we performed experiments across              and Hall.
+datasets representing complex human behaviors and tasks,           LLaMo, in contrast, achieves superior results across
+including professional sports and cyclic action repetition      nearly all metrics on MoVid-Bench-Motion, attaining the
+counts.                                                         highest accuracy in most categories. This performance is
+4.1. Implementation Details                                     primarily attributed to its preservation of critical motion-
+                                                                specific nuances, as LLaMo processes motion data as a dis-
+Training Datasets: LLaMo was trained using a combina-           tinct modality without requiring any conversion. LLaMo
+tion of bimodal video-motion datasets and unimodal video        effectively captures the intricate details of 3D sequences as-
+or motion datasets to enable a robust understanding of both     sociated with human behaviors. Its Feature Enhancer, com-
+modalities. For video-motion data, we utilized MoVid from       bined with the Cross Talker module, enables simultaneous
+MotionLLM [1] and our custom Swing dataset containing           input of video and motion data, allowing LLaMo to selec-
+20,000 annotated videos of baseball and golf swings with        tively focus on motion frames most relevant to the text con-
+corresponding motion capture data and expert Q&A instruc-       text. This design enhances the model’s ability to capture
+tions. Motion-only datasets included HumanML3D [37]             complex patterns of human motion and improves its rea-
+and KIT-ML [3], while Mo-RepCount, a filtered subset            soning on motion-intensive tasks. Overall, LLaMo’s results
+of RepCount [38], provided high-quality repetition count        on MoVid-Bench demonstrate its effectiveness in advanc-
+videos. This multimodal data configuration ensures that         ing human behavior analysis, highlighting its potential for
+LLaMo effectively learns from both single and combined          broader applications in general motion understanding.
+modalities.
+                                                                Evaluation on Video Understanding in MoVid-Bench.
+Evaluation Datasets: LLaMo was evaluated on MoVid-              We evaluated LLaMo on the video component of the
+Bench [1] to assess both video and motion understanding         MoVid-Bench dataset to assess its capability for compre-
+capabilities, with additional tests on BABEL-QA [19] to         hensive video understanding. As presented in Table 1,
+evaluate motion-based question answering. For specific          LLaMo achieves strong performance across most metrics,
+tasks, we used Mo-RepCount to gauge motion details and          demonstrating LLaMo’s extraordinary comprehension abil-
+Swing to evaluate professional sports guidance.                 ity on videos even without motion input.
+                                                                    Compared to other models like GPT-3.5 [41], Video-
+Evaluation Metrics: For MoVid-Bench, we follow previ-           LLAVA [39], and MotionLLM [1], while LLaMo slightly
+ous LLM evaluation metrics [39] [22] [40] on accuracy and       trails behind MotionLLM in body-part awareness, LLaMo
+scores, which contains body-part awareness, sequentially,       shows significant improvements in reasoning ability and
+direction analysis, reasoning ability, and hallucination, re-   overall scores. This indicates that our model excels in un-
+spectively. BABEL-QA used the metric followed by [19],          derstanding complex video content and making accurate in-
+Mo-RepCount applied metrics such as OBO, MAE, OBZ,              ferences about human behaviors.
+and RMSE, and Swing performance was assessed on rea-                The rewarding results can be attributed to our model’s
+sonableness, coherence, pertinence, and adaptability using      powerful ability to estimate motion data accurately in video
+GPT-4 evaluations, scoring from 0 to 5.                         and align it seamlessly with video inputs. This approach
+                                                                retains the motion capture of motion data and the auxiliary
+4.2. Results                                                    information provided by video, enriching the understanding
+Evaluation on Motion Understanding in MoVid-Bench.              of dynamic scenes.
+We evaluated LLaMo’s motion understanding capabilities
+on the MoVid-Bench, focusing on five critical aspects. Both     Evaluation on BABEL-QA. We evaluated LLaMo on the
+accuracy and score metrics were used to comprehensively         BABEL-QA dataset to assess its capability to handle com-
+assess LLaMo’s performance. Table 1 provides a compar-          plex motion-based queries. As shown in Table 2, LLaMo
+ison with several baselines, including GPT-3.5 [41], Mo-        achieves the highest overall score of 0.458, outperforming
+tionGPT [2], and MotionLLM [1]. The GPT-3.5 baseline,           all baselines. It excels particularly in the Action category
+limited to textual data processing, struggles significantly     with a score of 0.525, demonstrating superior action recog-
+with motion interpretation, yielding low performance. Mo-       nition capabilities. Additionally, it achieves top scores in
+tionGPT, while capable of incorporating motion data, is pri-    temporal reasoning tasks (Before and After), indicating a
+Figure 4. Example outputs from LLaMo across human activities and professional sports, showcasing its reasoning capabilities and domain-
+specific knowledge in motion-intensive scenarios.
+
+Table 1. Expected Comparison on the MoVid-Bench. The top part of the table presents motion-related results, and the bottom part presents
+video-related results. Higher accuracy and score values indicate better performance.
+
+  MoVid-Bench-Motion           Body.                 Seq.               Dir.               Rea.            Hall.              All
+                            Acc.   Score      Acc.       Score   Acc.          Score   Acc.    Score   Acc.    Score   Acc.         Score
+  GT                       100.00    5.00    100.00      5.00    100.00        5.00    100.00   5.00   100.00   5.00   100.00       5.00
+  GPT-3.5 [41]             24.51     2.04     30.41      2.25    27.14         2.19     39.19   2.64   58.33    3.22    31.33       2.31
+  MotionGPT [2]            31.22     3.98     42.69      3.16    44.29         3.50     35.81   3.06   16.66    2.25    36.86       3.11
+  MotionLLM [1]            50.49     3.55     36.84      3.14    58.57         3.76     52.70   3.58   55.56    3.39    49.50       3.49
+  LLaMo                    59.30     4.01     44.01      3.12    60.91         3.99     58.21   3.64   61.17    3.53    55.32       3.67
+  MoVid-Bench-Video            Body.                 Seq.               Dir.               Rea.           Hull.               All
+                            Acc.   Score      Acc.       Score   Acc.          Score   Acc.    Score   Acc.   Score    Acc.         Score
+  GT                       100.00    5.00    100.00      5.00    100.00        5.00    100.00   5.00   100.00   5.00   100.00       5.00
+  GPT-3.5 [41]              2.40     1.23     1.39       1.00     4.65         1.09     5.41    1.65    0.00    0.94     3.03       1.26
+  Video-LLAVA [39]         33.53     2.76     25.46      2.72    41.86         2.84     52.97   3.28   58.83    1.89    42.53       2.70
+  MotionLLM [1]            34.13     2.93     32.87      2.92    44.18         3.14     63.20   3.55   70.59    2.30    49.00       2.97
+  LLaMo                    33.83     2.85     36.01      3.11    45.50         3.32     67.59   3.73   72.81    2.25    52.33       3.10
+
+
+
+strong understanding of temporal relationships in motion                  profession-swing, details refer to Appendix, where the
+sequences. This capability benefits from the direct inte-                 ground truth (GT) consists of answers provided by profes-
+gration of motion data as an independent modality and the                 sional coaches, serving as expert benchmarks. The evalua-
+effective text-aware motion frames extract mechanism in                   tion focuses on four key indicators: Reasonableness: Log-
+LLaMo, preserving crucial motion-specific nuances, as well                ical soundness and plausibility of the responses. Coher-
+as leading to more accurate and contextually rich interpre-               ence: Consistency and logical flow within the responses.
+tations.                                                                  Pertinence: Relevance of the answers to the specific ques-
+                                                                          tions. Adaptability: Ability to adjust responses based on
+                                                                          the stage on the athlete.
+Professional Sports Analysis. We further evaluate
+LLaMo on the challenging swing-dataset, termed as                              As presented in Table 3, LLaMo significantly outper-
+                        Table 2. Comparison on BABEL-QA dataset. Higher scores indicate better performance.
+
+  Model                    Pred. type         Overall ↑     Action ↑      Direction ↑    Body Part ↑        Before ↑   After ↑     Other ↑
+  MotionCLIP-M [41]             cls.           0.430             0.485      0.361              0.272         0.372     0.321           0.404
+  MotionCLIP-R [41]             cls.           0.420             0.489      0.310              0.250         0.398     0.314           0.387
+  MotionLLM [41]                gen.           0.436             0.517      0.354              0.154         0.427     0.368           0.529
+  LLaMo                         gen.           0.458             0.525      0.398              0.224         0.443     0.392           0.518
+
+Table 3. Performance on the profession-swing dataset across four indicators. Higher accuracy and score values indicate better performance.
+
+   Model                  Reasonableness              Coherence              Pertinence                 Adaptability             All
+                          Acc      Score             Acc    Score           Acc     Score              Acc     Score     Acc           Score
+   GT                     100            5          100              5      100           5         100          5        100            5
+   GPT-3.5 [41]          4.51          0.83         4.20           0.74     3.65        0.66       1.71        0.22       3.42          0.61
+   MotionGPT [2]         10.53         1.25        15.42           1.66    12.64         1.1       14.79       1.35      14.35          1.4
+   MotionLLM [1]         12.33         1.51        19.20           1.87    17.98        1.79       10.20       1.22      16.53          1.57
+   LLaMo                 21.10         2.11        27.10           2.71    31.81        3.12       20.22       1.98      24.80          2.48
+
+
+forms both GPT-3.5 [41] and MotionLLM [1] across all                        counts [42], on the Mo-RepCount dataset without using any
+metrics. While MotionLLM shows improvements over                            additional data. As presented in Table 4, LLaMo outper-
+GPT-3.5, with higher accuracy and scores, it still lags be-                 forms the RepNet and TransRAC across almost all metrics.
+hind LLaMo. Specifically, LLaMo achieves an overall ac-                     Since both of them are models built for loop counting tasks,
+curacy of 24.80                                                             the effect of our model on this task is convincing, which
+   The superior performance of LLaMo can be attributed                      shows that LLaMo is also competent in capturing the de-
+to the design of the Cross Talker module, which enables                     tails of the motion and videos.
+language-guided frame selection to capture complex motion                       While LLaMo did not outperform the specialized count-
+relationships inherent in professional swings. This allows                  ing models EScounts and poseRAC on many metrics, it
+LLaMo to effectively model intricate motion patterns and                    excelled on the OBZ metric, demonstrating an unmatched
+generate responses that are more reasonable, coherent, per-                 ability to capture fine-grained motion details and spatio-
+tinent, and adaptable, closely aligning with the expert-level               temporal relationships. These results confirm LLaMo’s
+insights provided by professional coaches.                                  strong potential in motion and video analysis, underscoring
+   In contrast, while MotionLLM demonstrates certain                        its suitability for detail-oriented tasks and applications.
+strengths over MotionGPT—such as better pertinence and
+coherence. It lacks the advanced motion understanding ca-
+pabilities of LLaMo, lagging behind LLaMo distinctly.                       5. Conclusion
+Table 4. Motion and video details capture evaluation on Mo-                 We introduce LLaMo, a novel framework that integrates
+RepCount                                                                    motion data directly into large language models, thereby en-
+                                                                            hancing multimodal understanding. By unifying text, video,
+     Model              OBO        MAE         OBZ        RMSE              and motion data in an architecture fine-tuned for human mo-
+     EScounts [42]      0.397      0.291       0.198      5.58              tion instruction, LLaMo achieves notable progress in behav-
+     PoseRAC [43]       0.382      0.312       0.204      5.95              ior comprehension, motion-focused captioning, and interac-
+     TransRAC [38]      0.276      0.444       0.105      8.56              tive Q&A, capturing the fine-grained motion details vital for
+     RepNet [44]        0.009      /           /          /                 precise, context-aware insights. Experimental results, espe-
+     LLaMo              0.389      0.324       0.222      6.15              cially in professional sports analysis, demonstrate LLaMo’s
+                                                                            capacity to interpret complex human motion with accuracy.
+                                                                            Future work will extend LLaMo to a broad range of do-
+                                                                            mains where detailed motion analysis and multimodal un-
+Evaluation on Mo-RepCount. We evaluated LLaMo on                            derstanding are essential. The main challenges lie in refin-
+the Mo-RepCount dataset to assess its ability to capture                    ing cross-modal integration techniques and improving effi-
+fine-grained motion details and complex temporal features                   ciency for real-time applications, thus broadening LLaMo’s
+required for accurate repetition counting. For a fair com-                  potential in human-centered AI. We hope our work will spur
+parison, we trained all state-of-the-art models, including                  further exploration into more advanced human-centric mul-
+RepNet [44], TransRAC [38], PoseRAC [43] and ES-                            timodal models.
+Acknowledgement                                                           sentations for video captioning. IEEE Transactions on Mul-
+                                                                          timedia (TMM), 2023. 2
+This work was supported in part by the Pioneer Centre for            [14] Chuan Guo, Xinxin Zuo, Sen Wang, and Li Cheng. Tm2t:
+AI, DNRF grant number P1.                                                 Stochastic and tokenized modeling for the reciprocal gener-
+                                                                          ation of 3d human motions and texts. In Proceedings of the
+References                                                                European Conference on Computer Vision (ECCV), pages
+                                                                          580–597, 2022. 2
+ [1] Ling-Hao Chen, Shunlin Lu, Ailing Zeng, Hao Zhang,
+     Benyou Wang, Ruimao Zhang, and Lei Zhang. Motionllm:            [15] Kunchang Li, Yali Wang, Yinan He, et al. Mvbench: A com-
+     Understanding human behaviors from human motions and                 prehensive multi-modal video understanding benchmark. In
+     videos. arXiv preprint arXiv:2405.20340, 2024. 1, 2, 6, 7, 8         Proceedings of the IEEE/CVF Conference on Computer Vi-
+                                                                          sion and Pattern Recognition (CVPR), 2024. 2
+ [2] Ling-Hao Chen, Jiawei Zhang, Wen Liu, Gang Yu, and Tao
+     Chen. Motiongpt: Human motion as a foreign language. In         [16] Zhaochong An, Guolei Sun, Yun Liu, Runjia Li, Min Wu,
+     Proceedings of the Conference on Neural Information Pro-             Ming-Ming Cheng, Ender Konukoglu, and Serge Belongie.
+     cessing Systems (NeurIPS), 2024. 1, 2, 6, 7, 8                       Multimodality helps few-shot 3d point cloud semantic seg-
+                                                                          mentation. arXiv preprint arXiv:2410.22489, 2024. 2
+ [3] Matthias Plappert, Christian Mandery, and Tamim Asfour.
+     The kit motion-language dataset. Big data, 4(4):236–252,        [17] Bobby Bodenheimer, Chuck Rose, Seth Rosenthal, and John
+     2016. 1, 6                                                           Pella. The process of motion capture: Dealing with the
+ [4] Yan Zhang, Michael J Black, and Siyu Tang. We are more               data. In Proceedings of the Eurographics Workshop on Com-
+     than our joints: Predicting how 3d bodies move. In Proceed-          puter Animation and Simulation (EG Workshop), pages 3–
+     ings of the IEEE/CVF Conference on Computer Vision and               18, 1997. 2
+     Pattern Recognition (CVPR), 2021.                               [18] Xiangyu Peng, Yuxuan Zhang, Xiaolong Wang, and Ziwei
+ [5] Fangzhou Hong, Liang Pan, Zhongang Cai, and Ziwei Liu.               Liu. Text-driven human motion generation with diffusion
+     Versatile multi-modal pre-training for human-centric percep-         models. In Proceedings of the IEEE/CVF Conference on
+     tion. In Proceedings of the IEEE/CVF Conference on Com-              Computer Vision and Pattern Recognition (CVPR), 2024. 2
+     puter Vision and Pattern Recognition (CVPR), pages 16156–       [19] Mark Endo, Joy Hsu, Jiaman Li, and Jiajun Wu. Motion
+     16166, 2022. 2                                                       question answering via modular motion programs. In In-
+ [6] Haoxuan Qu, Yujun Cai, and Jun Liu. Llms are good action             ternational Conference on Machine Learning, pages 9312–
+     recognizers. In Proceedings of the IEEE/CVF Conference               9328. PMLR, 2023. 2, 6
+     on Computer Vision and Pattern Recognition, pages 18395–        [20] Jie Lin, Wei Zhang, and Zhe Chen. Videollm: Lan-
+     18406, 2024. 1                                                       guage models for video understanding. In Proceedings of
+ [7] Shan Chen, Jiale Zhou, and Lei Li. Dense point clouds mat-           the IEEE/CVF Conference on Computer Vision and Pattern
+     ter: Dust-gs for scene reconstruction from sparse viewpoints.        Recognition (CVPR), pages 2405–2415, 2023. 2
+     arXiv preprint arXiv:2409.08613, 2024. 1                        [21] Xu Ning, Hongwei Li, and Yu Zhao. Videobench: A bench-
+ [8] Naureen Mahmood, Nima Ghorbani, Nikolaus F Troje, Ger-               mark for large-scale video understanding. arXiv preprint
+     ard Pons-Moll, and Michael J Black. Amass: Archive of                arXiv:2304.12345, 2023. 2
+     motion capture as surface shapes. In Proceedings of the         [22] KunChang Li, Yinan He, Yi Wang, Yizhuo Li, Wenhai
+     IEEE/CVF International Conference on Computer Vision                 Wang, Ping Luo, Yali Wang, Limin Wang, and Yu Qiao.
+     (ICCV), 2019. 1, 2                                                   Videochat: Chat-centric video understanding. arXiv preprint
+ [9] Fabian Caba Heilbron, Victor Escorcia, Bernard Ghanem,               arXiv:2305.06355, 2023. 2, 6
+     and Juan Carlos Niebles. Activitynet: A large-scale video       [23] Lei Li. Segment any building. In Computer Graphics Inter-
+     benchmark for human activity understanding. In Proceed-              national Conference, pages 155–166. Springer, 2023. 2
+     ings of the IEEE/CVF Conference on Computer Vision and          [24] Muhammad Maaz, Hanoona Rasheed, Salman Khan, and Fa-
+     Pattern Recognition (CVPR), 2015. 2                                  had Shahbaz Khan. Video-chatgpt: Towards detailed video
+[10] Li Lei, Jia Sen, Wang Jianhao, An Zhaochong, Li Jiaang,              understanding via large vision and language models. arXiv
+     Hwang Jenq-Neng, and Belongie Serge. Chatmotion: A                   preprint arXiv:2306.05424, 2023. 2
+     multimodal multi-agent for human motion analysis. arXiv         [25] Enxin Song, Guanhong Zhang, and Haoyang Zhou. Adaptive
+     preprint arXiv:2502.18180, 2025. 1                                   multimodal learning for behavior analysis. In Proceedings of
+[11] Mark Endo, Joy Hsu, Jiaman Li, and Jiajun Wu. Motion                 the IEEE/CVF Conference on Computer Vision and Pattern
+     question answering via modular motion programs. In Pro-              Recognition (CVPR), 2023. 2
+     ceedings of the International Conference on Machine Learn-      [26] Yunhua Yang, Ziwang Zhao, and Yiming Xie. Recognizing
+     ing (ICML), 2023. 1, 2                                               human behaviors with skeletal data in llm-based frameworks.
+[12] Biao Jiang, Xin Chen, Wen Liu, Jingyi Yu, Gang Yu, and               In Proceedings of the IEEE/CVF International Conference
+     Tao Chen. Motiongpt: Human motion as a foreign lan-                  on Computer Vision (ICCV), 2023.
+     guage. In Advances in Neural Information Processing Sys-        [27] Lei Li, Tianfang Zhang, Zhongfeng Kang, and Xikun Jiang.
+     tems (NeurIPS), 2023. 1                                              Mask-fpan: Semi-supervised face parsing in the wild with
+[13] Yaya Shi, Haiyang Xu, Chunfeng Yuan, Bing Li, Weiming                de-occlusion and uv gan. Computers & Graphics, 116:185–
+     Hu, and Zheng-Jun Zha. Learning video-text aligned repre-            193, 2023. 2
+[28] Matthias Plappert, Christian Mandery, and Tamim Asfour.        [41] OpenAI. Gpt-3.5: Generative pre-trained transformer 3.5,
+     Learning a bidirectional mapping between human whole-               2023. https://platform.openai.com/docs/
+     body motion and natural language using deep recurrent neu-          models/gpt-3-5. 6, 7, 8
+     ral networks. Robotics and Autonomous Systems (RAS), 109:      [42] Saptarshi Sinha, Alexandros Stergiou, and Dima Damen. Ev-
+     13–26, 2018. 2                                                      ery shot counts: Using exemplars for repetition counting in
+[29] Lei Li. Cpseg: Finer-grained image semantic segmentation            videos. arXiv preprint arXiv:2403.18074, 2024. 8
+     via chain-of-thought language prompting. In Proceedings of     [43] Ziyu Yao, Xuxin Cheng, and Yuexian Zou. Poserac: Pose
+     the IEEE/CVF Winter Conference on Applications of Com-              saliency transformer for repetitive action counting. arXiv
+     puter Vision, pages 513–522, 2024.                                  preprint arXiv:2303.08450, 2023. 8
+[30] Yunhua Yang, Liang Zhang, and Hui Li. Understanding hu-        [44] Bastian Wandt and Bodo Rosenhahn. Repnet: Weakly super-
+     man behaviors from skeletal data: A review of datasets and          vised training of an adversarial reprojection network for 3d
+     methods. arXiv preprint arXiv:2310.12998, 2023. 2                   human pose estimation. In Proceedings of the IEEE/CVF
+[31] Lei Shi, Yifan Zhang, Jian Cheng, and Hanqing Lu. Two-              conference on computer vision and pattern recognition,
+     stream adaptive graph convolutional networks for skeleton-          pages 7782–7791, 2019. 8
+     based action recognition. In Proceedings of the IEEE/CVF
+     Conference on Computer Vision and Pattern Recognition
+     (CVPR), pages 12026–12035, 2019. 2
+[32] Enxin Song, Wenhao Chai, and Yucheng Zhang. Fine-
+     grained spatial-temporal motion understanding in complex
+     video environments. arXiv preprint arXiv:2310.08639,
+     2023. 2
+[33] Zhaochong An, Guolei Sun, Zongwei Wu, Hao Tang, and
+     Luc Van Gool. Temporal-aware hierarchical mask classi-
+     fication for video semantic segmentation. arXiv preprint
+     arXiv:2309.08020, 2023. 2
+[34] Xianghong Liu, Haoxuan Wang, Zhiwei Zhang, Huan Wu,
+     Baoquan Chen, and Xiaoguang Han. Category-agnostic pose
+     estimation for point clouds. In Proceedings of the IEEE/CVF
+     Conference on Computer Vision and Pattern Recognition
+     (CVPR), 2024. 3
+[35] Xiaolong He, Yi Zhang, Chen Chen, and Kyoung Mu Lee.
+     Activitynet++: A large-scale benchmark for video under-
+     standing. In Proceedings of the IEEE/CVF Conference on
+     Computer Vision and Pattern Recognition (CVPR), 2023.
+[36] Lei Li. Hierarchical edge aware learning for 3d point cloud.
+     In Computer Graphics International Conference, pages 81–
+     92. Springer, 2023. 3
+[37] Chuan Guo, Shihao Zou, Xinxin Zuo, Sen Wang, Wei Ji,
+     Xingyu Li, and Li Cheng. Generating diverse and natural 3d
+     human motions from text. In Proceedings of the IEEE/CVF
+     Conference on Computer Vision and Pattern Recognition,
+     pages 5152–5161, 2022. 6
+[38] Huazhang Hu, Sixun Dong, Yiqun Zhao, Dongze Lian,
+     Zhengxin Li, and Shenghua Gao. Transrac: Encoding multi-
+     scale temporal correlation with transformers for repetitive
+     action counting. In Proceedings of the IEEE/CVF conference
+     on computer vision and pattern recognition, pages 19013–
+     19022, 2022. 6, 8
+[39] Bin Lin, Yang Ye, Bin Zhu, Jiaxi Cui, Munan Ning, Peng
+     Jin, and Li Yuan. Video-llava: Learning united visual rep-
+     resentation by alignment before projection. arXiv preprint
+     arXiv:2311.10122, 2023. 6, 7
+[40] Peng Jin, Ryuichi Takanobu, Wancai Zhang, Xiaochun Cao,
+     and Li Yuan. Chat-univi: Unified visual representation em-
+     powers large language models with image and video un-
+     derstanding. In Proceedings of the IEEE/CVF Conference
+     on Computer Vision and Pattern Recognition, pages 13700–
+     13710, 2024. 6
+
