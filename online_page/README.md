@@ -1,4 +1,4 @@
-# Caimeng Paper Reading & Codebase Portal
+# Caimeng Codebase Portal
 
 这是仓库的公开主网站目录。首页提供四个入口：数据统计、数据可视化、Codebase
 使用说明和 Paper Reading。
