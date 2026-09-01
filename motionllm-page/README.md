@@ -28,8 +28,8 @@ python -m http.server 8767 --bind 127.0.0.1
 然后访问 `http://127.0.0.1:8767/`、`http://127.0.0.1:8767/guide/qwen-codebase.html` 和 `http://127.0.0.1:8767/guide/dataset-statistics.html`。
 
 服务器规范目录为 `/wangbenyou-sulongjie/caimeng/qwen-codebase/motionllm-page`。
-原顶层 `caimeng/motionllm-page` 兼容链接已于 2026-09-02 移除；
-`codex_work/web/paper_research_site` 仍作为工作区快捷入口。服务器预览：
+原顶层 `caimeng/motionllm-page` 与 `codex_work/web/paper_research_site` 兼容链接均已
+于 2026-09-02 移除，后续直接使用规范目录。服务器预览：
 
 ```bash
 cd /wangbenyou-sulongjie/caimeng/qwen-codebase/motionllm-page
