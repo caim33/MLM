@@ -3,7 +3,7 @@
 ## 总体结构
 
 ```text
-qwen-codebase-clean/
+qwen-codebase/
 ├── src/
 │   ├── motionllm/             # MotionLLM 权威核心
 │   │   ├── contracts/         # 样本、模态、答案等纯合同
