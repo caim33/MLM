@@ -1,6 +1,6 @@
 # 当前状态
 
-更新日期：2026-08-30
+更新日期：2026-09-01
 
 ## 已完成
 
@@ -40,18 +40,24 @@ PEFT 0.18.0，无 CUDA。
 服务器已部署到 `/wangbenyou-sulongjie/caimeng/qwen-codebase`。服务器基础
 Python 3.10 与 CUDA Torch 2.4 保持不动；由于系统缺 `python3-venv/ensurepip`，
 Qwen 依赖改为安装在独立的
-`/wangbenyou-sulongjie/caimeng/runtime/qwen-codebase-clean-py310`。该运行目录现有
+`/wangbenyou-sulongjie/caimeng/runtime/qwen-codebase-clean-py310`。该目录在被用户
+清理后已于 2026-09-01 从 `history/` 中的完整离线 wheelhouse 重新建立，现有
 Transformers 4.57.3、PEFT 0.18.0、Accelerate 1.14.0、PyAV 12.3.0，并使用
 隔离的 protobuf 3.20.3 兼容服务器旧 ONNX。推理、Full SFT、LoRA SFT 的
-`--help` 均返回 0；本次 GPU 兼容修复的服务器定向回归为 **39 passed**。
-GPU 0 上另有受管理的 `caimeng-qwen-clean` keepalive；它绑定 GPU UUID、留有
-heartbeat，并与同卡正式 finetune/eval 互斥。
+`--help` 历史验证均返回 0；本次重建后 `motion_eval --help` 与 GPU keepalive
+生命周期测试 **27 passed**。当前没有受管理的 keepalive：容器内 PID 与
+`nvidia-smi` 报告的宿主机 PID 不同，严格所有权校验无法证明进程归属，因此启动
+测试安全退出并清理了状态。系统 CUDA 和显存分配本身可用。
 
 ## 尚未验证
 
 - 真实 GPU smoke 目前只有 1 条功能样本：目标为 D，预测为 A；它只证明代码链路
   可运行，不证明精度，也不等于正式 500 条评测。
 - 尚未执行新的 CUDA Full/LoRA SFT 或 GRPO 训练。
+- 当前重建的是基础运行依赖，不是完整 SFT/GRPO 环境；`qwen-vl-utils`、`decord`、
+  `pytorchvideo`、`deepspeed`、`datasets`、`trl` 和 `ms-swift` 尚未安装。
+- 被删除的历史 checkpoint overlay 尚未重建；真实 checkpoint smoke 需要先恢复并
+  核验 overlay 来源。
 - formal Qwen SFT 仍因缺少 external-HMAC 绑定的 pre-spawn snapshot 与
   verified in-memory worker bundle 而 fail-closed（exit 78）。
 - 统一控制器的 production backend 仍受各自 verifier/gate 约束；本次 CPU

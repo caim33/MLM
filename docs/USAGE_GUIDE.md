@@ -40,25 +40,24 @@ python -m pip install -r requirements-sft.txt
 不要把本地 `.venv` 复制到服务器；Python、CUDA 和动态库必须在目标机器重建。
 
 当前交付服务器没有 `python3-venv/ensurepip`，因此已准备不覆盖系统 Torch 的
-独立依赖目录。每次登录后先执行：
+独立依赖目录。每次登录后先执行（推荐使用已重建的入口脚本）：
 
 ```bash
-export MOTIONLLM_ROOT=/wangbenyou-sulongjie/caimeng/qwen-codebase
-export MOTIONLLM_RUNTIME=/wangbenyou-sulongjie/caimeng/runtime/qwen-codebase-clean-py310
-export PYTHONPATH="$MOTIONLLM_RUNTIME:$MOTIONLLM_ROOT/src:$MOTIONLLM_ROOT"
-cd "$MOTIONLLM_ROOT"
+source /wangbenyou-sulongjie/caimeng/runtime/activate_qwen.sh
 
 python3 -c "import torch, transformers, peft; print(torch.__version__, transformers.__version__, peft.__version__)"
 python3 -c "import av; print(av.__version__)"
 python3 -m motion_eval --help
 ```
 
-当前服务器运行目录已验证 Transformers 4.57.3、PEFT 0.18.0、Accelerate
-1.14.0 和 PyAV 12.3.0。视频后端缺少 torchcodec 时会回退到 PyAV +
-torchvision；PyAV 不应漏装。
+该目录于 2026-09-01 从历史离线 wheelhouse 重建，已验证 Transformers 4.57.3、
+PEFT 0.18.0、Accelerate 1.14.0 和 PyAV 12.3.0。视频后端缺少 torchcodec 时
+会回退到 PyAV + torchvision；PyAV 不应漏装。当前只是基础运行环境，完整真实
+推理或训练前仍需按入口补齐 `qwen-vl-utils`、`decord`、`pytorchvideo`、
+`deepspeed`、`datasets`、`trl` 或 `ms-swift`，不要在这里直接覆盖系统 Torch。
 
 离线 wheel 归档保存在
-`/wangbenyou-sulongjie/caimeng/handoff/qwen_py310_wheelhouse_complete_20260830.tar.gz`。
+`/wangbenyou-sulongjie/caimeng/history/qwen_py310_wheelhouse_complete_20260830.tar.gz`。
 它不包含 Torch；若换机器，必须先核对该机器自己的 CUDA/Torch，再决定是否复用。
 
 ## 2. 数据配置
@@ -153,16 +152,17 @@ motion 位置，模型再在文本 embedding 前替换为 motion feature。不�
 
 ### 已验证的历史 checkpoint 单样本 smoke
 
-兼容 overlay 位于：
+历史兼容 overlay 原位于：
 
 ```text
 /wangbenyou-sulongjie/caimeng/runtime/checkpoint-overlays/qa374_sft_step3best_checkpoint-48_merged_full
 ```
 
-它只保存 Transformers 4.57.3 所需的配置/chat-template 兼容信息，权重与 tokenizer
-仍链接原 checkpoint，原目录未修改。可复跑命令、输出 SHA 和已知警告见
-`docs/GPU_SMOKE_20260830.md`。本次结果为：进程返回 0，目标 `D`、预测 `A`；这只是
-功能 smoke，不是精度结论。
+该 overlay 随旧 runtime 被删除，当前重建目录中没有伪造恢复；路径仅作为历史记录，
+不能直接执行。历史上它只保存 Transformers 4.57.3 所需的配置/chat-template
+兼容信息，权重与 tokenizer 仍链接原 checkpoint，原目录未修改。历史复跑命令、
+输出 SHA 和已知警告见 `docs/GPU_SMOKE_20260830.md`。当时结果为：进程返回 0，
+目标 `D`、预测 `A`；这只是功能 smoke，不是精度结论。
 
 ### Video-only Qwen3-VL
 

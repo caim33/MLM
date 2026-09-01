@@ -12,6 +12,8 @@
 - 原始 `/wangbenyou-sulongjie/qwen-vl-finetune` 未被覆盖。
 - 当前代码模块、使用文档、架构文档和 GPU smoke 证据均已保留。
 - monitor 已移出活动仓库并保存在 `history/archive/monitor-20260901/`。
+- `/wangbenyou-sulongjie/caimeng/runtime` 已从 `history/` 中的完整 Python 3.10
+  wheelhouse 重建，系统 Torch/CUDA 未被覆盖。
 
 ## 当前服务器测试
 
@@ -34,7 +36,21 @@
 
 ## GPU 状态
 
-当前实例 4 张 V100 均空闲，没有运行中的项目 keepalive。`runtime/gpu-keepalive-managed/` 中原有状态绑定旧 A100 UUID 和旧 PID，只是历史文件，不能视为当前占卡证据。需要使用 GPU 前必须为当前 UUID 新建 lease/keepalive，不能复用旧状态。
+当前实例 4 张 V100 均空闲，没有运行中的项目 keepalive。旧 A100 状态已经随旧
+runtime 清理，重建后的 `runtime/gpu-keepalive-managed/` 没有活动记录。当前 V100
+上的受管理启动测试也没有遗留进程：容器内 Python PID 与 `nvidia-smi` 返回的宿主机
+PID 不同，严格 PID + GPU UUID 所有权校验无法证明两者属于同一进程，因此 worker
+安全退出并清理状态。Torch CUDA 可见性和指定 GPU 的显存分配已单独验证正常。
+
+## 重建后的运行依赖
+
+- 入口：`source /wangbenyou-sulongjie/caimeng/runtime/activate_qwen.sh`
+- Python 3.10.12；系统 Torch `2.4.0a0+f70bd71a48.nv24.06`；Torch CUDA 12.5。
+- 独立依赖：Transformers 4.57.3、PEFT 0.18.0、Accelerate 1.14.0、PyAV
+  12.3.0、protobuf 3.20.3。
+- 当前是基础运行环境，不是完整 SFT/GRPO 环境；训练栈和 checkpoint overlay 尚未
+  恢复。完整清单见 `/wangbenyou-sulongjie/caimeng/runtime/README.md` 和
+  `manifest.json`。
 
 ## 仍需处理
 
@@ -42,4 +58,6 @@
 - 修复原子文件哈希的跨文件系统检测策略。
 - 把服务器测试启动方式改为不向 formal GRPO 测试泄漏 `PYTHONPATH`。
 - 新的 CUDA smoke 应在当前 V100 环境单独记录，旧 A100 smoke 只保留为历史证据。
+- 为容器场景设计并验证可证明的宿主机 PID 映射后，再启动受管理的 GPU keepalive；
+  不应通过关闭所有权校验来绕过。
 - 公开仓库或 GitHub Pages 之前，复核论文 PDF、提取文本、`legacy/` 和审计材料的版权与保密边界。
