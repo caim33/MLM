@@ -9,7 +9,7 @@
 - Qwen 使用手册：<https://caim33.github.io/MLM/motionllm-page/guide/qwen-codebase.html>
 - 数据统计与质量报告：
   <https://caim33.github.io/MLM/motionllm-page/guide/dataset-statistics.html>
-- Motion-LLM Research Atlas：<https://caim33.github.io/MLM/motionllm-page/>
+- Paper Reading：<https://caim33.github.io/MLM/motionllm-page/>
 
 ## 发布范围
 

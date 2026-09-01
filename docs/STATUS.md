@@ -21,7 +21,7 @@
 - wheel 已包含 `motionllm`、`motion_eval`、`qwenvl`、`models` 与 `rubric_rl`，
   并完成仓库外 import 检查。
 - GitHub Pages 已改为发布 `online_page/` Codebase 主网站；数据统计、动作可视化、
-  使用说明和 Motion-LLM Research Atlas 由统一首页进入，Python 源码不在发布范围。
+  使用说明和 Paper Reading 由统一首页进入，Python 源码不在发布范围。
 
 ## 本机验证结果
 

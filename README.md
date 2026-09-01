@@ -41,14 +41,14 @@ configs/              数据、训练、GRPO 和评估配置
 tests/                unit / contract / integration / stress
 legacy/               只读来源证据，活动代码不得导入
 docs/                 状态、架构、使用、开发和迁移文档
-online_page/          Codebase 主网站、使用手册、数据统计与 Motion-LLM Atlas
+online_page/          Codebase 主网站、使用手册、数据统计与 Paper Reading
 reports/              当前数据审计与统计报告
 ```
 
 核心原则：新逻辑写在 `src/`；现有顶层 Qwen/model/Rubric 大文件属于待继续
 下沉的过渡实现，不能把它们误称为已经完成迁移；`legacy/` 永远不进入 import path。
 
-网页保持在独立的 `online_page/` 目录中，但与代码一起版本化。`.github/workflows/pages.yml` 只发布该目录，不会把 Python 源码作为网页内容上传。原 Motion-LLM Research Atlas 位于 `online_page/motionllm-page/`。AIStation monitor 不属于当前代码库，历史副本保存在服务器 `history/archive/monitor-20260901/`。
+网页保持在独立的 `online_page/` 目录中，但与代码一起版本化。`.github/workflows/pages.yml` 只发布该目录，不会把 Python 源码作为网页内容上传。Paper Reading 页面位于 `online_page/motionllm-page/`。AIStation monitor 不属于当前代码库，历史副本保存在服务器 `history/archive/monitor-20260901/`。
 
 ## 快速建立 CPU 开发环境
 
