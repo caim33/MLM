@@ -8,6 +8,13 @@
 /wangbenyou-sulongjie/caimeng/qwen-codebase
 ```
 
+公开入口：
+
+- GitHub 仓库：<https://github.com/caim33/MLM>
+- 研究网页：<https://caim33.github.io/MLM/>
+- Qwen 使用手册：<https://caim33.github.io/MLM/guide/qwen-codebase.html>
+- 数据统计与质量报告：<https://caim33.github.io/MLM/guide/dataset-statistics.html>
+
 ## 先从这里开始
 
 1. `docs/STATUS.md`：现在能做什么、还缺什么。
@@ -19,6 +26,7 @@
 7. `docs/ENGINEERING_REQUIREMENTS.md`：新版本的工程验收合同。
 8. `docs/SOURCE_PROVENANCE.md`：旧 Git、refactor 包和新实现的来源边界。
 9. `docs/CURRENT_SERVER_STATUS_20260901.md`：当前 V100 服务器的真实复跑结果。
+10. `docs/GITHUB_PUBLISH_20260902.md`：GitHub 仓库与 Pages 的发布记录。
 
 ## 一眼看懂目录
 

@@ -60,4 +60,6 @@ PID 不同，严格 PID + GPU UUID 所有权校验无法证明两者属于同一
 - 新的 CUDA smoke 应在当前 V100 环境单独记录，旧 A100 smoke 只保留为历史证据。
 - 为容器场景设计并验证可证明的宿主机 PID 映射后，再启动受管理的 GPU keepalive；
   不应通过关闭所有权校验来绕过。
-- 公开仓库或 GitHub Pages 之前，复核论文 PDF、提取文本、`legacy/` 和审计材料的版权与保密边界。
+- 代码已于 2026-09-02 推送到公开仓库 <https://github.com/caim33/MLM>，网页由
+  GitHub Actions 发布到 <https://caim33.github.io/MLM/>。后续新增论文 PDF、
+  提取文本、`legacy/` 或审计材料时仍需逐次复核版权与保密边界。

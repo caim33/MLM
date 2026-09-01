@@ -2,6 +2,12 @@
 
 这是 `qwen-codebase` 仓库内的独立静态网页目录。打开 `index.html` 即可离线浏览，无需构建步骤或外部前端依赖。Qwen/MotionLLM 代码使用手册位于 `guide/qwen-codebase.html`，数据统计与质量报告位于 `guide/dataset-statistics.html`。
 
+公开地址：
+
+- 主页：<https://caim33.github.io/MLM/>
+- Qwen 使用手册：<https://caim33.github.io/MLM/guide/qwen-codebase.html>
+- 数据统计与质量报告：<https://caim33.github.io/MLM/guide/dataset-statistics.html>
+
 目录说明：
 
 - `index.html`：研究网页入口。
@@ -15,11 +21,11 @@
 本地预览：
 
 ```bash
-cd E:\codex_work\MotionLLM\caimeng
+cd /path/to/qwen-codebase/motionllm-page
 python -m http.server 8767 --bind 127.0.0.1
 ```
 
-然后访问 `http://127.0.0.1:8767/paper_research_site/`、`http://127.0.0.1:8767/paper_research_site/guide/qwen-codebase.html` 和 `http://127.0.0.1:8767/paper_research_site/guide/dataset-statistics.html`。
+然后访问 `http://127.0.0.1:8767/`、`http://127.0.0.1:8767/guide/qwen-codebase.html` 和 `http://127.0.0.1:8767/guide/dataset-statistics.html`。
 
 服务器规范目录为 `/wangbenyou-sulongjie/caimeng/qwen-codebase/motionllm-page`；顶层 `motionllm-page` 和 `codex_work/web/paper_research_site` 只是兼容入口。服务器预览：
 
@@ -32,12 +38,12 @@ python3 -m http.server 8767 --bind 127.0.0.1
 
 ## GitHub Pages
 
-整个 `qwen-codebase` 推送到 GitHub 后，由仓库内的 Pages 工作流只发布本目录，不需要 Node.js 构建：
+公开仓库为 <https://github.com/caim33/MLM>。仓库内的 Pages 工作流只发布本目录，不需要 Node.js 构建：
 
-1. 将 `qwen-codebase` 仓库推送到 GitHub。
-2. 在仓库 `Settings → Pages` 中把 Source 设为 `GitHub Actions`。
-3. 运行或重新运行 `Deploy MotionLLM page` 工作流，等待部署完成。
+1. 向 `main` 推送 `motionllm-page/**` 或工作流修改；
+2. `Deploy MotionLLM page` 自动打包本目录；
+3. 部署成功后访问 <https://caim33.github.io/MLM/>。
 
-`.nojekyll` 用于让 GitHub Pages 原样发布静态文件。公开部署前请先复核 `source_papers/` 中论文 PDF、提取文本以及内部数据统计是否适合公开。
+`.nojekyll` 用于让 GitHub Pages 原样发布静态文件。当前仓库与网页已经公开；后续添加页面、论文 PDF、提取文本或内部数据统计前，仍需逐次复核版权与保密边界。
 
 研究边界：历史 accuracy、prediction、baseline、proxy 与 option-score 诊断不作为新批次主结果。任何后续正式评估仍需遵守 fresh finetune 与全模型 finetune barrier。
