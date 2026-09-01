@@ -4,6 +4,7 @@
 
 ## 已确认完整
 
+- 活动 Git 仓库位于 `/wangbenyou-sulongjie/caimeng/qwen-codebase`。
 - 规范数据位于 `/wangbenyou-sulongjie/caimeng/dataset`。
 - Qwen 数据组织软链接共 10,524 个，断链 0。
 - 最新网页包含 3 个 HTML 页面，检查 103 个本地目标，失败 0。
@@ -41,4 +42,3 @@
 - 把服务器测试启动方式改为不向 formal GRPO 测试泄漏 `PYTHONPATH`。
 - 新的 CUDA smoke 应在当前 V100 环境单独记录，旧 A100 smoke 只保留为历史证据。
 - 公开仓库或 GitHub Pages 之前，复核论文 PDF、提取文本、`legacy/` 和审计材料的版权与保密边界。
-

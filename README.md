@@ -1,6 +1,8 @@
-# MotionLLM Workspace
+# Qwen / MotionLLM Codebase
 
 MotionLLM / Qwen 的活动代码、研究网页、数据审计工具和状态文档统一仓库。
+
+服务器规范路径为 `/wangbenyou-sulongjie/caimeng/qwen-codebase`。
 
 ## 目录
 
@@ -32,4 +34,3 @@ MotionLLM / Qwen 的活动代码、研究网页、数据审计工具和状态文
 ## 发布边界
 
 仓库应先保持私有。网页包含论文 PDF、研究提取内容和内部数据统计；代码的 `legacy/` 与历史审计材料也可能含内部路径。公开发布或启用公开 GitHub Pages 前，必须另做版权、保密和凭据复核。
-
