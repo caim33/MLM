@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#09110f">
+  <meta name="description" content="Caimeng MotionLLM Codebase：数据、动作、Qwen 与评估的一站式研究入口。">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Caimeng MotionLLM Codebase">
+  <meta property="og:description" content="从数据统计与动作可视化，到 Codebase 文档和 Motion-LLM Research Atlas。">
+  <meta property="og:url" content="https://caim33.github.io/MLM/">
+  <meta name="twitter:card" content="summary">
+  <title>Caimeng MotionLLM Codebase</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#workspace">跳到工作区</a>
+
+  <header class="site-header">
+    <a class="brand" href="./" aria-label="返回 Codebase 首页">
+      <span class="brand-mark" aria-hidden="true">C</span>
+      <span class="brand-copy">
+        <strong>Caimeng MotionLLM</strong>
+        <small>Codebase Workspace</small>
+      </span>
+    </a>
+    <nav class="site-nav" aria-label="主导航">
+      <a href="#workspace">工作区</a>
+      <a href="#pipeline">研究链路</a>
+      <a href="https://github.com/caim33/MLM" target="_blank" rel="noreferrer">GitHub <span aria-hidden="true">↗</span></a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <p class="eyebrow">MOTION × VIDEO × LANGUAGE / 2026</p>
+        <h1 id="hero-title"><span>CODEBASE</span><span>IN <em>MOTION.</em></span></h1>
+        <p class="hero-intro">
+          一个把数据、动作与语言模型放在同一条可验证链路上的研究工作台。
+          从数据概况与动作检查开始，进入 Qwen / MotionLLM 的训练、推理和评估。
+        </p>
+        <div class="hero-actions">
+          <a class="button button--primary" href="#workspace">打开工作区 <span aria-hidden="true">↓</span></a>
+          <a class="button button--ghost" href="./motionllm-page/guide/qwen-codebase.html">阅读使用文档 <span aria-hidden="true">↗</span></a>
+        </div>
+      </div>
+
+      <aside class="signal-panel" aria-label="项目状态概览">
+        <div class="signal-heading">
+          <span>PROJECT SIGNAL</span>
+          <span class="signal-state"><i aria-hidden="true"></i> ACTIVE</span>
+        </div>
+        <dl class="metrics">
+          <div><dt>验证测试</dt><dd>954</dd><small>unit · contract · integration · stress</small></div>
+          <div><dt>数据空间</dt><dd>04</dd><small>Motion-X · HumanML3D · SONIC · Qwen QA</small></div>
+          <div><dt>知识入口</dt><dd>04</dd><small>statistics · visualize · docs · atlas</small></div>
+        </dl>
+        <p class="signal-note"><span aria-hidden="true">●</span> 页面只展示已核验状态；历史结果与正式发布证据严格分开。</p>
+      </aside>
+    </section>
+
+    <section class="pipeline" id="pipeline" aria-labelledby="pipeline-title">
+      <header class="section-heading">
+        <span><p class="eyebrow">RESEARCH SYSTEM / FLOW</p><h2 id="pipeline-title">ONE TRACEABLE PIPELINE.</h2></span>
+        <p>每一步保留样本身份、资产来源与可验证结果。</p>
+      </header>
+      <ol class="pipeline-steps">
+        <li><span>01</span><strong>DATA</strong><small>严格读取与数据统计</small></li>
+        <li><span>02</span><strong>MOTION</strong><small>动作归一化与可视化</small></li>
+        <li><span>03</span><strong>QWEN</strong><small>Motion + Video 融合</small></li>
+        <li><span>04</span><strong>EVAL</strong><small>固定分母与证据门禁</small></li>
+      </ol>
+    </section>
+
+    <section class="workspace" id="workspace" aria-labelledby="workspace-title">
+      <header class="section-heading">
+        <span><p class="eyebrow">START HERE / FOUR SURFACES</p><h2 id="workspace-title">WORKSPACE.</h2></span>
+        <p>先从总览进入，再按任务深入到对应工具或文档。</p>
+      </header>
+
+      <div class="workspace-grid">
+        <a class="workspace-card workspace-card--lime" href="./motionllm-page/guide/dataset-statistics.html">
+          <span class="card-index">01 / DATA</span>
+          <span class="card-icon" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M5 26V14m7 12V8m7 18V12m7 14V5M3 26h26"/></svg></span>
+          <span class="card-copy"><small>DATA INVENTORY</small><strong>数据统计</strong><span>查看数据规模、来源、配对质量、媒体状态与 GPU 烟测结论。</span></span>
+          <span class="card-action">OPEN STATISTICS <b aria-hidden="true">↗</b></span>
+        </a>
+
+        <a class="workspace-card workspace-card--cyan" href="https://docs.caimeng.online/visualize/" target="_blank" rel="noreferrer">
+          <span class="card-index">02 / EXPLORE</span>
+          <span class="card-icon" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="m16 4 11 6-11 6L5 10l11-6Z"/><path d="m5 16 11 6 11-6M5 22l11 6 11-6"/></svg></span>
+          <span class="card-copy"><small>MOTION EXPLORER</small><strong>数据可视化</strong><span>按数据源与交互类别筛选，并排检查 Raw / Scaled 动作。</span></span>
+          <span class="card-action">OPEN VISUALIZATION <b aria-hidden="true">↗</b></span>
+        </a>
+
+        <a class="workspace-card workspace-card--orange" href="./motionllm-page/guide/qwen-codebase.html">
+          <span class="card-index">03 / GUIDE</span>
+          <span class="card-icon" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M7 5h14l4 4v18H7V5Z"/><path d="M21 5v5h5M11 15h10M11 20h10"/></svg></span>
+          <span class="card-copy"><small>CODEBASE MANUAL</small><strong>使用说明</strong><span>快速定位目录、环境、命令、训练入口、评估流程和当前边界。</span></span>
+          <span class="card-action">READ THE GUIDE <b aria-hidden="true">↗</b></span>
+        </a>
+
+        <a class="workspace-card workspace-card--violet" href="./motionllm-page/">
+          <span class="card-index">04 / ATLAS</span>
+          <span class="card-icon" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M16 5a11 11 0 1 0 11 11"/><path d="M16 5v11h11M12 13l4 3-4 3v-6Z"/></svg></span>
+          <span class="card-copy"><small>RESEARCH ATLAS</small><strong>Motion-LLM Page</strong><span>把论文放回项目链路，查看关键结论、主图和下一步验证路径。</span></span>
+          <span class="card-action">EXPLORE THE ATLAS <b aria-hidden="true">↗</b></span>
+        </a>
+      </div>
+    </section>
+
+    <section class="principles" aria-labelledby="principles-title">
+      <header class="section-heading">
+        <span><p class="eyebrow">ENGINEERING POSITION / VERIFIED</p><h2 id="principles-title">WHAT THIS CODEBASE PROTECTS.</h2></span>
+      </header>
+      <div class="principle-grid">
+        <article><span>01</span><h3>Identity first</h3><p>坏样本在原身份上失败，不替换、不静默跳过。</p></article>
+        <article><span>02</span><h3>Explicit assets</h3><p>数据、模型、归一化与输出路径都必须显式绑定。</p></article>
+        <article><span>03</span><h3>Fixed denominator</h3><p>invalid、OOM 与 timeout 都保留在评估分母中。</p></article>
+        <article><span>04</span><h3>Evidence gates</h3><p>开发 smoke、历史结果与 production release 不混为一谈。</p></article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <span>CAIMENG MOTIONLLM CODEBASE</span>
+    <span>DATA → MOTION → QWEN → EVAL</span>
+    <span>© <span id="year">2026</span></span>
+  </footer>
+</body>
+</html>

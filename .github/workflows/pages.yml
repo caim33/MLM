@@ -1,10 +1,10 @@
-name: Deploy MotionLLM page
+name: Deploy Codebase portal
 
 on:
   push:
     branches: [main]
     paths:
-      - "motionllm-page/**"
+      - "online_page/**"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
 
@@ -31,7 +31,7 @@ jobs:
       - name: Upload static site
         uses: actions/upload-pages-artifact@v4
         with:
-          path: motionllm-page
+          path: online_page
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4

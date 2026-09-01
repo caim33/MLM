@@ -1,6 +1,6 @@
 # MotionLLM Research Atlas
 
-这是 `qwen-codebase` 仓库内的独立静态网页目录。打开 `index.html` 即可离线浏览，无需构建步骤或外部前端依赖。Qwen/MotionLLM 代码使用手册位于 `guide/qwen-codebase.html`，数据统计与质量报告位于 `guide/dataset-statistics.html`。
+这是 `qwen-codebase` 主网站中的 Motion-LLM Research Atlas 子目录。打开 `index.html` 即可离线浏览，无需构建步骤或外部前端依赖。Qwen/MotionLLM 代码使用手册位于 `guide/qwen-codebase.html`，数据统计与质量报告位于 `guide/dataset-statistics.html`。
 
 公开地址：
 
@@ -21,18 +21,18 @@
 本地预览：
 
 ```bash
-cd /path/to/qwen-codebase/motionllm-page
+cd /path/to/qwen-codebase/online_page/motionllm-page
 python -m http.server 8767 --bind 127.0.0.1
 ```
 
 然后访问 `http://127.0.0.1:8767/`、`http://127.0.0.1:8767/guide/qwen-codebase.html` 和 `http://127.0.0.1:8767/guide/dataset-statistics.html`。
 
-服务器规范目录为 `/wangbenyou-sulongjie/caimeng/qwen-codebase/motionllm-page`。
+服务器规范目录为 `/wangbenyou-sulongjie/caimeng/qwen-codebase/online_page/motionllm-page`。
 原顶层 `caimeng/motionllm-page` 与 `codex_work/web/paper_research_site` 兼容链接均已
 于 2026-09-02 移除，后续直接使用规范目录。服务器预览：
 
 ```bash
-cd /wangbenyou-sulongjie/caimeng/qwen-codebase/motionllm-page
+cd /wangbenyou-sulongjie/caimeng/qwen-codebase/online_page/motionllm-page
 python3 -m http.server 8767 --bind 127.0.0.1
 ```
 
@@ -40,10 +40,10 @@ python3 -m http.server 8767 --bind 127.0.0.1
 
 ## GitHub Pages
 
-公开仓库为 <https://github.com/caim33/MLM>。仓库内的 Pages 工作流只发布本目录，不需要 Node.js 构建：
+公开仓库为 <https://github.com/caim33/MLM>。仓库内的 Pages 工作流发布上级 `online_page/` 主网站，本目录作为 `/motionllm-page/` 子页面一并发布，不需要 Node.js 构建：
 
-1. 向 `main` 推送 `motionllm-page/**` 或工作流修改；
-2. `Deploy MotionLLM page` 自动打包本目录；
+1. 向 `main` 推送 `online_page/**` 或工作流修改；
+2. `Deploy Codebase portal` 自动打包主网站；
 3. 部署成功后访问 <https://caim33.github.io/MLM/>。
 
 `.nojekyll` 用于让 GitHub Pages 原样发布静态文件。当前仓库与网页已经公开；后续添加页面、论文 PDF、提取文本或内部数据统计前，仍需逐次复核版权与保密边界。
