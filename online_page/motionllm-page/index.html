@@ -21,7 +21,7 @@
       <a href="#papers">论文地图</a>
       <a href="#method">研究口径</a>
       <a href="guide/dataset-statistics.html">数据统计</a>
-      <a href="guide/qwen-codebase.html">Qwen 使用手册</a>
+      <a href="../guide/qwen-codebase.html">Qwen 使用手册</a>
     </nav>
     <button class="theme-toggle" id="themeToggle" type="button" aria-label="切换明暗主题">◐</button>
   </header>
@@ -37,7 +37,7 @@
             <a class="button primary" href="#verdict">从关键判断开始</a>
             <a class="button ghost" href="#papers">浏览论文主图</a>
             <a class="button ghost" href="guide/dataset-statistics.html">查看数据统计</a>
-            <a class="button ghost" href="guide/qwen-codebase.html">打开 Qwen 使用手册</a>
+            <a class="button ghost" href="../guide/qwen-codebase.html">打开 Qwen 使用手册</a>
           </div>
         </div>
         <div class="hero-panel" aria-label="研究统计">
@@ -129,49 +129,49 @@
           <div class="diagnosis-title"><span>协议层</span><b>P0</b></div>
           <h3>两套并存代码使用不同 motion-token 协议</h3>
           <p>旧 GRPO 数据写入字面 boundary span，根版本可能把完整动作插值压进少量文本槽；<code>remote_edit</code> 才补了逐时间步 placeholder 与长度校验。没有 source hash 就无法复现。</p>
-          <a class="code-link" href="guide/qwen-codebase.html#evidence-motion-protocol">查看现行实现与迁移说明 →</a>
+          <a class="code-link" href="../guide/qwen-codebase.html#evidence-motion-protocol">查看现行实现与迁移说明 →</a>
         </article>
         <article class="diagnosis-card">
           <div class="diagnosis-title"><span>SFT 链</span><b>P0</b></div>
           <h3>续训 checkpoint 与有效序列长度都可能静默偏离</h3>
           <p>启动脚本定义了 <code>init_model_or_path</code> 却仍把 base <code>llm</code> 传给训练；脚本宣称 8192，但 processor 又无条件截到 4096。两者都不会自然报错。</p>
-          <a class="code-link" href="guide/qwen-codebase.html#evidence-sft-binding">查看现行实现与迁移说明 →</a>
+          <a class="code-link" href="../guide/qwen-codebase.html#evidence-sft-binding">查看现行实现与迁移说明 →</a>
         </article>
         <article class="diagnosis-card">
           <div class="diagnosis-title"><span>模态治理</span><b>KEEP</b></div>
           <h3>VM/V 输入隔离做得对，应该保留</h3>
           <p>VM 缺 motion、缺 anchor 会硬失败；V 携带 motion 也会硬失败。这个 fail-closed 设计是可信消融的基础，应扩展到数据 manifest 与 evaluator。</p>
-          <a class="code-link" href="guide/qwen-codebase.html#evidence-modality-isolation">查看现行保护 →</a>
+          <a class="code-link" href="../guide/qwen-codebase.html#evidence-modality-isolation">查看现行保护 →</a>
         </article>
         <article class="diagnosis-card">
           <div class="diagnosis-title"><span>奖励层</span><b>P1</b></div>
           <h3>VM/V bonus 测的是相对正确率，不是信息利用</h3>
           <p>gate 只比较同组 VM/V 的 option accuracy 均值，再给正确 VM 样本加常数。需要反事实 pairing 才能区分“真的用 motion”与“视频已经够答”。</p>
-          <a class="code-link" href="guide/qwen-codebase.html#evidence-group-bonus">查看现行问题位置 →</a>
+          <a class="code-link" href="../guide/qwen-codebase.html#evidence-group-bonus">查看现行问题位置 →</a>
         </article>
         <article class="diagnosis-card">
           <div class="diagnosis-title"><span>协议层</span><b>P1</b></div>
           <h3>reward parser 比正式协议更宽松</h3>
           <p><code>&lt;answer&gt;The answer is B&lt;/answer&gt;</code> 仍会得到 option reward；这会奖励正式主表判 invalid 的输出。训练、smoke 与 full eval 必须共享一个 parser 包。</p>
-          <a class="code-link" href="guide/qwen-codebase.html#evidence-strict-parser">查看现行保护 →</a>
+          <a class="code-link" href="../guide/qwen-codebase.html#evidence-strict-parser">查看现行保护 →</a>
         </article>
         <article class="diagnosis-card">
           <div class="diagnosis-title"><span>Rubric</span><b>P0</b></div>
           <h3>空 criteria 可确定性得到 80/100</h3>
           <p>空维度直接返满分、无 reasoning 直接给 20 分；错误数值又会并入 semantic 集合拿 0.25。应把缺失/非法 rubric 标 invalid，并仅对实际存在维度重归一化。</p>
-          <a class="code-link" href="guide/qwen-codebase.html#evidence-rubric">查看现行保护 →</a>
+          <a class="code-link" href="../guide/qwen-codebase.html#evidence-rubric">查看现行保护 →</a>
         </article>
         <article class="diagnosis-card">
           <div class="diagnosis-title"><span>GRPO 验证</span><b>P1</b></div>
           <h3>VM-only validation 让 VM/V bonus 恒为 0</h3>
           <p>group bonus 只有同组同时存在 VM 与 V 时才生效；当前带 eval 的配置却指向 VM-only validation。它只能测答案，不能测本轮独有的模态增益目标。</p>
-          <a class="code-link" href="guide/qwen-codebase.html#evidence-vm-validation">查看现行问题位置 →</a>
+          <a class="code-link" href="../guide/qwen-codebase.html#evidence-vm-validation">查看现行问题位置 →</a>
         </article>
         <article class="diagnosis-card">
           <div class="diagnosis-title"><span>可维护性</span><b>P2</b></div>
           <h3>projector 写死维度，post-norm 还是死模块</h3>
           <p><code>512→4096→2560</code> 把 connector 绑死到单一 hidden size；<code>motion_postnorm</code> 被创建却未用于 encode path。应从 config 构造并做预期梯度断言。</p>
-          <a class="code-link" href="guide/qwen-codebase.html#evidence-projector">查看现行实现与迁移说明 →</a>
+          <a class="code-link" href="../guide/qwen-codebase.html#evidence-projector">查看现行实现与迁移说明 →</a>
         </article>
       </div>
       <div class="security-alert">

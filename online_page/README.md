@@ -5,7 +5,8 @@
 
 `dataset-page/` 是从 AIStation `dataset/data_page/` 同步的 2026-09-02 静态统计
 快照；公开页只包含汇总 JSON，不读取服务器的样本、视频或 SQLite 索引。
-`motionllm-page/` 保留 Paper Reading、Codebase 指南和旧版统计证据。GitHub Pages
+`guide/` 保存整个仓库的 Qwen Codebase 使用说明；`motionllm-page/` 只保留
+Paper Reading 和旧版统计证据。GitHub Pages
 工作流只发布 `online_page/`，不会公开仓库里的训练代码、配置或原始数据文件。
 
 数据可视化仍由受保护的在线工作台提供；GitHub Pages 只作为公开入口，不保存

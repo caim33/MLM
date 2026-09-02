@@ -1,6 +1,6 @@
 # MotionLLM Research Atlas
 
-这是 `qwen-codebase` 主网站中的 Motion-LLM Research Atlas 子目录。打开 `index.html` 即可离线浏览，无需构建步骤或外部前端依赖。Qwen/MotionLLM 代码使用手册位于 `guide/qwen-codebase.html`，数据统计与质量报告位于 `guide/dataset-statistics.html`。
+这是 `qwen-codebase` 主网站中的 Motion-LLM Research Atlas 子目录。打开 `index.html` 即可离线浏览，无需构建步骤或外部前端依赖。整个仓库的 Qwen/MotionLLM 使用手册已移到 `../guide/qwen-codebase.html`；这里的 `guide/dataset-statistics.html` 保留旧版数据统计证据。
 
 公开地址：
 
@@ -15,7 +15,7 @@
 - `assets/figures/`：从论文 PDF 或官方项目页提取的主图。
 - `source_papers/`：精读时使用的论文原文与文本提取。
 - `agent_reports/`：代码审计、motion 论文、RL/评估论文的并行研究报告。
-- `guide/qwen-codebase.html`：Qwen codebase 的目录、命令、状态、现行代码证据和排错手册。
+- `../guide/qwen-codebase.html`：整个仓库的目录、命令、状态、现行代码证据和排错手册。
 - `guide/dataset-statistics.html`：MotionX、HumanML3D、SONIC 和 Qwen QA 的规模、质量、配对与 GPU 烟测报告。
 
 本地预览：
@@ -25,7 +25,7 @@ cd /path/to/qwen-codebase/online_page/motionllm-page
 python -m http.server 8767 --bind 127.0.0.1
 ```
 
-然后访问 `http://127.0.0.1:8767/`、`http://127.0.0.1:8767/guide/qwen-codebase.html` 和 `http://127.0.0.1:8767/guide/dataset-statistics.html`。
+从 `online_page/` 目录启动静态服务器后，访问 `/motionllm-page/`、`/guide/qwen-codebase.html` 和 `/motionllm-page/guide/dataset-statistics.html`。
 
 服务器规范目录为 `/wangbenyou-sulongjie/caimeng/qwen-codebase/online_page/motionllm-page`。
 原顶层 `caimeng/motionllm-page` 与 `codex_work/web/paper_research_site` 兼容链接均已

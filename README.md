@@ -12,7 +12,7 @@
 
 - GitHub 仓库：<https://github.com/caim33/MLM>
 - 研究网页：<https://caim33.github.io/MLM/>
-- Qwen 使用手册：<https://caim33.github.io/MLM/motionllm-page/guide/qwen-codebase.html>
+- Qwen 使用手册：<https://caim33.github.io/MLM/guide/qwen-codebase.html>
 - 数据统计与质量报告：<https://caim33.github.io/MLM/motionllm-page/guide/dataset-statistics.html>
 
 ## 先从这里开始
