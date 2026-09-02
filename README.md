@@ -12,21 +12,16 @@
 
 - GitHub 仓库：<https://github.com/caim33/MLM>
 - 研究网页：<https://caim33.github.io/MLM/>
-- Qwen 使用手册：<https://caim33.github.io/MLM/guide/qwen-codebase.html>
-- 数据统计与质量报告：<https://caim33.github.io/MLM/guide/dataset-statistics.html>
+- Qwen 使用手册：<https://caim33.github.io/MLM/motionllm-page/guide/qwen-codebase.html>
+- 数据统计与质量报告：<https://caim33.github.io/MLM/motionllm-page/guide/dataset-statistics.html>
 
 ## 先从这里开始
 
-1. `docs/STATUS.md`：现在能做什么、还缺什么。
-2. `docs/ARCHITECTURE.md`：模块边界与依赖方向。
-3. `docs/GPU_SMOKE_20260830.md`：真实 A100 单样本端到端推理证据。
-4. `docs/USAGE_GUIDE.md`：推理、SFT、GRPO、Rubric 和评估命令。
-5. `docs/DEVELOPMENT.md`：环境、修改顺序和分层测试。
-6. `docs/MIGRATION.md`：旧 QwenVL 代码如何迁入新结构。
-7. `docs/ENGINEERING_REQUIREMENTS.md`：新版本的工程验收合同。
-8. `docs/SOURCE_PROVENANCE.md`：旧 Git、refactor 包和新实现的来源边界。
-9. `docs/CURRENT_SERVER_STATUS_20260901.md`：当前 V100 服务器的真实复跑结果。
-10. `docs/GITHUB_PUBLISH_20260902.md`：GitHub 仓库与 Pages 的发布记录。
+1. `docs/README.md`：文档地图以及当前/历史边界。
+2. `docs/status/README.md`：现在能做什么、还缺什么。
+3. `docs/architecture/ARCHITECTURE.md`：模块边界与依赖方向。
+4. `docs/guides/USAGE_GUIDE.md`：推理、SFT、GRPO、Rubric 和评估命令。
+5. `docs/guides/DEVELOPMENT.md`：环境、修改顺序和分层测试。
 
 ## 一眼看懂目录
 
@@ -41,6 +36,7 @@ configs/              数据、训练、GRPO 和评估配置
 tests/                unit / contract / integration / stress
 legacy/               只读来源证据，活动代码不得导入
 docs/                 状态、架构、使用、迁移、审计和数据报告
+requirements/         开发、SFT 和 GRPO 的冻结依赖文件
 tools/                数据工具；remote/ 收纳远端辅助与旧兼容脚本
 online_page/          Codebase 主网站、使用手册、数据统计与 Paper Reading
 ```
@@ -75,7 +71,8 @@ python -m pip install -e '.[sft]'
 ```
 
 交付服务器因缺 `python3-venv/ensurepip`，已使用不覆盖系统 CUDA/Torch 的独立
-依赖目录；登录后的 `PYTHONPATH` 设置和验证命令见 `docs/USAGE_GUIDE.md` 第 1 节。
+依赖目录；登录后的 `PYTHONPATH` 设置和验证命令见
+`docs/guides/USAGE_GUIDE.md` 第 1 节。
 
 ## 数据与模型路径
 
@@ -97,7 +94,7 @@ python -m pip install -e '.[sft]'
 
 ## 当前验证
 
-请以 `docs/STATUS.md` 的当前复跑结果为准。当前已完成一次真实 A100、历史
+请以 `docs/status/README.md` 的当前复跑结果为准。当前已完成一次真实 A100、历史
 checkpoint、MotionX 视频与 motion 的端到端 smoke；它证明运行链路可用，不代表
 模型精度或 production release。旧 refactor 报告中的
 `922 passed, 14 skipped, 2 warnings` 只作为历史证据，不能代表本目录当前状态。

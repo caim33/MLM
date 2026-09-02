@@ -20,8 +20,10 @@
 - README、架构、工程要求、开发、迁移、来源和使用手册已按新结构重写。
 - wheel 已包含 `motionllm`、`motion_eval`、`qwenvl`、`models` 与 `rubric_rl`，
   并完成仓库外 import 检查。
-- 已收口薄顶层目录：数据报告归入 `docs/reports/`，GRPO 锁文件移到仓库根，
+- 已收口薄顶层目录：数据报告归入 `docs/reports/`，冻结依赖归入 `requirements/`，
   `codex_remote_tools/` 与 `remote_scripts/` 合并为 `tools/remote/`；运行缓存不进入 Git。
+- 文档已按 `guides/architecture/status/operations/provenance/reports/archive` 分层；
+  旧命令、旧交接和旧 GPU 状态不再与当前操作文档并列。
 - GitHub Pages 已改为发布 `online_page/` Codebase 主网站；数据统计、动作可视化、
   使用说明和 Paper Reading 由统一首页进入，Python 源码不在发布范围。
 - 数据统计入口已同步 AIStation `dataset/data_page/` 的 2026-09-02 汇总快照；公开页

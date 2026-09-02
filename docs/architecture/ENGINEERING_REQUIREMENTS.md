@@ -57,4 +57,7 @@
 
 ## 6. 文档要求
 
-每个公共入口必须写清：用途、前置条件、命令、是否会加载模型/GPU、会写什么、输出到哪里、失败如何处理。架构或状态改变时同步更新 `ARCHITECTURE.md`、`STATUS.md` 和 `USAGE_GUIDE.md`。
+每个公共入口必须写清：用途、前置条件、命令、是否会加载模型/GPU、会写什么、
+输出到哪里、失败如何处理。架构或状态改变时同步更新
+`docs/architecture/ARCHITECTURE.md`、`docs/status/README.md` 和
+`docs/guides/USAGE_GUIDE.md`。

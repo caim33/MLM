@@ -342,7 +342,7 @@ def _write_formal_bundle(tmp_path: Path, *, attack: str | None) -> Path:
         _write_bytes(code_root / relative, value)
         for relative, value in (
             ("pyproject.toml", b"[project]\nname = 'fixture'\n"),
-            ("requirements-sft.txt", b"torch==0\n"),
+            ("requirements/sft.txt", b"torch==0\n"),
             ("scripts/full_sft.sh", b"#!/bin/sh\n"),
             ("scripts/lora_sft.sh", b"#!/bin/sh\n"),
             ("scripts/zero2.json", b"{}\n"),

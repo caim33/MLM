@@ -6,11 +6,11 @@ implementation policy. Their preserved copies under `legacy/` are read-only.
 
 ## Read before changing code
 
-1. `docs/STATUS.md`
-2. `docs/ARCHITECTURE.md`
-3. `docs/DEVELOPMENT.md`
-4. `docs/USAGE_GUIDE.md`
-5. `docs/MIGRATION.md` when touching compatibility code
+1. `docs/status/README.md`
+2. `docs/architecture/ARCHITECTURE.md`
+3. `docs/guides/DEVELOPMENT.md`
+4. `docs/guides/USAGE_GUIDE.md`
+5. `docs/architecture/MIGRATION.md` when touching compatibility code
 
 ## Source-of-truth boundaries
 
@@ -51,7 +51,7 @@ core modules must not import compatibility or legacy modules.
    argument or import path.
 4. Run the affected test directory. Cross-module changes also run integration
    tests and `scripts/run_checks.py` when the checkout has complete dependencies.
-5. Update `docs/STATUS.md` when capability or blocker state changes.
+5. Update `docs/status/README.md` when capability or blocker state changes.
 
 Changes spanning data, training, evaluation, or compatibility modules require an
 independent review and an adversarial test pass before handoff.

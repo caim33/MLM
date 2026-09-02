@@ -72,6 +72,28 @@ prediction + typed error
 report / release verifier
 ```
 
+## 核心合同
+
+- **Sample**：稳定的 `sample_id` / `group_id`，显式 `V/M/VM/T` 模态，严格问题、
+  选项、答案和媒体引用；坏样本不得静默换样或缩小分母。
+- **Artifact**：绑定 batch、model、attempt、base/data/code/config/environment hash，
+  fresh training step 和独立 save/reload 证据。
+- **Prediction**：每个 canonical sample 一行，保留原始输出或固定 A/B/C/D score；
+  invalid、OOM 和 runtime error 都留在固定分母。
+- **State**：append-only event、外部信任锚、不可复用 attempt、finetune/eval gate，
+  release 可以重新计算和验证。
+
+## GPU 并发边界
+
+```text
+                 one GPU UUID role mutex
+                /          |          \
+        keepalive       finetune       eval
+```
+
+同一 GPU UUID 只能持有一个角色；worker、controller verifier 和清理阶段共享同一
+lease。不同 GPU 可以并行，但失败启动必须先确认子进程退出和所有权一致，才能回滚。
+
 ## Legacy 策略
 
 `legacy/qwen_vl_original/` 保存旧仓库中可追溯的 Qwen 数据代码。它包含硬编码服务器路径，也缺少新 refactor 的 sample identity、logical ownership 和 fail-closed contract，因此只用于迁移对照。活动代码不得通过 `sys.path`、相对 import 或复制粘贴方式直接执行它。

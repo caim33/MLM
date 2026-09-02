@@ -88,7 +88,7 @@ verifier 也不能绕过。
 且单根 runner bundle 没有同时冻结 `motion_eval`、训练代码、依赖环境和多 rank
 contract。删除 blocker 或只做 post-import `__file__` 检查都不构成修复。
 
-解除条件见 `docs/SFT_FORMAL_BOOTSTRAP_PLAN.md`：先实现 controller-verified
+解除条件见 `docs/architecture/formal/SFT_FORMAL_BOOTSTRAP_PLAN.md`：先实现 controller-verified
 `-I -S -B` 多根 in-memory bundle、外部 HMAC pre-spawn snapshot 和 post audit，
 再先开放 single-node/NPROC=1，最后单独实现和验证 N-rank。
 

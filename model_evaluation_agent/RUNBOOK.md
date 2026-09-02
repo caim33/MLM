@@ -1,7 +1,7 @@
 # All-model finetune/eval runbook
 
-> **Current override (2026-08-21):** Read `CURRENT_REFACTOR_STATUS.md` and
-> `docs/COMMON_COMMANDS.md` before this historical runbook. Direct legacy
+> **Current override:** Read `CURRENT_REFACTOR_STATUS.md` and
+> `docs/guides/USAGE_GUIDE.md` before this historical runbook. Direct legacy
 > commands cannot bypass the current production blocker or fresh-finetune gate.
 
 ## Batch identity

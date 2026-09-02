@@ -37,7 +37,8 @@ qwenvl/data/
 ## 3. Clean codebase 原则
 
 - 旧文件保持在 `legacy/`，不进入活动 import path。
-- 新实现以公开 API、现有 tests 和 `ENGINEERING_REQUIREMENTS.md` 为依据。
+- 新实现以公开 API、现有 tests 和
+  `docs/architecture/ENGINEERING_REQUIREMENTS.md` 为依据。
 - 找不到历史安全协议细节时，新建明确 schema/version，不伪装成未知旧 receipt 的兼容实现。
 - 所有测试数字来自 clean codebase 当前复跑，并记录解释器、平台和 skipped 项。
 

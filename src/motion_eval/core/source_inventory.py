@@ -208,7 +208,7 @@ def formal_source_role_files(
             ),
             fixed_files=(
                 project_root / "pyproject.toml",
-                project_root / "requirements-sft.txt",
+                project_root / "requirements" / "sft.txt",
                 project_root / "scripts" / "full_sft.sh",
                 project_root / "scripts" / "lora_sft.sh",
                 project_root / "scripts" / "zero2.json",

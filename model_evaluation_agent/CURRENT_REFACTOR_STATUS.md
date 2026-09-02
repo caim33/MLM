@@ -2,13 +2,13 @@
 
 Updated: 2026-08-21 (Asia/Shanghai)
 
-The active repository is `D:\MotionLLM\motionllm_refactor`. Read, in order:
+The active repository is `/wangbenyou-sulongjie/caimeng/qwen-codebase`. Read, in order:
 
-1. `docs/REFACTOR_HANDOFF.md`
-2. `docs/VERIFICATION_REPORT.md`
-3. `docs/COMMON_COMMANDS.md`
-4. `docs/SFT_FORMAL_PROVENANCE.md`
-5. `docs/SFT_FORMAL_BOOTSTRAP_PLAN.md`
+1. `docs/status/README.md`
+2. `docs/architecture/ARCHITECTURE.md`
+3. `docs/guides/USAGE_GUIDE.md`
+4. `docs/architecture/formal/SFT_FORMAL_PROVENANCE.md`
+5. `docs/architecture/formal/SFT_FORMAL_BOOTSTRAP_PLAN.md`
 6. `model_evaluation_agent/RUNNER_BACKENDS.md`
 
 The 2026-07-29/30 asset and CUDA smoke records in older handoffs are historical

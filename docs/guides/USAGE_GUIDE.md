@@ -34,7 +34,7 @@ python scripts/run_checks.py
 先确认服务器的 CUDA、驱动和 PyTorch 版本，再安装重依赖：
 
 ```bash
-python -m pip install -r requirements-sft.txt
+python -m pip install -r requirements/sft.txt
 ```
 
 不要把本地 `.venv` 复制到服务器；Python、CUDA 和动态库必须在目标机器重建。
@@ -161,7 +161,7 @@ motion 位置，模型再在文本 embedding 前替换为 motion feature。不�
 该 overlay 随旧 runtime 被删除，当前重建目录中没有伪造恢复；路径仅作为历史记录，
 不能直接执行。历史上它只保存 Transformers 4.57.3 所需的配置/chat-template
 兼容信息，权重与 tokenizer 仍链接原 checkpoint，原目录未修改。历史复跑命令、
-输出 SHA 和已知警告见 `docs/GPU_SMOKE_20260830.md`。当时结果为：进程返回 0，
+输出 SHA 和已知警告见 `docs/status/GPU_SMOKE_20260830.md`。当时结果为：进程返回 0，
 目标 `D`、预测 `A`；这只是功能 smoke，不是精度结论。
 
 ### Video-only Qwen3-VL

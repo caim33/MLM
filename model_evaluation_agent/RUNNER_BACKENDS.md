@@ -39,7 +39,7 @@ finetune backend and remain available for the two implemented models.
 
 ## Runtime preflight
 
-Install the declared Linux/CUDA dependencies from `requirements-sft.txt` (or
+Install the declared Linux/CUDA dependencies from `requirements/sft.txt` (or
 the `sft` project extra), then run:
 
 ```text

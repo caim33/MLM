@@ -229,7 +229,7 @@ python -m pip install --upgrade pip
 python -m pip install -e '.[dev]'
 
 # 仅在已匹配 CUDA 工具链的 Linux 环境中：
-python -m pip install -r requirements-sft.txt</code></pre>
+python -m pip install -r requirements/sft.txt</code></pre>
         <div class="guide-callout warning">
           <strong>不要复制现成的 .venv 到另一台机器</strong>
           <p>Python、CUDA 和动态库必须在目标机器重新匹配。精简 Ubuntu 如果缺少 <code>python3-venv/ensurepip</code>，应使用已有冻结环境或由管理员补齐系统组件。</p>

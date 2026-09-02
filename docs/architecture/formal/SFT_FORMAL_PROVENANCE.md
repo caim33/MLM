@@ -121,4 +121,4 @@ single three-scalar host synchronization per step (plus one distributed MAX
 reduction when distributed), preserving the existing proof semantics.
 
 The implementation sequence and adversarial test matrix for removing the
-blocker are in `docs/SFT_FORMAL_BOOTSTRAP_PLAN.md`.
+blocker are in `SFT_FORMAL_BOOTSTRAP_PLAN.md`.
