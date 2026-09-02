@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
-"""Create a traceable inference-only view of legacy MotionLLM QA JSON rows."""
+"""Create a traceable current-anchor view of legacy MotionLLM QA JSON rows.
+
+The default remains strict for motion-only/VM subsets: every row must contain
+exactly one legacy anchor.  ``--allow-video-only-rows`` additionally accepts
+V rows without a motion payload, which makes the tool safe for the mixed
+``combined_v_vm`` SFT files without weakening validation of motion rows.
+"""
 
 from __future__ import annotations
 
@@ -43,6 +49,14 @@ def main() -> None:
     parser.add_argument("source", type=Path)
     parser.add_argument("output", type=Path)
     parser.add_argument("receipt", type=Path)
+    parser.add_argument(
+        "--allow-video-only-rows",
+        action="store_true",
+        help=(
+            "allow rows without a motion payload to remain unchanged; motion "
+            "rows must still contain exactly one legacy anchor"
+        ),
+    )
     args = parser.parse_args()
 
     source_rows = json.loads(args.source.read_text(encoding="utf-8"))
@@ -51,12 +65,34 @@ def main() -> None:
 
     changed_rows = 0
     replacements = 0
-    for row in source_rows:
+    unchanged_video_rows = 0
+    for row_index, row in enumerate(source_rows):
+        if not isinstance(row, dict):
+            raise TypeError(f"row {row_index} must be an object")
         changed = migrate(row)
+        has_motion = isinstance(row.get("motion"), str) and bool(row["motion"].strip())
+        if has_motion and changed != 1:
+            raise ValueError(
+                f"motion row {row_index} must contain exactly one legacy anchor; "
+                f"found {changed}"
+            )
+        if not has_motion:
+            if changed:
+                raise ValueError(
+                    f"video-only row {row_index} contains a legacy motion anchor"
+                )
+            if not args.allow_video_only_rows:
+                raise ValueError(
+                    f"row {row_index} has no motion payload; pass "
+                    "--allow-video-only-rows only for a mixed V/VM file"
+                )
+            unchanged_video_rows += 1
         replacements += changed
         changed_rows += int(changed > 0)
 
-    if changed_rows != len(source_rows) or replacements != len(source_rows):
+    if not args.allow_video_only_rows and (
+        changed_rows != len(source_rows) or replacements != len(source_rows)
+    ):
         raise ValueError(
             f"expected exactly one legacy anchor per row; rows={len(source_rows)}, "
             f"changed_rows={changed_rows}, replacements={replacements}"
@@ -75,6 +111,7 @@ def main() -> None:
         "output_sha256": sha256(args.output),
         "row_count": len(source_rows),
         "changed_rows": changed_rows,
+        "unchanged_video_rows": unchanged_video_rows,
         "replacement_count": replacements,
     }
     args.receipt.write_text(

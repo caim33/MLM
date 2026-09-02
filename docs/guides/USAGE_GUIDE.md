@@ -69,17 +69,24 @@ PEFT 0.18.0、Accelerate 1.14.0 和 PyAV 12.3.0。视频后端缺少 torchcodec 
 ```
 
 Motion-X、HumanML3D、SONIC 和历史 Qwen QA 的目录、兼容旧路径及迁移 receipt 见
-`/wangbenyou-sulongjie/caimeng/dataset/README.md`。Qwen QA 默认选择：
+`/wangbenyou-sulongjie/caimeng/dataset/README.md`。自 2026-09-02 起，Qwen QA
+训练的默认入口改为自包含训练包：
 
 ```text
-/wangbenyou-sulongjie/caimeng/dataset/qwen_qa/views/recommended
+/wangbenyou-sulongjie/caimeng/dataset/qwen_qa/training
 ```
 
-其中 strict keepbench 为 813 个 train group、86 个 validation group，并配套固定
-QA500 benchmark。`views/extended_qtext` 为 1768/86，允许同一视频使用不同问题；
-两者不能在未记录清理策略的情况下混用。详细说明见 dataset 根目录的
-`QWEN_QA_GUIDE.md`。对应的 `motionx_374` 与生成/筛选成功媒体统一位于
-`dataset/qwen_qa/media/`，原 Motion-r1/output_mcq 绝对路径继续作为兼容链接。
+该目录的 `manifest.json` 是选择 split 的权威说明：SFT 提供 V、VM 和 V+VM，
+GRPO 提供 M、VM 和 V+VM。train 为单 branch 1768 或 combined 3536，validation
+为单 branch 86 或 combined 172。`video/` 与 `motion/` 各有 841 个物理文件，
+annotation 的媒体路径均相对这个 training 根目录。`combined_v_vm` 已经包含两侧，
+不能再与单 branch 文件拼接；训练包不包含 description 数据。
+
+`views/recommended`（813/86 strict keepbench）和 `views/extended_qtext`
+（1768/86）继续作为历史选择策略保留，不再是新训练的默认入口。新训练包允许同一
+媒体对应不同问题，以“归一化问题 stem + 无序 option 集合”去重；manifest 记录的
+train/validation/benchmark question-signature overlap 均为 0。每次实验至少保存
+`manifest.json`、`FILE_MANIFEST.tsv` 和所选 annotation 的 SHA-256。
 
 原 `/wangbenyou-sulongjie/qwen-vl-finetune/data` 现为兼容软链接。历史 JSONL 中
 使用 `data/benchmark/...` 的相对路径仍可由旧代码解析；新实验必须在配置中记录
@@ -92,7 +99,7 @@ annotation 文件、数据策略、branch、媒体 root 和文件 SHA-256。
 export MOTIONLLM_DATASET_CONFIG_DIR=/absolute/private-dataset-configs
 ```
 
-Motion + Video 配置示例：
+Motion + Video 配置示例（机器专用绝对路径，不提交到 Git）：
 
 ```json
 {
@@ -182,7 +189,37 @@ python qwenvl/infer/infer_qwen3_vl_4b_thinking_video_only.py \
 
 ## 4. Full / LoRA SFT
 
-参数入口：
+### 4.1 先准备什么
+
+服务器上已核对存在的资产：
+
+```text
+代码        /wangbenyou-sulongjie/caimeng/qwen-codebase
+训练包      /wangbenyou-sulongjie/caimeng/dataset/qwen_qa/training
+基础模型    /wangbenyou-sulongjie/Qwen3_vl_motion/model/Qwen3-VL-4B-Thinking
+VQ-VAE     /wangbenyou-sulongjie/Motion-r1/model/pretrained/VQVAE/net_best_fid.pth
+Mean.npy   /wangbenyou-sulongjie/caimeng/qwen-codebase/legacy/qwen_vl_original/qwenvl/data/Mean.npy
+Std.npy    /wangbenyou-sulongjie/caimeng/qwen-codebase/legacy/qwen_vl_original/qwenvl/data/Std.npy
+运行输出    /wangbenyou-sulongjie/caimeng/codex_work/qwen-runs/<RUN_ID>
+```
+
+Mean/Std 现在仍从只读 legacy 证据目录显式引用；代码不会隐式寻找它们。正式实验应把
+这三项 motion 资产冻结进 batch provenance。开始前运行：
+
+```bash
+source /wangbenyou-sulongjie/caimeng/runtime/activate_qwen.sh
+cd /wangbenyou-sulongjie/caimeng/qwen-codebase
+
+QWEN_TRAINING=/wangbenyou-sulongjie/caimeng/dataset/qwen_qa/training
+python3 -m json.tool "$QWEN_TRAINING/manifest.json" >/dev/null
+test -f "$QWEN_TRAINING/sft/train_vm.json"
+test -f "$QWEN_TRAINING/sft/val_vm.json"
+test -f /wangbenyou-sulongjie/Motion-r1/model/pretrained/VQVAE/net_best_fid.pth
+```
+
+现有独立环境只保证基础推理依赖；SFT 还需要与 CUDA/Torch 匹配的
+`qwen-vl-utils`、`decord`、`pytorchvideo`、`deepspeed` 和 `datasets`。先看帮助不会
+加载模型：
 
 ```bash
 python qwenvl/train/full_sft.py --help
@@ -191,7 +228,83 @@ bash scripts/full_sft.sh --help
 bash scripts/lora_sft.sh --help
 ```
 
-Motion 训练必须同时满足：
+### 4.2 选择一组数据
+
+| 目标 | train | validation | 是否需要 anchor 兼容副本 |
+|---|---|---|---|
+| V-only SFT | `sft/train_v.json` | `sft/val_v.json` | 否 |
+| VM SFT（当前主线） | `sft/train_vm.json` | `sft/val_vm.json` | 是 |
+| V+VM SFT | `sft/train_combined_v_vm.json` | `sft/val_combined_v_vm.json` | 是；加 `--allow-video-only-rows` |
+
+不要同时使用 combined 和对应的单 branch。源文件保留只读；VM 原文本仍使用旧的
+`<motion_start><motion><motion_end>`，当前 SFT 处理器要求单个 `<motion>` 入口。
+为一次实验建立可追溯兼容副本：
+
+```bash
+set -euo pipefail
+RUN_ID=qwen_vm_lora_smoke_$(date +%Y%m%d_%H%M%S)
+RUN_ROOT=/wangbenyou-sulongjie/caimeng/codex_work/qwen-runs/$RUN_ID
+QWEN_TRAINING=/wangbenyou-sulongjie/caimeng/dataset/qwen_qa/training
+mkdir -p "$RUN_ROOT"/{data,aliases,output,logs}
+
+python3 tools/data_audit/prepare_compatible_subset.py \
+  "$QWEN_TRAINING/sft/train_vm.json" \
+  "$RUN_ROOT/data/train_vm.current_anchor.json" \
+  "$RUN_ROOT/data/train_vm.current_anchor.receipt.json"
+python3 tools/data_audit/prepare_compatible_subset.py \
+  "$QWEN_TRAINING/sft/val_vm.json" \
+  "$RUN_ROOT/data/val_vm.current_anchor.json" \
+  "$RUN_ROOT/data/val_vm.current_anchor.receipt.json"
+```
+
+如果选择 combined，在两条转换命令末尾加 `--allow-video-only-rows`。工具会要求每条
+motion row 恰好替换一次，并在 receipt 中写 source/output SHA-256、行数和替换数；
+V row 保持不变。
+
+在 `$RUN_ROOT/aliases/` 建立 `qwen_qa_vm_train.dataset.json` 和
+`qwen_qa_vm_val.dataset.json`。两者的 `annotation_path` 分别指向上面的兼容副本，
+`media_root` 都指向 `$QWEN_TRAINING`，Mean/Std 使用准备清单中的绝对路径，
+`expected_motion_dim` 为 263。然后：
+
+```bash
+export MOTIONLLM_DATASET_CONFIG_DIR="$RUN_ROOT/aliases"
+python3 - <<'PY'
+from motionllm.qwen import load_dataset_config
+for name in ("qwen_qa_vm_train", "qwen_qa_vm_val"):
+    print(load_dataset_config(name).to_legacy_mapping())
+PY
+```
+
+### 4.3 跑一轮 LoRA 开发 smoke
+
+下面命令会占用 GPU、加载模型并写 `$RUN_ROOT/output`。它只跑 1 step，用于确认数据、
+模型和保存链路；`--unsafe_legacy_no_manifest` 明确表示产物不能发布：
+
+```bash
+CUDA_VISIBLE_DEVICES=0 python3 qwenvl/train/lora_sft.py \
+  --model_family qwen3_vl_motion \
+  --model_name_or_path /wangbenyou-sulongjie/Qwen3_vl_motion/model/Qwen3-VL-4B-Thinking \
+  --motion_vqvae_path /wangbenyou-sulongjie/Motion-r1/model/pretrained/VQVAE/net_best_fid.pth \
+  --motion_dataname t2m --motion_quantizer ema \
+  --motion_normalization_mean_path /wangbenyou-sulongjie/caimeng/qwen-codebase/legacy/qwen_vl_original/qwenvl/data/Mean.npy \
+  --motion_normalization_std_path /wangbenyou-sulongjie/caimeng/qwen-codebase/legacy/qwen_vl_original/qwenvl/data/Std.npy \
+  --vqvae_nb_code 512 --vqvae_code_dim 512 --vqvae_output_emb_width 512 \
+  --vqvae_down_t 2 --vqvae_stride_t 2 --vqvae_width 512 --vqvae_depth 3 \
+  --vqvae_dilation_growth_rate 3 --vqvae_activation relu \
+  --motion_length_divisor 4 \
+  --dataset_use qwen_qa_vm_train --eval_dataset_use qwen_qa_vm_val \
+  --unsafe_legacy_no_manifest True --seed 42 \
+  --data_flatten True \
+  --tune_mm_llm True --tune_mm_vision False --tune_mm_mlp False --tune_mm_motion False \
+  --lora_modules_to_save motion_prenorm,motion_proj,motion_postnorm,motion_boundary_embed \
+  --bf16 True --gradient_checkpointing True \
+  --max_steps 1 --per_device_train_batch_size 1 --gradient_accumulation_steps 1 \
+  --save_strategy no --logging_steps 1 --report_to none \
+  --model_max_length 4096 --output_dir "$RUN_ROOT/output" \
+  2>&1 | tee "$RUN_ROOT/logs/lora_sft.log"
+```
+
+Motion 训练始终必须同时满足：
 
 - 数据 alias 中配置 normalization mean/std；
 - CLI 传入 `--motion_normalization_mean_path` 和
@@ -200,12 +313,35 @@ Motion 训练必须同时满足：
   `model.config.motion_placeholder_token_id` 显式绑定到 data adapter；
 - VQ-VAE 路径、模型路径、训练与验证 split 均为明确资产。
 
-`scripts/full_sft.sh` 和 `scripts/lora_sft.sh` 的 formal 发布启动目前会在训练前以
-exit `78` 停止。这不是普通 SFT 代码故障，而是 formal provenance 尚缺
-external-HMAC 绑定的 pre-spawn snapshot 与内存 worker bundle。不要删除 gate。
-开发调试可以直接使用 Python 入口，但其产物不能冒充 formal release。
+### 4.4 跑完保存什么
+
+- `data/*.current_anchor.json` 与对应 receipt：本次实际输入及前后 SHA；
+- `aliases/*.dataset.json`：annotation、media root、split 与 normalization 绑定；
+- `output/adapter_model.safetensors`、`adapter_config.json`：LoRA 权重与配置；
+- `output/` 内 processor/tokenizer 配置与 `trainer_state.json`；
+- `logs/lora_sft.log`：完整标准输出和错误；
+- 原 training 包的 `manifest.json`、`FILE_MANIFEST.tsv` 及所选源文件 SHA。
+
+1-step smoke 不会生成可发布的 artifact manifest、training receipt 或 reload receipt。
+`scripts/full_sft.sh` 和 `scripts/lora_sft.sh` 的 formal 启动目前会在训练前以 exit `78`
+停止。这不是普通 SFT 代码故障，而是 formal provenance 尚缺 external-HMAC 绑定的
+pre-spawn snapshot 与内存 worker bundle。不要删除 gate，也不要把开发输出移进正式
+batch、evaluation 或 release。
 
 ## 5. Motion-R1 GRPO
+
+新训练包可直接选择：
+
+| 目标 | train | validation |
+|---|---|---|
+| M-only GRPO | `grpo/train_m.jsonl` | `grpo/val_m.jsonl` |
+| VM GRPO（formal 模板对应） | `grpo/train_vm.jsonl` | `grpo/val_vm.jsonl` |
+| V+VM GRPO | `grpo/train_combined_v_vm.jsonl` | `grpo/val_combined_v_vm.jsonl` |
+
+GRPO 自定义模板同时识别旧三段 anchor 与当前单 anchor，因此这里使用原始 JSONL，
+不运行 SFT 的兼容转换工具。`combined_v_vm` 已包含 V 与 VM，不能再拼接单 branch。
+当前 formal 模板是 VM LoRA；M-only 或 combined 必须使用对应且经过审查的独立配置，
+不能只替换模板里的文件名。
 
 正式 GRPO 使用冻结的绝对 YAML 配置：
 
@@ -220,6 +356,8 @@ bash scripts/train_grpo_ms_swift.sh --config "$FORMAL_CONFIG" --preflight_only
 - `--dry_run`：只检查配置、数据、hash、provenance 和输出目的地。
 - `--preflight_only`：再检查依赖版本、Swift/PEFT API、CUDA 与绑定解释器。
 - 不带模式参数才会训练并生成 reload/training receipt；执行前必须先通过前两层。
+- 训练输出位于 config 的 `run.output_dir` / 精确 `run.artifact_path`；manifest、reload、
+  colocation 与 training receipts 位于 batch 的 `receipts/`，不要放进 checkpoint 目录。
 
 ## 6. Rubric RL
 

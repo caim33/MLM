@@ -28,6 +28,9 @@
   使用说明和 Paper Reading 由统一首页进入，Python 源码不在发布范围。
 - 数据统计入口已同步 AIStation `dataset/data_page/` 的 2026-09-02 汇总快照；公开页
   仅发布汇总 JSON，内部样本、视频、三维网格和 SQLite 索引仍留在服务器。
+- 已核对 `dataset/qwen_qa/training` 自包含训练包：SFT/GRPO 的 V、M、VM、V+VM
+  split 均与 manifest 行数一致，841 个 video 与 841 个 motion 物理文件齐全；
+  SFT 旧 motion anchor 可生成带 SHA receipt 的只读兼容视图。
 - 完整 Motion Viewer 已通过固定域名 `viewer.caimeng.online` 对外提供；本机自动占卡
   程序会在新的 AIStation 环境可连接后恢复 Viewer 与 Cloudflare Tunnel。
 
@@ -38,10 +41,10 @@ PEFT 0.18.0，无 CUDA。
 
 | 层级 | 结果 |
 |---|---:|
-| unit + contract | 729 passed，1 warning |
+| unit + contract | 733 passed，1 warning |
 | integration | 147 passed，2 skipped，1 warning |
 | stress | 78 passed |
-| 合计 | **954 passed，2 skipped，2 warnings** |
+| 合计 | **958 passed，2 skipped，2 warnings** |
 
 另外：compileall、secret scan、wheel build/out-of-tree import、
 `motion_eval --help`、两个 Qwen 推理帮助入口与 Full/LoRA 帮助入口均通过。
@@ -80,5 +83,5 @@ Transformers 4.57.3、PEFT 0.18.0、Accelerate 1.14.0、PyAV 12.3.0，并使用
 ## 历史数字说明
 
 旧 refactor 报告中的 `922 passed, 14 skipped, 2 warnings` 仅作为历史证据。
-本页的 `954 passed, 2 skipped, 2 warnings` 才是 clean codebase 在上述本机
+本页的 `958 passed, 2 skipped, 2 warnings` 才是 clean codebase 在上述本机
 环境中的当前分层复跑结果；GPU 实跑证据另见 `GPU_SMOKE_20260830.md`。
