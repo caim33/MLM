@@ -30,17 +30,28 @@
 
   <main class="guide-shell" id="guide-main">
     <aside class="guide-sidebar" aria-label="数据报告目录">
-      <p class="guide-nav-title">数据报告</p>
+      <div class="guide-sidebar-head">
+        <p class="guide-nav-title">MotionLLM 数据报告</p>
+        <button class="guide-sidebar-close" id="guideSidebarClose" type="button" aria-label="关闭目录">×</button>
+      </div>
+      <label class="guide-search">
+        <span aria-hidden="true">⌕</span>
+        <input id="guideNavSearch" type="search" placeholder="搜索目录" autocomplete="off">
+        <kbd>Ctrl K</kbd>
+      </label>
       <nav>
+        <span class="guide-nav-group">总览</span>
         <a href="#overview">结论与统计口径</a>
         <a href="#modalities">模态定义与覆盖</a>
         <a href="#text-types">四类文本监督</a>
         <a href="#text-statistics">Text 分类统计</a>
+        <span class="guide-nav-group">数据质量</span>
         <a href="#inventory">全量规模</a>
         <a href="#motion">Motion 数组</a>
         <a href="#video">视频解码</a>
         <a href="#quality">Caption 与配对</a>
         <a href="#qwen">Qwen QA 分层</a>
+        <span class="guide-nav-group">实验与产物</span>
         <a href="#experiment">Checkpoint 烟测</a>
         <a href="#issues">问题与处理建议</a>
         <a href="#workspace">工作区与产物</a>
@@ -53,9 +64,17 @@
     </aside>
 
     <article class="guide-content">
+      <div class="guide-toolbar" aria-label="文档工具栏">
+        <button class="guide-menu-button" id="guideMenuButton" type="button" aria-label="打开目录">☰</button>
+        <span>数据报告</span>
+        <div>
+          <a href="qwen-codebase.html">Codebase 手册</a>
+          <a href="../index.html">研究主页</a>
+        </div>
+      </div>
       <header class="guide-hero dataset-hero">
         <p class="eyebrow">FULL INVENTORY × SEEDED AUDIT × GPU SMOKE · 2026-08-30</p>
-        <h1>数据统计<br>与质量报告</h1>
+        <h1>数据统计与质量报告</h1>
         <p>覆盖 <code>/wangbenyou-sulongjie/caimeng/dataset</code> 中的 MotionX、HumanML3D、SONIC 与 Qwen QA。全量盘点文件、容量和配对关系；固定种子抽查二进制内容，并用真实 checkpoint 验证端到端链路。</p>
       </header>
 
@@ -487,6 +506,8 @@ qa374_sft_step3best_checkpoint-48_merged_full</code></pre>
       <a href="#workspace">工作区</a>
     </nav>
   </main>
+
+  <button class="guide-sidebar-backdrop" id="guideSidebarBackdrop" type="button" aria-label="关闭目录"></button>
 
   <footer class="footer">
     <span>MotionLLM · Dataset Observatory</span>

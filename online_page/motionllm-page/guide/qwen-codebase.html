@@ -29,22 +29,33 @@
 
   <main class="guide-shell" id="guide-main">
     <aside class="guide-sidebar" aria-label="使用手册目录">
-      <p class="guide-nav-title">使用手册</p>
+      <div class="guide-sidebar-head">
+        <p class="guide-nav-title">Caimeng Codebase</p>
+        <button class="guide-sidebar-close" id="guideSidebarClose" type="button" aria-label="关闭目录">×</button>
+      </div>
+      <label class="guide-search">
+        <span aria-hidden="true">⌕</span>
+        <input id="guideNavSearch" type="search" placeholder="搜索目录" autocomplete="off">
+        <kbd>Ctrl K</kbd>
+      </label>
       <nav>
-        <a href="#start">01 · 从这里开始</a>
-        <a href="#status">02 · 当前可用范围</a>
-        <a href="#environment">03 · 准备运行环境</a>
-        <a href="#quickstart">04 · 五分钟快速检查</a>
-        <a href="#dataset">05 · 数据与模态</a>
-        <a href="#inference">06 · 运行推理</a>
-        <a href="#training">07 · Full / LoRA SFT</a>
-        <a href="#grpo">08 · Motion-R1 GRPO</a>
-        <a href="#rubric">09 · Rubric RL</a>
-        <a href="#controller">10 · 统一评估</a>
-        <a href="#testing">11 · 测试与验证</a>
-        <a href="#layout">12 · 代码目录</a>
-        <a href="#evidence">13 · 实现索引</a>
-        <a href="#troubleshooting">14 · 排错与安全</a>
+        <span class="guide-nav-group">开始</span>
+        <a href="#start">从这里开始</a>
+        <a href="#status">当前可用范围</a>
+        <a href="#environment">准备运行环境</a>
+        <a href="#quickstart">五分钟快速检查</a>
+        <span class="guide-nav-group">数据与运行</span>
+        <a href="#dataset">数据与模态</a>
+        <a href="#inference">运行推理</a>
+        <a href="#training">Full / LoRA SFT</a>
+        <a href="#grpo">Motion-R1 GRPO</a>
+        <a href="#rubric">Rubric RL</a>
+        <a href="#controller">统一评估</a>
+        <a href="#testing">测试与验证</a>
+        <span class="guide-nav-group">参考</span>
+        <a href="#layout">代码目录</a>
+        <a href="#evidence">实现索引</a>
+        <a href="#troubleshooting">排错与安全</a>
         <a href="../../dataset-page/">数据统计报告 ↗</a>
       </nav>
       <div class="guide-sidebar-note">
@@ -54,9 +65,17 @@
     </aside>
 
     <article class="guide-content">
+      <div class="guide-toolbar" aria-label="文档工具栏">
+        <button class="guide-menu-button" id="guideMenuButton" type="button" aria-label="打开目录">☰</button>
+        <span>使用手册</span>
+        <div>
+          <a href="../../index.html">主页</a>
+          <a href="../../dataset-page/">数据报告</a>
+        </div>
+      </div>
       <header class="guide-hero">
         <p class="eyebrow">CAIMENG CODEBASE · UPDATED 2026-09-02</p>
-        <h1>Codebase<br>使用文档</h1>
+        <h1>Codebase 使用文档</h1>
         <p>从登录服务器后的第一条命令开始，逐步说明环境、数据、推理、训练、评估与排错。所有示例都面向 <code>/wangbenyou-sulongjie/caimeng/qwen-codebase</code>。</p>
         <div class="hero-actions" aria-label="文档快捷入口">
           <a href="#quickstart">五分钟快速检查</a>
@@ -501,6 +520,8 @@ python scripts/secret_scan.py .</code></pre>
       <a href="#troubleshooting">排错</a>
     </aside>
   </main>
+
+  <button class="guide-sidebar-backdrop" id="guideSidebarBackdrop" type="button" aria-label="关闭目录"></button>
 
   <footer><span>Caimeng Codebase · Usage Documentation</span><span>先检查环境，再确认资产；先小样本，再扩大运行。</span></footer>
   <script src="guide.js"></script>
