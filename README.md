@@ -40,9 +40,9 @@ model_evaluation_agent/ registry、worker facade 与运维文档
 configs/              数据、训练、GRPO 和评估配置
 tests/                unit / contract / integration / stress
 legacy/               只读来源证据，活动代码不得导入
-docs/                 状态、架构、使用、开发和迁移文档
+docs/                 状态、架构、使用、迁移、审计和数据报告
+tools/                数据工具；remote/ 收纳远端辅助与旧兼容脚本
 online_page/          Codebase 主网站、使用手册、数据统计与 Paper Reading
-reports/              当前数据审计与统计报告
 ```
 
 核心原则：新逻辑写在 `src/`；现有顶层 Qwen/model/Rubric 大文件属于待继续

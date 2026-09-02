@@ -131,7 +131,7 @@ _FORMAL_CODE_PATHS = (
     FORMAL_PRETRAINED_REGISTRY_PATH,
     FORMAL_PRETRAINED_INVENTORY_PATH,
     REPO_ROOT / "scripts" / "train_grpo_ms_swift.sh",
-    REPO_ROOT / "requirements" / "grpo-formal.lock",
+    REPO_ROOT / "requirements-grpo.lock",
     REPO_ROOT / "models",
     # Freeze complete package trees, not a hand-maintained approximation of
     # their transitive import closure.  ``-B`` and the child environment below

@@ -29,6 +29,8 @@ qwen-codebase/
 ├── scripts/                   # 很薄的命令启动器
 ├── tests/                     # unit / contract / integration / stress
 ├── docs/                      # 使用、架构、状态、迁移和开发文档
+├── tools/                     # 数据处理、审计和远端辅助工具
+│   └── remote/                # 当前远端工具；legacy/ 为旧兼容脚本
 └── legacy/                    # 只读来源证据，不在 import path
 ```
 

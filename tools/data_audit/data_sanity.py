@@ -27,12 +27,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--dataset-root",
         type=Path,
-        default=Path("/wangbenyou-sulongjie/caimeng/dataset"),
+        required=True,
+        help="Absolute root of the dataset catalog to audit.",
     )
     parser.add_argument(
         "--qwen-repo-root",
         type=Path,
-        default=Path("/wangbenyou-sulongjie/qwen-vl-finetune"),
+        required=True,
+        help="Absolute root of the source Qwen repository used for comparison.",
     )
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--seed", type=int, default=20260830)

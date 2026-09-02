@@ -11,7 +11,6 @@ ACTIVE_PYTHON_ROOTS = (
     "qwenvl",
     "models",
     "rubric_rl",
-    "codex_remote_tools",
     "tools",
     "model_evaluation_agent/scripts",
 )

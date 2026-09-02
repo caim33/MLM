@@ -29,6 +29,9 @@
 | `MIGRATION.md` | 从旧 QwenVL 到新适配层的映射 |
 | `ENGINEERING_REQUIREMENTS.md` | 数据、模块、运行模式、测试和文档要求 |
 | `SOURCE_PROVENANCE.md` | 文件来源、commit、archive 和 hash |
+| `reports/` | 数据集统计与审计报告 |
+
+`BASELINE_MANIFEST.json` 是重构前文件清单的历史快照，其中路径不会随当前目录迁移而改写。
 
 ## 历史 refactor 文档
 

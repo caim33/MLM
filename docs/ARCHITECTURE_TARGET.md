@@ -85,4 +85,6 @@ src/
 
 ## 5. 兼容策略
 
-`models/`、`qwenvl/`、`model_evaluation_agent/scripts/` 和 `codex_remote_tools/gpu_keepalive.py` 只保留薄 facade。兼容入口可以保留旧命令参数，但数据验证、状态转换、训练 artifact 和 GPU 所有权必须委托给 `src/` 中的唯一实现。
+`models/`、`qwenvl/`、`model_evaluation_agent/scripts/` 和
+`tools/remote/legacy/gpu_keepalive.py` 只保留兼容入口。兼容入口可以保留旧命令参数，
+但数据验证、状态转换、训练 artifact 和 GPU 所有权必须委托给 `src/` 中的唯一实现。
