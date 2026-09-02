@@ -74,11 +74,14 @@ main { padding: 32px clamp(18px, 3vw, 50px) 72px; }
 .stat-card strong { grid-column: 1; font-family: var(--font-mono); font-size: clamp(24px, 3vw, 33px); font-weight: 650; letter-spacing: -0.055em; }
 .stat-card small { grid-column: 2; grid-row: 2; align-self: end; color: var(--faint); font-family: var(--font-mono); font-size: 9px; text-transform: uppercase; }
 
-.snapshot-note { display: grid; grid-template-columns: minmax(230px, .8fr) minmax(0, 1.6fr); gap: 28px; align-items: center; margin: 0 0 72px; padding: 24px 28px; border: 1px solid var(--line); border-left: 4px solid var(--accent); background: var(--surface); }
+.snapshot-note { display: grid; grid-template-columns: minmax(230px, .8fr) minmax(0, 1.6fr) auto; gap: 28px; align-items: center; margin: 0 0 72px; padding: 24px 28px; border: 1px solid var(--line); border-left: 4px solid var(--accent); background: var(--surface); }
 .snapshot-note > div { display: grid; gap: 6px; }
 .snapshot-note span { color: var(--accent); font-family: var(--font-mono); font-size: 10px; font-weight: 800; letter-spacing: .12em; }
 .snapshot-note strong { font-size: 17px; }
 .snapshot-note p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.75; }
+.snapshot-link { display: inline-flex; align-items: center; justify-content: center; gap: 12px; min-height: 40px; padding: 0 14px; border: 1px solid var(--ink); border-radius: 6px; background: var(--ink); color: #fff; font-size: 11px; font-weight: 750; text-decoration: none; white-space: nowrap; }
+.snapshot-link:hover { background: var(--accent); border-color: var(--accent); }
+.snapshot-link span { color: inherit; font-family: inherit; font-size: 14px; font-weight: 400; letter-spacing: 0; }
 
 .task-section { margin: 8px 0 42px; padding: 34px 0 40px; border-bottom: 1px solid var(--line); }
 .task-heading { align-items: end; }

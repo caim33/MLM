@@ -9,7 +9,7 @@
       name="description"
       content="HumanML3D、SONIC 与 MotionX 的规模、质量和多模态配对任务统计"
     />
-    <link rel="stylesheet" href="./styles.css?v=20260902-3" />
+    <link rel="stylesheet" href="./styles.css?v=20260902-4" />
     <script>
       window.addEventListener("error", (event) => {
         if ((event.message || "").includes("ResizeObserver loop")) return;
@@ -38,6 +38,7 @@
         </div>
         <div class="topbar-actions">
           <nav class="project-nav" aria-label="页面导航">
+            <a href="https://viewer.caimeng.online/viewer" target="_blank" rel="noreferrer">完整 Viewer ↗</a>
             <a href="#tasks">任务口径</a>
             <a href="#audit">审计统计</a>
             <a href="../motionllm-page/guide/qwen-codebase.html#dataset">使用文档</a>
@@ -71,6 +72,7 @@
         <aside class="snapshot-note" aria-label="数据版本说明">
           <div><span>STATIC SNAPSHOT</span><strong>同步自 AIStation · 2026-09-02</strong></div>
           <p>本页固定展示服务器审计后的统计结果，不会从公开网页读取内部数据文件。动作样本、视频和三维网格仍留在 AIStation 的实时浏览器中。</p>
+          <a class="snapshot-link" href="https://viewer.caimeng.online/viewer" target="_blank" rel="noreferrer">打开实时 Viewer <span aria-hidden="true">↗</span></a>
         </aside>
 
         <section class="task-section" id="tasks" aria-labelledby="taskTitle">
@@ -206,6 +208,6 @@
     </div>
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
-    <script src="./stats.js?v=20260902-3"></script>
+    <script src="./stats.js?v=20260902-4"></script>
   </body>
 </html>

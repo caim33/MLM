@@ -26,6 +26,8 @@
   使用说明和 Paper Reading 由统一首页进入，Python 源码不在发布范围。
 - 数据统计入口已同步 AIStation `dataset/data_page/` 的 2026-09-02 汇总快照；公开页
   仅发布汇总 JSON，内部样本、视频、三维网格和 SQLite 索引仍留在服务器。
+- 完整 Motion Viewer 已通过固定域名 `viewer.caimeng.online` 对外提供；本机自动占卡
+  程序会在新的 AIStation 环境可连接后恢复 Viewer 与 Cloudflare Tunnel。
 
 ## 本机验证结果
 
