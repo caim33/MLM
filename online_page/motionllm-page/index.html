@@ -30,7 +30,7 @@
     <section class="hero" id="top">
       <div class="hero-grid">
         <div class="hero-copy">
-          <p class="eyebrow">CODE × PAPERS × ACTIONS · 2026-08-20</p>
+          <p class="eyebrow">LITERATURE UPDATE · 2026-09-27 · CODE SNAPSHOT 2026-07-29</p>
           <h1>别再把 motion<br>只当成另一种 token。</h1>
           <p class="hero-lede">这是一份围绕你的 Motion-R1 / Qwen-VL Motion / SFT / GRPO / Rubric / Eval 真实代码制作的中文研究网页。每篇论文都被放进项目链路中的具体位置，并明确标注：它解决什么、没有解决什么、下一步怎么验证。</p>
           <div class="hero-actions">
@@ -42,8 +42,8 @@
         </div>
         <div class="hero-panel" aria-label="研究统计">
           <div class="signal-line"><span>PROJECT SIGNAL</span><strong>VM → V 对照</strong></div>
-          <div class="hero-metric"><strong id="paperCount">—</strong><span>精读论文</span></div>
-          <div class="hero-metric"><strong id="figureCount">—</strong><span>论文主图</span></div>
+          <div class="hero-metric"><strong id="paperCount">—</strong><span>收录论文</span></div>
+          <div class="hero-metric"><strong id="figureCount">—</strong><span>论文配图</span></div>
           <div class="hero-metric"><strong id="directCount">—</strong><span>直接可借鉴</span></div>
           <div class="hero-note"><span class="pulse"></span> 结论来自代码证据与论文原文，不引用历史 accuracy 作为新结果。</div>
         </div>
@@ -234,7 +234,13 @@
       <div class="section-heading">
         <p class="kicker">PAPER ATLAS</p>
         <h2>按“与你的项目距离”读论文</h2>
-        <p>主图来自论文 PDF 或官方项目页；点击图片可放大。每张卡都把结论映射到具体实验。</p>
+        <p>原有论文配图来自 PDF 或官方项目页；2026-09-27 新增条目使用本站原创机制示意，并分别链接作者原文。点击图片可放大。</p>
+      </div>
+
+      <div class="research-update">
+        <strong>2026-09-27 文献更新 · 新增 10 篇</strong>
+        <p>5 篇动作与动作语言研究，5 篇多模态大模型训练 Recipe。重点检查动作证据、时间对齐、联合感知训练和 RL 奖励；论文报告值不作为本项目新评测结果。</p>
+        <button class="update-filter" type="button" id="showRecentPapers">只看本次新增 →</button>
       </div>
 
       <div class="paper-controls" aria-label="论文筛选">
@@ -244,8 +250,10 @@
         </label>
         <div class="filter-row" id="filterRow" role="group" aria-label="类别筛选">
           <button class="filter active" type="button" data-filter="all">全部</button>
+          <button class="filter" type="button" data-filter="recent">本次新增 · 10</button>
           <button class="filter" type="button" data-filter="direct">直接竞争 / 直接借鉴</button>
           <button class="filter" type="button" data-filter="representation">Motion 表示</button>
+          <button class="filter" type="button" data-filter="recipe">训练 Recipe</button>
           <button class="filter" type="button" data-filter="rl">RL / GRPO</button>
           <button class="filter" type="button" data-filter="rubric">Rubric / Judge</button>
           <button class="filter" type="button" data-filter="evaluation">评估治理</button>
@@ -254,9 +262,9 @@
           <span id="resultCount" aria-live="polite">—</span>
           <label>排序
             <select id="paperSort">
+              <option value="date-desc">发表时间：新到旧</option>
               <option value="relevance">项目相关度</option>
-              <option value="year-desc">年份：新到旧</option>
-              <option value="year-asc">年份：旧到新</option>
+              <option value="date-asc">发表时间：旧到新</option>
             </select>
           </label>
         </div>
@@ -279,7 +287,7 @@
             <tr><td>数据 / 标注</td><td>覆盖哪些动作与粒度？</td><td>Motion-X QA / rubric 派生</td><td>Motion-X++、MoVid、HumanML3D 的层级标签与严格划分</td><td>coverage、重复率、泄漏率</td></tr>
             <tr><td>表示 / tokenizer</td><td>motion 信息如何压缩？</td><td>VQ-VAE continuous feature</td><td>T2M-GPT / MotionGPT 的离散 code、时间结构和 codebook 诊断</td><td>reconstruction、code usage、linear probe</td></tr>
             <tr><td>多模态对齐</td><td>motion 如何进入 LLM？</td><td>MLP 投影 + embedding 注入</td><td>MotionLLM / MoChat / LLaMo 的分阶段对齐、motion-aware connector</td><td>counterfactual gain、retrieval、caption</td></tr>
-            <tr><td>后训练 / 奖励</td><td>怎样得到可靠推理行为？</td><td>SFT + GRPO + VM/V bonus</td><td>DeepSeekMath、Video-R1、MM-Eureka、RaR 的稳定性与奖励拆分</td><td>strict accuracy、KL、entropy、hack rate</td></tr>
+            <tr><td>训练课程 / 奖励</td><td>怎样得到可靠感知与推理？</td><td>对齐 + SFT + GRPO + VM/V bonus</td><td>Qwen3-VL、OneVision-2 的分阶段感知；InternVL3.5、Video-R2 的 RL 数据和证据奖励</td><td>strict accuracy、motion 依赖、KL、entropy、hack rate</td></tr>
             <tr><td>评估 / 治理</td><td>结果是否可信且可复现？</td><td>MCQ + rubric judge + 多 runner</td><td>MVBench、Video-MME、RewardBench、LLaVA-Critic 的维度化与校准</td><td>固定分母、parser parity、judge–human agreement</td></tr>
           </tbody>
         </table>
@@ -293,20 +301,20 @@
       </div>
       <div class="method-grid">
         <article><strong>01 · 代码优先</strong><p>先追踪 snapshot 的 forward、数据处理、reward、runner、rubric post-process 与 evaluator，再选择论文。代码证据链接到页面内的现行代码索引，并标出路径与行号。</p></article>
-        <article><strong>02 · 一手论文</strong><p>摘要只用于初筛；入选条目核对论文 PDF 的方法、实验、局限和主图。外链优先 arXiv、会议页与官方代码仓库。</p></article>
+        <article><strong>02 · 一手论文</strong><p>摘要用于初筛；新增条目优先核对 arXiv 原文或作者技术报告的方法和实验。旧条目配图来自论文，新条目原创图均明确注明，外链指向作者原文和官方代码。</p></article>
         <article><strong>03 · 明确区分</strong><p>“直接竞争”表示任务/模态/输出高度重合；“直接借鉴”表示可移植机制；“基础/邻近”只解决上游表示或评估，不冒充端到端方案。</p></article>
         <article><strong>04 · 评估边界</strong><p>历史 checkpoint、accuracy、prediction、proxy、option-score 不进入新批主结果。任何下一批都必须先完成所有模型的 fresh finetune / blocked barrier。</p></article>
       </div>
       <div class="source-note">
         <strong>本地研究包</strong>
-        <p>论文 PDF、agent 精读报告与主图均保存在本网页目录。若通过 <code>file://</code> 打开，全部核心内容与图片仍可离线浏览；论文外链需要联网。</p>
+        <p>旧版论文 PDF、精读报告及配图保存在本网页目录；本次新增仅保存原创机制示意，不镜像新论文 PDF。若通过 <code>file://</code> 打开，网页内容与图片仍可离线浏览；论文外链需要联网。</p>
       </div>
     </section>
   </main>
 
   <footer>
     <span>MotionLLM Research Atlas</span>
-    <span>Built from project snapshot 20260729_144801 · Research review 2026-08-20</span>
+    <span>Project snapshot 20260729_144801 · Literature update 2026-09-27</span>
   </footer>
 
   <dialog class="figure-dialog" id="figureDialog">

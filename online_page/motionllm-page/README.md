@@ -15,6 +15,7 @@
 - `assets/figures/`：从论文 PDF 或官方项目页提取的主图。
 - `source_papers/`：精读时使用的论文原文与文本提取。
 - `agent_reports/`：代码审计、motion 论文、RL/评估论文的并行研究报告。
+- `LITERATURE_UPDATE_20260927.md`：本次新增论文的一手来源、时间边界与阅读顺序。
 - `../guide/qwen-codebase.html`：整个仓库的目录、命令、状态、现行代码证据和排错手册。
 - `guide/dataset-statistics.html`：MotionX、HumanML3D、SONIC 和 Qwen QA 的规模、质量、配对与 GPU 烟测报告。
 
@@ -49,3 +50,5 @@ python3 -m http.server 8767 --bind 127.0.0.1
 `.nojekyll` 用于让 GitHub Pages 原样发布静态文件。当前仓库与网页已经公开；后续添加页面、论文 PDF、提取文本或内部数据统计前，仍需逐次复核版权与保密边界。
 
 研究边界：历史 accuracy、prediction、baseline、proxy 与 option-score 诊断不作为新批次主结果。任何后续正式评估仍需遵守 fresh finetune 与全模型 finetune barrier。
+
+2026-09-27 文献更新新增 10 篇：5 篇动作研究和 5 篇多模态训练 Recipe。页面按原始发布日期显示本次条目的日期，并提供“本次新增”和“训练 Recipe”筛选。新增 SVG 均为本站原创机制示意；不镜像新增论文 PDF，也不将论文报告数值写成本项目评测结果。

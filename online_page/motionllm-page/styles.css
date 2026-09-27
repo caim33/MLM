@@ -174,6 +174,11 @@ code {
 .search-box { display: flex; align-items: center; gap: 12px; padding: 0 15px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); }
 .search-box input { width: 100%; min-height: 48px; border: 0; outline: 0; background: transparent; color: var(--ink); }
 .filter-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
+.research-update { margin: -19px 0 26px; padding: 22px 26px; border: 1px solid color-mix(in srgb, var(--blue) 35%, var(--line)); border-radius: 18px; background: color-mix(in srgb, var(--blue) 8%, var(--paper)); }
+.research-update strong { display: block; color: var(--ink); font-size: 17px; }
+.research-update p { max-width: 850px; margin: 8px 0 13px; color: var(--muted); font-size: 14px; }
+.update-filter { padding: 0; border: 0; background: transparent; color: var(--blue); font: inherit; font-size: 13px; font-weight: 750; cursor: pointer; }
+.update-filter:hover { text-decoration: underline; }
 .filter { padding: 8px 13px; border: 1px solid var(--line); border-radius: 999px; background: transparent; color: var(--muted); font-size: 12px; cursor: pointer; }
 .filter.active { border-color: var(--ink); background: var(--ink); color: var(--bg); }
 .sort-row { display: flex; align-items: center; justify-content: space-between; color: var(--muted); font-size: 12px; }
@@ -192,6 +197,8 @@ code {
 .badge.direct { background: color-mix(in srgb, var(--lime) 30%, var(--paper)); color: color-mix(in srgb, #507a10 80%, var(--ink)); }
 .badge.rl { background: color-mix(in srgb, var(--violet) 25%, var(--paper)); color: color-mix(in srgb, #5140a8 80%, var(--ink)); }
 .badge.eval { background: color-mix(in srgb, var(--orange) 25%, var(--paper)); color: color-mix(in srgb, #a64d18 80%, var(--ink)); }
+.badge.recipe { background: color-mix(in srgb, var(--blue) 17%, var(--paper)); color: color-mix(in srgb, #175e98 80%, var(--ink)); }
+.badge.new { background: var(--ink); color: var(--bg); }
 .paper-card h3 { margin: 17px 0 9px; font-size: 22px; line-height: 1.25; letter-spacing: -.02em; }
 .paper-one-line { margin: 0 0 18px; color: var(--muted); font-size: 14px; }
 .paper-impact { margin: 0 0 18px; padding: 13px 15px; border-left: 3px solid var(--blue); background: var(--paper-2); font-size: 13px; }

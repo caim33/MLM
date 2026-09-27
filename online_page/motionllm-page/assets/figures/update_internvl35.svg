@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="520" viewBox="0 0 1000 520" role="img" aria-labelledby="title desc">
+  <title id="title">INTERNVL3.5 mechanism sketch</title>
+  <desc id="desc">Broad SFT to Offline MPO to Online GSPO. Original summary diagram drawn for MotionLLM Research Atlas, not a figure from the paper.</desc>
+  <rect width="1000" height="520" rx="30" fill="#132236"/>
+  <path d="M0 400 C180 340 240 470 440 410 S750 310 1000 390 V520 H0Z" fill="#1d3753" opacity=".75"/>
+  <circle cx="888" cy="82" r="142" fill="#ffc496" opacity=".08"/>
+  <text x="56" y="77" fill="#ffc496" font-family="Arial,sans-serif" font-size="25" font-weight="700" letter-spacing="4">INTERNVL3.5</text>
+  <text x="56" y="118" fill="#b8c9da" font-family="Arial,sans-serif" font-size="22">Cascade reinforcement learning</text>
+  <rect x="56" y="184" width="260" height="168" rx="22" fill="#213952" stroke="#ffc496" stroke-width="3"/>
+  <rect x="370" y="184" width="260" height="168" rx="22" fill="#213952" stroke="#ffc496" stroke-width="3"/>
+  <rect x="684" y="184" width="260" height="168" rx="22" fill="#213952" stroke="#ffc496" stroke-width="3"/>
+  <text x="186" y="278" text-anchor="middle" fill="#ffffff" font-family="Arial,sans-serif" font-size="28" font-weight="700">Broad SFT</text>
+  <text x="500" y="278" text-anchor="middle" fill="#ffffff" font-family="Arial,sans-serif" font-size="28" font-weight="700">Offline MPO</text>
+  <text x="814" y="278" text-anchor="middle" fill="#ffffff" font-family="Arial,sans-serif" font-size="28" font-weight="700">Online GSPO</text>
+  <path d="M327 268 H356 M347 259 L356 268 L347 277 M641 268 H670 M661 259 L670 268 L661 277" fill="none" stroke="#ffc496" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="56" y="454" fill="#9db1c6" font-family="Arial,sans-serif" font-size="20">MOTIONLLM RESEARCH ATLAS · ORIGINAL METHOD SUMMARY</text>
+</svg>
