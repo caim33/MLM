@@ -42,3 +42,16 @@ origin  https://github.com/caim33/MLM.git
 对 `main` 分支中 `online_page/**` 或 `.github/workflows/pages.yml` 的推送会自动
 触发 Pages 部署。新增公开网页资产前，必须继续检查敏感信息、单文件大小、论文版权
 和内部数据披露边界。
+
+## Web source layout update (2026-09-27)
+
+The live Motion Data Atlas source is now in online_page/data_page/.
+Only its public aggregate snapshot in online_page/dataset-page/ is
+hosted on GitHub Pages. The Python service reads the private index
+from dataset/data_page/data/ and runs behind the existing Viewer tunnel.
+
+The Pages workflow now calls tools/site/build_public_site.py. Its
+allowlist contains the home files, dataset-page/, guide/, and
+motionllm-page/. The dynamic data_page/ source and private index are
+excluded from the Pages artifact. Updates to the builder also trigger
+the deployment workflow.

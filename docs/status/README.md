@@ -85,3 +85,8 @@ Transformers 4.57.3、PEFT 0.18.0、Accelerate 1.14.0、PyAV 12.3.0，并使用
 旧 refactor 报告中的 `922 passed, 14 skipped, 2 warnings` 仅作为历史证据。
 本页的 `958 passed, 2 skipped, 2 warnings` 才是 clean codebase 在上述本机
 环境中的当前分层复跑结果；GPU 实跑证据另见 `GPU_SMOKE_20260830.md`。
+
+
+## Web layout update (2026-09-27)
+
+Motion Data Atlas source moved from dataset/data_page/ to online_page/data_page/. The former directory now contains only data/index.sqlite and summary JSON files. Python dependencies moved to runtime/cloudflare-viewer/deps/. The existing viewer startup script points to the new source and the loopback health endpoint was verified. GitHub Pages now stages an explicit static allowlist, excluding the dynamic server and private index.

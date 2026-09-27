@@ -58,3 +58,9 @@ known_hosts
 build/
 dist/
 *.egg-info/
+
+# Motion Data Atlas runtime remains outside the public site
+/online_page/data_page/.deps/
+/online_page/data_page/data/
+/online_page/data_page/*.pid
+/online_page/data_page/*.sqlite

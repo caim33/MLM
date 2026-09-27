@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#07111f" />
+    <title>Motion Viewer</title>
+    <meta name="description" content="HumanML3D、SONIC、MotionX 视频、SMPL-H 与文本数据浏览器" />
+    <link rel="stylesheet" href="/static/viewer.css?v=20260902-1" />
+  </head>
+  <body>
+    <header class="appbar">
+      <div class="brand"><span class="brand-icon" aria-hidden="true"><i></i><i></i><i></i></span><div><strong>Motion Viewer</strong><small>VIDEO · SMPL-H · TEXT</small></div></div>
+      <div class="server-state"><i id="serverDot" aria-hidden="true"></i><span id="serverStatus">Connecting</span></div>
+      <nav><a href="https://caim33.github.io/MLM/dataset-page/">Statistics</a><a href="/">Data Atlas</a><span>Live Dataset</span></nav>
+    </header>
+
+    <main class="viewer-shell">
+      <aside class="data-sidebar">
+        <div class="panel-heading"><div><span>01</span><h1>Data</h1></div><strong id="resultCount">—</strong></div>
+        <div class="dataset-switch" role="tablist" aria-label="Dataset">
+          <button class="dataset-button is-active" type="button" data-dataset="humanml3d" role="tab" aria-selected="true">HumanML3D</button>
+          <button class="dataset-button" type="button" data-dataset="sonic" role="tab" aria-selected="false">SONIC</button>
+          <button class="dataset-button" type="button" data-dataset="motionx" role="tab" aria-selected="false">MotionX</button>
+        </div>
+        <div class="dataset-meta"><strong id="datasetTotal">—</strong><span id="datasetDuration">—</span></div>
+        <div class="data-tools">
+          <label class="search-box"><span class="sr-only">Search sample ID</span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-4-4"></path></svg><input id="sampleSearch" type="search" autocomplete="off" placeholder="Search sample ID" /></label>
+          <label class="filter-box"><span>Show</span><select id="assetFilter"><option value="all">All motions</option><option value="text">With text</option><option value="video">With video</option><option value="cot">With CoT</option></select></label>
+        </div>
+        <div class="sample-list" id="sampleList" aria-live="polite"><div class="list-state">Loading server index…</div></div>
+        <button class="load-more" id="loadMore" type="button">Load more</button>
+      </aside>
+
+      <section class="motion-stage">
+        <header class="stage-header">
+          <div><span class="dataset-kicker" id="activeDataset">HUMANML3D</span><h2 id="activeSample">Select a sample</h2><p id="sampleMeta">Choose server data from the left panel.</p></div>
+          <div class="stage-actions"><span class="mesh-state" id="meshState">No motion</span><div class="view-switch" role="group" aria-label="3D render mode"><button class="view-button is-active" type="button" data-mode="skeleton" aria-pressed="true">Skeleton</button><button class="view-button" type="button" data-mode="surface" aria-pressed="false">SMPL-H</button></div></div>
+        </header>
+
+        <div class="viewport" id="viewport">
+          <div class="viewport-empty" id="viewportEmpty"><span class="orbit-mark" aria-hidden="true"></span><strong>Choose server data</strong><p>Skeleton and SMPL-H will render here.</p></div>
+          <div class="viewport-badges" id="viewportBadges"><span>263D</span><span>22 Joints</span><span>Y-up</span></div>
+          <div class="camera-tools" role="group" aria-label="Camera presets"><button type="button" data-camera="front">Front</button><button type="button" data-camera="side">Side</button><button type="button" data-camera="top">Top</button><button type="button" id="resetCamera">Reset</button></div>
+          <div class="interaction-hint">Drag to rotate · Right-drag to pan · Scroll to zoom</div>
+        </div>
+
+        <div class="timeline">
+          <button class="step-button" id="prevFrame" type="button" aria-label="Previous frame">−1</button>
+          <button class="play-button" id="playToggle" type="button" aria-label="Play"><svg class="play-icon" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7Z"></path></svg><svg class="pause-icon" viewBox="0 0 24 24"><path d="M7 5h4v14H7zm6 0h4v14h-4z"></path></svg></button>
+          <button class="step-button" id="nextFrame" type="button" aria-label="Next frame">+1</button>
+          <span class="frame-count" id="frameCount">000 / 000</span>
+          <input id="frameSlider" type="range" min="0" max="0" value="0" aria-label="Motion frame" />
+          <label class="speed-control">Speed<select id="speedSelect"><option value="0.25">0.25×</option><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select></label>
+          <label class="loop-control"><input id="loopToggle" type="checkbox" checked />Loop</label>
+        </div>
+
+        <div class="motion-facts" id="motionFacts"><div><span>Representation</span><strong>263D</strong></div><div><span>Frames</span><strong>—</strong></div><div><span>Duration</span><strong>—</strong></div><div><span>Render</span><strong>—</strong></div></div>
+      </section>
+
+      <aside class="inspector">
+        <section class="inspector-card video-panel">
+          <header><div><span>02</span><h2>Video</h2></div><small id="videoState">NO SOURCE</small></header>
+          <div class="video-wrap"><video id="sourceVideo" controls preload="metadata" playsinline></video><div class="media-empty" id="videoEmpty"><strong>No source video</strong><span>HumanML3D and SONIC are motion–text datasets.</span></div></div>
+          <p class="sync-note" id="syncNote">Video and motion use independent controls until temporal zero-point is verified.</p>
+        </section>
+
+        <section class="inspector-card text-panel">
+          <header><div><span>03</span><h2>Text</h2></div><div class="text-header-actions"><small id="textState">NO SAMPLE</small><button id="expandText" type="button">Expand</button></div></header>
+          <div class="text-tabs" role="tablist" aria-label="Text data"><button class="text-tab is-active" type="button" data-text="base" role="tab" aria-selected="true">Main</button><button class="text-tab" type="button" data-text="clip" role="tab" aria-selected="false" disabled>Clip</button><button class="text-tab" type="button" data-text="cot" role="tab" aria-selected="false" disabled>CoT</button></div>
+          <div class="text-tools"><label><span class="sr-only">Search text</span><input id="textSearch" type="search" autocomplete="off" placeholder="Search current text" /></label><button id="copyText" type="button">Copy</button></div>
+          <div class="text-content" id="textContent"><div class="media-empty"><strong>No text selected</strong><span>Select a motion record to inspect its annotations.</span></div></div>
+        </section>
+
+        <section class="inspector-card evidence-panel">
+          <header><div><span>04</span><h2>Evidence</h2></div></header>
+          <dl id="evidenceList"><div><dt>Motion</dt><dd>Waiting</dd></div><div><dt>Video</dt><dd>Waiting</dd></div><div><dt>SMPL-H</dt><dd>Waiting</dd></div><div><dt>Text</dt><dd>Waiting</dd></div></dl>
+          <p>SMPL-H is a neutral-shape derived mesh. It is not source ground truth.</p>
+        </section>
+      </aside>
+    </main>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script type="module" src="/static/viewer.js?v=20260902-1"></script>
+  </body>
+</html>

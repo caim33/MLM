@@ -44,7 +44,7 @@ online_page/          Codebase 主网站、使用手册、数据统计与 Paper 
 核心原则：新逻辑写在 `src/`；现有顶层 Qwen/model/Rubric 大文件属于待继续
 下沉的过渡实现，不能把它们误称为已经完成迁移；`legacy/` 永远不进入 import path。
 
-网页保持在独立的 `online_page/` 目录中，但与代码一起版本化。`.github/workflows/pages.yml` 只发布该目录，不会把 Python 源码作为网页内容上传。Paper Reading 页面位于 `online_page/motionllm-page/`。AIStation monitor 不属于当前代码库，历史副本保存在服务器 `history/archive/monitor-20260901/`。
+网页保持在独立的 `online_page/` 目录中，但与代码一起版本化。`.github/workflows/pages.yml` 通过静态文件白名单构建发布物；`online_page/data_page/` 的 Python 服务代码和私有数据不会上传到 GitHub Pages。Paper Reading 页面位于 `online_page/motionllm-page/`。AIStation monitor 不属于当前代码库，历史副本保存在服务器 `history/archive/monitor-20260901/`。
 
 ## 快速建立 CPU 开发环境
 
@@ -105,3 +105,6 @@ checkpoint、MotionX 视频与 motion 的端到端 smoke；它证明运行链路
   `legacy/` 和 dated `server_audit/` 只可作为不可执行来源证据保留旧路径。
 - 不手工删除 GPU lease，不按模糊进程名批量终止任务。
 - `legacy/`、历史数据和模型资产跨组织分发前必须单独做版权与保密审查。
+
+
+The full Motion Data Atlas service source is in online_page/data_page/. Its media and private index stay under dataset/, while server dependencies and tunnel files stay under runtime/. The Pages workflow publishes only the approved static site entries.

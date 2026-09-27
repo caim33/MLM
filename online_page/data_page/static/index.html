@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f3f0e8" />
+    <title>Motion Data Atlas</title>
+    <meta name="description" content="HumanML3D、SONIC、MotionX 多模态任务统计、标注说明与三维动作浏览" />
+    <link rel="stylesheet" href="/static/styles.css?v=20260902-6" />
+    <script>
+      window.addEventListener("error", (event) => {
+        if ((event.message || "").includes("ResizeObserver loop")) return;
+        queueMicrotask(() => {
+          const status = document.getElementById("indexStatus");
+          if (status) status.textContent = `页面错误：${event.message || "资源加载失败"}`;
+        });
+      });
+      window.addEventListener("unhandledrejection", (event) => {
+        queueMicrotask(() => {
+          const status = document.getElementById("indexStatus");
+          if (status) status.textContent = `页面错误：${event.reason?.message || event.reason || "初始化失败"}`;
+        });
+      });
+    </script>
+  </head>
+  <body data-dataset="humanml3d">
+    <header class="topbar">
+      <a class="brand-lockup" href="#overview" aria-label="返回文档首页">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span><strong>Motion Data Atlas</strong><small>Dataset Documentation</small></span>
+      </a>
+      <nav class="top-nav" aria-label="主导航"><a href="#datasets">Datasets</a><a href="#audit">Quality</a><a href="/viewer">Viewer</a><a href="#methodology">Methods</a></nav>
+      <div class="topbar-meta"><span class="version-badge">SNAPSHOT · 2026-09-02</span><span class="index-badge"><i class="status-dot" aria-hidden="true"></i><span id="indexStatus">正在读取索引</span></span></div>
+    </header>
+
+    <details class="mobile-toc">
+      <summary>Contents</summary>
+      <nav aria-label="移动端文档目录"><a href="#overview">Overview</a><a href="#tasks">Tasks</a><a href="#datasets">Datasets</a><a href="#annotations">Examples</a><a href="#representation">263D Motion</a><a href="#rendering">Rendering</a><a href="#explorer">Explorer</a><a href="#audit">Quality</a><a href="#methodology">Methods</a></nav>
+    </details>
+
+    <div class="docs-shell">
+      <aside class="docs-sidebar" aria-label="文档目录">
+        <p class="sidebar-label">Overview</p>
+        <nav><a href="#overview" class="is-current">Introduction</a><a href="#tasks">Tasks</a><a href="#datasets">Datasets</a></nav>
+        <p class="sidebar-label">Data</p>
+        <nav><a href="#annotations">Examples</a><a href="#representation">263D Motion</a><a href="#rendering">Rendering</a></nav>
+        <p class="sidebar-label">Explore</p>
+        <nav><a href="#explorer">Explorer</a><a href="#audit">Quality</a><a href="#methodology">Methods</a></nav>
+        <div class="sidebar-note"><strong>Server Snapshot</strong><p>数字来自当前数据目录实扫，不代表上游数据集官方规模。</p></div>
+      </aside>
+
+      <main class="docs-main">
+        <section class="doc-section hero-section" id="overview" aria-labelledby="overviewTitle">
+          <div class="breadcrumbs"><span>Motion LLM</span><i>/</i><span>Dataset Atlas</span><i>/</i><strong>Overview</strong></div>
+          <div class="hero-grid">
+            <div><p class="eyebrow">MULTIMODAL MOTION DATA · AUDITED SNAPSHOT</p><h1 id="overviewTitle">Motion Data Atlas.</h1><p class="hero-lede">本文档覆盖 HumanML3D、SONIC 与 MotionX。它区分文件规模、训练配对、文本监督单元和可渲染能力，并提供视频、22 关节火柴人与派生 SMPL-H 网格的交互检查。</p></div>
+            <div class="hero-aside"><p>Scope</p><dl><div><dt>Datasets</dt><dd>3</dd></div><div><dt>Tasks</dt><dd>6</dd></div><div><dt>Representation</dt><dd>263D</dd></div><div><dt>Audited</dt><dd>2026-09-02</dd></div></dl></div>
+          </div>
+          <div class="stat-grid" id="statGrid" aria-live="polite"><article class="stat-card"><span>动作序列</span><strong>—</strong><small>NPY</small></article><article class="stat-card"><span>源视频</span><strong>—</strong><small>MP4</small></article><article class="stat-card"><span>动作时长</span><strong>—</strong><small>HOURS</small></article><article class="stat-card"><span>数据体积</span><strong>—</strong><small>GB</small></article></div>
+          <div class="evidence-strip" aria-label="证据等级"><span class="evidence evidence-source">原始媒体</span><p>目录中实际存在的源视频</p><span class="evidence evidence-decoded">确定性解码</span><p>263D 经固定算法恢复的 22 关节</p><span class="evidence evidence-derived">派生近似</span><p>旋转驱动的 neutral SMPL-H 网格</p></div>
+        </section>
+
+        <section class="doc-section" id="tasks" aria-labelledby="taskTitle">
+          <div class="section-heading"><div><p class="section-index">01 · SUPERVISION MAP</p><h2 id="taskTitle">Task Map</h2></div><p>记录数、配对数和时长分别统计。同一动作可能进入多个任务，因此不能把各行直接相加。</p></div>
+          <div class="modality-diagram" aria-label="模态关系图"><div class="modality-node node-video"><span>V</span><strong>Video</strong><small>原始视觉证据</small></div><div class="relation-lines" aria-hidden="true"><i></i><i></i><i></i></div><div class="modality-node node-motion"><span>M</span><strong>Motion</strong><small>263D · T × 263</small></div><div class="relation-lines reverse" aria-hidden="true"><i></i><i></i><i></i></div><div class="modality-node node-text"><span>T</span><strong>Text</strong><small>sequence · event · frame · CoT</small></div></div>
+          <div class="task-legend" aria-label="统计字段说明"><span><i class="legend-record"></i>标注 / 媒体记录</span><span><i class="legend-pair"></i>完整任务配对</span><span><i class="legend-time"></i>motion-backed 时长</span></div>
+          <div class="task-matrix" id="taskMatrix" aria-live="polite"><div class="task-placeholder">正在读取配对任务统计…</div></div>
+          <div class="task-method" id="taskMethod"></div>
+        </section>
+
+        <section class="doc-section" id="datasets" aria-labelledby="datasetsTitle">
+          <div class="section-heading"><div><p class="section-index">02 · DATASET SCALE</p><h2 id="datasetsTitle">Dataset Scale</h2></div><p>动作数、时长和存储体积采用不同量纲，分别比较；序列长度使用对数轴避免 SONIC 长尾压扁其它数据。</p></div>
+          <div class="dataset-profiles" id="datasetProfiles"></div>
+          <div class="chart-grid"><figure class="chart-figure"><figcaption><strong>Motion Scale</strong><span>每行双尺度，不跨指标比较长度</span></figcaption><div class="scale-chart" id="scaleChart"></div></figure><figure class="chart-figure"><figcaption><strong>Sequence Length</strong><span>Frames · log scale</span></figcaption><div class="length-plot" id="lengthPlot"></div></figure></div>
+        </section>
+
+        <section class="doc-section" id="annotations" aria-labelledby="annotationTitle">
+          <div class="section-heading"><div><p class="section-index">03 · SAMPLE RECORDS</p><h2 id="annotationTitle">Examples</h2></div><p>以下为目录中的代表性文本形态，覆盖 sequence、temporal、clip、frame 与 Complex CoT。</p></div>
+          <div class="annotation-grid">
+            <article class="annotation-example example-human"><div class="example-head"><span>HumanML3D</span><strong>Sequence caption</strong><small>motion ↔ text</small></div><blockquote>“The person is walk in the street backwards.”</blockquote><blockquote>“Simple stand quite like a doll.”</blockquote><p>短句级动作语义；一个动作通常对应多条近义描述。</p></article>
+            <article class="annotation-example example-sonic"><div class="example-head"><span>SONIC</span><strong>Temporal events</strong><small>motion ↔ event text</small></div><ol class="event-timeline"><li><time>0.00–0.75s</time><p>Starts to run forward while stepping with the left foot.</p></li><li><time>0.75–4.45s</time><p>Runs forward and delivers a hook punch by jumping off the wall.</p></li><li><time>4.45–5.20s</time><p>Returns to a wide stance and turns left.</p></li></ol></article>
+            <article class="annotation-example example-motionx"><div class="example-head"><span>MotionX</span><strong>Clip description</strong><small>video ↔ text</small></div><dl class="structured-caption"><div><dt>Overview</dt><dd>A woman performs a high-energy aerobic dance routine.</dd></div><div><dt>Actors</dt><dd>Person-1 · yellow athletic outfit.</dd></div><div><dt>Timeline</dt><dd>Arm flexing → side steps → jogging → jumping jacks.</dd></div><div><dt>Summary</dt><dd>Synchronized aerobic sequence with rhythmic arm and leg movements.</dd></div></dl></article>
+            <article class="annotation-example example-frame"><div class="example-head"><span>MotionX</span><strong>Frame description</strong><small>motion frame ↔ text</small></div><div class="frame-sample"><time>Frame 0 · 0.00s</time><p>The human is in a kneeling position, bent to the left and turned to the right, with the torso horizontal and both hands close to the knees.</p></div><div class="frame-sample"><time>Frame 1 · 0.03s</time><p>The subject remains turned right with both knees bent and hands on the ground.</p></div></article>
+            <article class="annotation-example example-cot"><div class="example-head"><span>MotionX</span><strong>Complex CoT</strong><small>video ↔ motion ↔ text</small></div><div class="cot-pipeline"><span>Video observation</span><i>+</i><span>Motion measurement</span><i>→</i><span>Conflict correction</span><i>→</i><span>Final answer</span></div><p>逐时间段融合视觉观察和三维量测；显式记录 correction / fusion 推理类型。</p></article>
+          </div>
+        </section>
+
+        <section class="doc-section" id="representation" aria-labelledby="representationTitle">
+          <div class="section-heading"><div><p class="section-index">04 · MOTION REPRESENTATION</p><h2 id="representationTitle">263D Motion</h2></div><p>当前三套 NPY 均实测为 float32 `(T, 263)`；浏览器用同一确定性链路恢复 22 关节。</p></div>
+          <div class="feature-layout"><div><div class="feature-bar" aria-label="263维特征组成"><span class="feature-root" style="--share:4"><b>4</b><small>root</small></span><span class="feature-pos" style="--share:63"><b>63</b><small>positions</small></span><span class="feature-rot" style="--share:126"><b>126</b><small>rotations</small></span><span class="feature-vel" style="--share:66"><b>66</b><small>velocity</small></span><span class="feature-foot" style="--share:4"><b>4</b><small>feet</small></span></div><div class="table-wrap"><table class="spec-table"><thead><tr><th>Range</th><th>Dims</th><th>Meaning</th></tr></thead><tbody><tr><td><code>0:4</code></td><td>4</td><td>root yaw velocity、平面速度与 root height</td></tr><tr><td><code>4:67</code></td><td>21 × 3</td><td>root-invariant joint positions</td></tr><tr><td><code>67:193</code></td><td>21 × 6</td><td>local joint rotations</td></tr><tr><td><code>193:259</code></td><td>22 × 3</td><td>local joint velocities</td></tr><tr><td><code>259:263</code></td><td>4</td><td>binary foot contacts</td></tr></tbody></table></div></div><aside class="callout callout-info"><strong>Deterministic Decode</strong><p>火柴人由 263D 中的 root 与 RIC positions 恢复为 `(T, 22, 3)`；旋转分量用于派生 SMPL-H 网格，不是视频姿态估计。</p><ul><li>22 joints · 21 bones</li><li>Y-up 坐标</li><li>finite-value validation</li></ul></aside></div>
+        </section>
+
+        <section class="doc-section" id="rendering" aria-labelledby="renderingTitle">
+          <div class="section-heading"><div><p class="section-index">05 · RENDERING EVIDENCE</p><h2 id="renderingTitle">Rendering</h2></div><p>渲染结果按证据等级标注，避免把派生网格误写成原始 SMPL ground truth。</p></div>
+          <div class="render-pipeline"><article><span>01</span><strong>263D motion</strong><p><code>float32 (T,263)</code> 原始动作表示</p></article><i aria-hidden="true">→</i><article><span>02</span><strong>22-joint skeleton</strong><p>固定数学过程 · 确定性解码</p></article><i aria-hidden="true">→</i><article><span>03</span><strong>SMPL-H surface</strong><p>21×6D local rotation + root orientation</p></article><i aria-hidden="true">→</i><article><span>04</span><strong>Three.js viewer</strong><p>旋转 · 平移 · 缩放 · 逐帧播放</p></article></div>
+          <div class="notice-grid"><aside class="callout"><strong>Mesh Accuracy</strong><p>网格保留主要关节旋转、根节点朝向和垂直位移；水平轨迹逐帧居中。人体比例来自 neutral SMPL-H，它不是源数据提供的 mesh。</p></aside><aside class="callout"><strong>Hands & Shape</strong><p>pose_hand 与 betas 当前均为零；手型和体型保持 neutral，不恢复细粒度手指动作。</p></aside><aside class="callout"><strong>License Boundary</strong><p>服务端计算并向私有浏览器发送派生顶点与拓扑；不下发 SMPL-H model、blend shapes 或 skinning weights。</p></aside></div>
+        </section>
+
+        <section class="doc-section explorer-section" id="explorer" aria-labelledby="explorerTitle">
+          <div class="section-heading"><div><p class="section-index">06 · INTERACTIVE EXPLORER</p><h2 id="explorerTitle">Explorer</h2></div><p>选择样本后可检查视频、22 关节、SMPL-H 近似网格，以及 MotionX 的 frame / clip / CoT 三类文本。</p></div>
+          <div class="workspace">
+            <aside class="sample-panel"><div class="dataset-tabs" role="tablist" aria-label="选择数据集"><button class="dataset-tab is-active" role="tab" aria-selected="true" data-dataset="humanml3d">HumanML3D</button><button class="dataset-tab" role="tab" aria-selected="false" data-dataset="sonic">SONIC</button><button class="dataset-tab" role="tab" aria-selected="false" data-dataset="motionx">MotionX</button></div><div class="dataset-summary"><div><span id="datasetKicker">HumanML3D</span><strong id="datasetCount">—</strong></div><p id="datasetDescription">正在读取数据集信息…</p></div><label class="search-field" for="sampleSearch"><span class="sr-only">搜索样本 ID</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.35-4.35m2.35-5.65a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z" /></svg><input id="sampleSearch" type="search" autocomplete="off" placeholder="搜索样本 ID" /></label><div class="sample-list" id="sampleList" aria-live="polite"></div><button class="load-more" id="loadMore" type="button">加载更多</button></aside>
+            <div class="viewer-column">
+              <div class="viewer-header"><div><p class="eyebrow" id="activeDatasetLabel">HUMANML3D · MOTION</p><h3 id="activeSampleId">Select a sample</h3><p id="activeSampleMeta">帧数、时长与表示信息会显示在这里</p><div class="sample-evidence" id="evidenceBadges"></div></div><div class="viewer-tools"><span class="viewer-status" id="viewerStatus">等待选择</span><div class="mode-switch" role="group" aria-label="三维显示模式"><button class="mode-button is-active" data-view-mode="skeleton" aria-pressed="true">火柴人</button><button class="mode-button" data-view-mode="surface" aria-pressed="false">SMPL-H</button></div></div></div>
+              <div class="viewer-grid" id="viewerGrid"><section class="viewport-card" aria-label="三维动作视图"><div class="viewport" id="viewport"><div class="viewport-empty" id="viewportEmpty"><span class="empty-orbit" aria-hidden="true"></span><strong>从左侧选择样本</strong><span>载入后可旋转、平移、缩放与逐帧播放</span></div><div class="axis-legend" aria-hidden="true"><span class="axis-x">X</span><span class="axis-y">Y</span><span class="axis-z">Z</span></div></div><div class="viewport-footer"><span>左键旋转 · 右键平移 · 滚轮缩放</span><div class="camera-presets" role="group" aria-label="相机视角"><button type="button" data-camera="front">正面</button><button type="button" data-camera="side">侧面</button><button type="button" data-camera="top">顶部</button></div></div></section><section class="video-card is-hidden" id="videoCard" aria-label="MotionX 视频"><video id="motionVideo" controls preload="metadata" playsinline></video><div class="video-empty" id="videoEmpty">该样本没有可用视频</div><div class="video-caption"><span>原始媒体 · MotionX source video</span><small>ID 已配对；未逐条核验剪辑零点，视频与动作独立播放</small></div></section></div>
+              <div class="timeline-panel"><button class="step-button" id="prevFrame" type="button" aria-label="上一帧">−1</button><button class="icon-button" id="playToggle" type="button" aria-label="播放动作"><svg class="play-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 11 7-11 7Z" /></svg><svg class="pause-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zm6 0h4v14h-4z" /></svg></button><button class="step-button" id="nextFrame" type="button" aria-label="下一帧">+1</button><span class="frame-counter" id="frameCounter">000 / 000</span><input id="frameSlider" type="range" min="0" max="0" value="0" aria-label="动作帧" /><label class="speed-select">速度<select id="speedSelect" aria-label="播放速度"><option value="0.25">0.25×</option><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select></label><label class="loop-toggle"><input id="loopToggle" type="checkbox" checked />循环</label><button class="text-button" id="resetView" type="button">重置视角</button></div>
+              <div class="sample-info-grid"><article class="caption-panel"><div class="panel-title"><span>Annotations</span><span id="captionCount">—</span></div><div class="annotation-tabs" id="annotationTabs" role="tablist" aria-label="标注类型"><button type="button" class="annotation-tab is-active" data-annotation="base" role="tab" aria-selected="true">Main</button><button type="button" class="annotation-tab" data-annotation="clip" role="tab" aria-selected="false" disabled>Clip Caption</button><button type="button" class="annotation-tab" data-annotation="cot" role="tab" aria-selected="false" disabled>Complex CoT</button></div><div id="captionContent" class="caption-content"><p class="muted">选择样本后显示 caption 或 temporal events。</p></div></article><article class="asset-facts"><div class="panel-title"><span>Assets</span><span>LIVE</span></div><dl id="assetFacts"><div><dt>表示</dt><dd>263D</dd></div><div><dt>关节</dt><dd>22</dd></div><div><dt>坐标</dt><dd>Y-up</dd></div><div><dt>网格</dt><dd>6,890 vertices</dd></div></dl></article></div>
+              <aside class="mesh-note" id="meshNote"><span class="evidence evidence-derived">派生近似</span><div><strong>旋转驱动 SMPL-H · 中性手型与体形</strong><p>使用 21 组局部旋转与 root orientation 驱动 neutral SMPL-H；水平居中。播放时约 5 Hz 抽样刷新，暂停或拖动后加载所选精确帧。</p></div></aside>
+            </div>
+          </div>
+        </section>
+
+        <section class="doc-section" id="audit" aria-labelledby="auditTitle">
+          <div class="section-heading"><div><p class="section-index">07 · DATA INTEGRITY</p><h2 id="auditTitle">Data Quality</h2></div><p>“不可渲染”不等于动作无效。媒体缺失、标注缺失、格式未接入和许可证限制分别记录。</p></div>
+          <div class="audit-layout"><div class="quality-list" id="qualityList"></div><aside class="callout callout-warning"><strong>Cleanup Boundary</strong><p>极少量 annotation-only ID 已单独审计；MotionX 30 条缺 frame caption 的 motion 保留，不以删除动作换取表面上的 100% 覆盖。</p></aside></div>
+        </section>
+
+        <section class="doc-section methodology-section" id="methodology" aria-labelledby="methodTitle">
+          <div class="section-heading"><div><p class="section-index">08 · METHODOLOGY</p><h2 id="methodTitle">Methods</h2></div></div>
+          <div class="method-grid"><article><strong>Keys</strong><p>HumanML3D / SONIC 使用 motion stem；MotionX video stem 去除全部下划线后与 motion ID 对齐。</p></article><article><strong>Duration</strong><p><code>sum(frames / fps)</code>；HumanML3D 为 20 FPS，SONIC 与 MotionX 为 30 FPS。Video–text 未批量探测全部容器时长。</p></article><article><strong>Text Units</strong><p>caption file、caption line、temporal event、frame description 与 CoT record 分开计数。</p></article><article><strong>Publishing</strong><p>SMPL-H 模型仅在服务器内部使用；公开部署或分发派生网格前需要重新确认许可证。</p></article></div>
+          <footer class="doc-footer"><span>Motion Data Atlas</span><span>Private research viewer · current server snapshot</span></footer>
+        </section>
+      </main>
+    </div>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script type="module" src="/static/app.js?v=20260902-6"></script>
+  </body>
+</html>
