@@ -1,7 +1,8 @@
 # Viewer 自动启动与故障恢复
 
-只管理网站后端与 Cloudflare Tunnel。Linux，Python 标准库；不加载 CUDA、
-不启动 GPU 保活、不重建数据索引。原始数据、模型和索引由已有部署提供。
+容器内使用 Linux/Python 标准库管理网站后端与 Cloudflare Tunnel；
+外部 Windows/Node 检查器负责普通 CPU 环境到期后的重新启动。
+不加载 CUDA、不启动 GPU 保活、不重建数据索引。原始数据、模型和索引由已有部署提供。
 
 ## 已部署入口
 
@@ -70,15 +71,66 @@ supervisor 日志自动轮转；子进程日志在重启时超过 10 MB 则保�
 
 网站访问主要使用 CPU，不会维持 GPU 利用率。整个环境被终止时，
 容器内恢复程序也会停止，无法承诺全天在线。长期部署需要管理员允许的常驻
-CPU 服务并能访问同一数据目录，或为网站提供单独的数据副本。
-本次仅看到 GPU 资源组，没有确认可长期运行的 CPU 服务配额。
+CPU 服务并能访问同一数据目录。当前账号无常驻服务部署权限；已按用户选择，
+先使用普通 CPU 环境及以下外部到期恢复机制。
+
+## 普通 CPU 环境的到期恢复
+
+2026-10-21 已把原网站环境转换为 **2 核 CPU、0 GPU**，继续读取原 GPFS 数据。
+名称仍为 `auto4gpu_20261020141820`，属于历史名称；平台内存字段保留 `0`，
+没有确认独立 4 GiB 限额。当前环境 ID 由状态文件和平台查询获取，不写死在源码。
+
+`aistation-cpu-keeper.mjs` 是外部检查器；`invoke-cpu-keeper.ps1` 提供文件锁与
+登录信息加载。生产动作默认关闭，必须指定 `-Execute`。检查器只恢复已登记的
+同名 CPU 环境，拒绝 GPU、资源或启动命令变化，不修改数据、镜像或挂载。
+
+已启用当前对话的 Codex 自动任务 `aistation-cpu`，每 5 分钟运行一次：
+
+```powershell
+& 'D:\MotionLLM\MLM_site_update\online_page\data_page\ops\invoke-cpu-keeper.ps1' `
+  -Config 'D:\MotionLLM\.codex_tmp\viewer-cpu-keeper\config.json' -Execute
+```
+
+### 参数与配置
+
+- 省略 `-Execute`：检查及预演；仍更新本地状态，不创建/重启环境。
+- `-Refresh`：强制查询平台。正常在线时每小时刷新平台信息；到期前十分钟或
+  公网异常时立即刷新。
+- `-ExerciseRestart`：主动重启运行中的 CPU 环境，用于人工演练；自动任务禁止使用。
+- `node aistation-cpu-keeper.mjs --help`：不访问网络；Node CLI 使用对应的
+  `--config`、`--execute`、`--refresh`、`--exercise-restart`。
+
+配置字段：`enabled`、`baseUrl`、`workspaceName`、初始 `wpId`、`cpu`、`memory`、
+`startupCommand`、`healthUrl`、`stateFile`、`agentsFile`、`cryptoPackageFile`、
+`nodeExecutable`。配置没有密码；Windows 包装器从本机指定的登录条目读取凭据，
+注入子进程环境。Node 需要 `sm-crypto`；其包路径由 `cryptoPackageFile` 指定。
+
+本机部署配置/状态在 `D:\MotionLLM\.codex_tmp\viewer-cpu-keeper\`，
+SM2 依赖在 `D:\MotionLLM\.codex_tmp\viewer-test-deps\`。这些是自动任务依赖，
+不要作为临时文件清理。停止自动恢复：暂停 Codex 任务，或设置 `enabled=false`。
+
+### 行为与限制
+
+只有 Halt 且运行时长达到平台期限（容差 120 秒）才请求启动；运行时长仅用于
+判断到期，不能证实停机操作者。提前停止、暂停或未知时长留待核查。
+请求前重新检查状态及同组 CPU 容量；同一环境不重复申请。
+状态文件记录当前 ID、到期时间、健康检查和操作时间；提交前落盘，未知结果采用
+20 分钟冷却，避免重复请求。标准输出仅为动作/错误类别，不含认证内容。
+
+电脑须开机、Codex 应用运行且 Cisco VPN 可用；到期后会有检查周期加排队/启动
+时间的中断，容量不足或登录验证会延迟恢复。容器启动后仍由原 bootstrap/supervisor
+恢复网站，无需 SSH 登录。人工转换 CPU 配置并真实重启已验证成功，公网页面、
+健康和动作接口返回 200，CPU 网格读取成功；尚未等待完整 72 小时到期实测。
 
 ## 验证
 
 ```bash
 python3 test_supervisor.py
 bash -n viewer-bootstrap.sh start-public-viewer.sh
+node --test aistation-cpu-keeper.test.mjs
 ```
 
 两项 Linux 集成测试使用独立临时目录和 HTTP 子进程，验证并发重复启动、
 崩溃恢复和卡死恢复，不读真实数据。真实网站的后端和隧道恢复另做上线检查。
+7 项 Node 测试覆盖到期/未知时长判断、重复环境、配置变化、挂载保留、预演、
+容量不足、并发替换和请求结果不明，不执行真实资源申请。
