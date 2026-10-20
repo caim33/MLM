@@ -62,6 +62,20 @@
     </aside>
   </main>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script type="module" src="/static/viewer.js?v=20261020-2"></script>
+  <script type="module">
+    import("/static/viewer.js?v=20261020-3").catch(error => {
+      document.getElementById("serverStatus").textContent = "页面初始化失败";
+      document.getElementById("serverDot").classList.add("is-error");
+      const panel = document.getElementById("viewportEmpty");
+      panel.hidden = false;
+      panel.querySelector("strong").textContent = "动作查看器未能启动";
+      panel.querySelector("p").textContent = `${error.message}。请点击下方按钮重新加载。`;
+      const button = document.createElement("button");
+      button.type = "button"; button.textContent = "重新加载页面";
+      button.addEventListener("click", () => location.reload());
+      panel.append(button);
+      document.getElementById("sampleList").textContent = "页面组件加载失败，详细原因见右侧提示。";
+    });
+  </script>
 </body>
 </html>

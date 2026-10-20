@@ -76,7 +76,7 @@ expanded text. Native controls retain their own Space behavior.
 From the repository root:
 
 ```sh
-node --test online_page/data_page/tests/viewer-state.test.mjs
+node --test online_page/data_page/tests/*.test.mjs
 node --check online_page/data_page/static/viewer.js
 node --check online_page/data_page/static/viewer-state.mjs
 git diff --check
@@ -85,3 +85,9 @@ git diff --check
 Coordinate transforms and navigation live in `static/viewer-state.mjs`.
 They never modify the decoded source buffer. Static files can be deployed to
 the existing service without restarting the backend or rebuilding its index.
+
+Requests include bounded retries for transient network/server failures and a
+timeout that covers reading the response body. Switching samples cancels the
+previous request. Persistent failures show the HTTP/error detail and an in-page
+retry button. Module initialization failures are reported separately from data
+service failures, so the page does not silently remain in the connecting state.

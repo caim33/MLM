@@ -114,3 +114,17 @@ Motion Data Atlas source moved from dataset/data_page/ to online_page/data_page/
   All 14 public checks returned HTTP 200: HTML/assets, health/summary, second
   sample pages and decoded motion from all three datasets, and SMPL-H topology
   and mesh. Module MIME types and deployed asset contents were verified.
+
+### Viewer loading recovery (2026-10-20)
+
+After a report that the page opened but data failed to load, the existing
+backend, tunnel processes, default sample, and vendor modules were reachable.
+One group of public HTTP requests failed during transport; subsequent requests
+succeeded. This does not establish the exact browser-side failure without its
+error message.
+
+Added response-body timeouts, bounded retries, cancellation on sample changes,
+clear error details, in-page retry controls, and a module-initialization error
+panel. Verified 14 unit tests and 8 DOM/API simulation groups, including
+temporary disconnects, failed body reads, timeouts, persistent HTTP failures,
+and successful in-page recovery. Real browser inspection remains unavailable.

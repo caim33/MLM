@@ -1,6 +1,7 @@
 import * as THREE from "/static/vendor/three.module.js?v=20260901-5";
 import { OrbitControls } from "/static/vendor/OrbitControls.js?v=20260901-5";
 import { PAGE_SIZE, analyzeMotion, displayedJoint, meshTranslation, adjacentSample, readLocation, locationQuery } from "/static/viewer-state.mjs?v=20261020-2";
+import { requestData } from "/static/viewer-request.mjs?v=20261020-3";
 
 const DATASET_LABELS = { humanml3d: "HumanML3D", sonic: "SONIC", motionx: "Motion-X" };
 const CHAINS = [[0,2,5,8,11], [0,1,4,7,10], [0,3,6,9,12,15], [9,14,17,19,21], [9,13,16,18,20]];
@@ -30,9 +31,7 @@ function showToast(message) {
   toastTimer = setTimeout(() => elements.toast.classList.remove("is-visible"), 4200);
 }
 async function requestJson(url, signal) {
-  const response = await fetch(url, { signal });
-  if (!response.ok) throw new Error(`请求失败（${response.status}）`);
-  return response.json();
+  return (await requestData(url, { signal })).body;
 }
 function syncLocation() { history.replaceState(null, "", location.pathname + locationQuery(state)); }
 function updateDatasetMeta() {
@@ -89,7 +88,7 @@ function listMessage(title, hint, retry = false) {
   const box = document.createElement("div"); box.className = "list-state";
   const strong = document.createElement("strong"); strong.textContent = title;
   const text = document.createElement("span"); text.textContent = hint; box.append(strong,text);
-  if (retry) { const button = document.createElement("button"); button.type = "button"; button.textContent = "重新加载"; button.addEventListener("click", () => loadSamples()); box.append(button); }
+  if (retry) { const button = document.createElement("button"); button.type = "button"; button.textContent = "重新加载"; button.addEventListener("click", typeof retry === "function" ? retry : () => loadSamples()); box.append(button); }
   elements.sampleList.append(box);
 }
 function clearSample() {
@@ -104,6 +103,7 @@ function clearSample() {
   if (smplMesh) smplMesh.visible = false;
   elements.activeSample.textContent = "选择样本"; elements.sampleMeta.textContent = "从左侧选择一条动作。";
   elements.viewportEmpty.hidden = false;
+  elements.viewportEmpty.querySelector(".retry-motion")?.remove();
   elements.viewportEmpty.querySelector("strong").textContent = "选择一条动作";
   elements.viewportEmpty.querySelector("p").textContent = "动作与根节点轨迹会显示在这里。";
   elements.frameSlider.value = "0"; elements.frameSlider.max = "0";
@@ -147,7 +147,7 @@ async function loadSamples({ page = state.page, pick = 0, wantedId = null } = {}
     if (serial !== state.listSerial || error.name === "AbortError") return;
     state.listLoading = false; state.total = 0; state.samples = [];
     elements.resultCount.textContent = "加载失败";
-    listMessage("样本列表暂时不可用", "检查连接后重试。", true);
+    listMessage("样本列表暂时不可用", `${error.message}。请重试。`, true);
   } finally { if (serial === state.listSerial) updateNavigation(); }
 }
 async function selectDataset(dataset) {
@@ -170,10 +170,9 @@ async function selectSample(sampleId) {
   try {
     const [detail,response] = await Promise.all([
       requestJson(`/api/sample/${dataset}/${encodeURIComponent(sampleId)}`,signal),
-      fetch(`/api/motion/${dataset}/${encodeURIComponent(sampleId)}`,{signal}),
+      requestData(`/api/motion/${dataset}/${encodeURIComponent(sampleId)}`,{signal,kind:"buffer"}),
     ]);
-    if (!response.ok) throw new Error(`动作读取失败（${response.status}）`);
-    const buffer = await response.arrayBuffer();
+    const buffer = response.body;
     if (serial !== state.selectionSerial) return;
     const frames = Number(response.headers.get("X-Motion-Frames"));
     if (!frames || Number(response.headers.get("X-Motion-Joints")) !== 22 || buffer.byteLength !== frames * 22 * 3 * 4) throw new Error("动作数据尺寸不正确");
@@ -188,9 +187,18 @@ async function selectSample(sampleId) {
     updateFrame(0); resetCamera(); setPlaying(false); updateNavigation();
   } catch (error) {
     if (serial !== state.selectionSerial || error.name === "AbortError") return;
+    state.positions = null; state.frames = 0; state.smplReady = false;
+    skeletonGroup.visible = false; pathLine.visible = false; progressLine.visible = false; rootMarker.visible = false;
+    if (smplMesh) smplMesh.visible = false;
+    elements.viewportEmpty.hidden = false;
     elements.viewportEmpty.querySelector("strong").textContent = "动作加载失败";
-    elements.viewportEmpty.querySelector("p").textContent = `${error.message}。点击当前样本可重试。`;
+    elements.viewportEmpty.querySelector("p").textContent = `${error.message}。`;
+    const retry = document.createElement("button");
+    retry.type = "button"; retry.className = "retry-motion"; retry.textContent = "重新加载这条动作";
+    retry.addEventListener("click", () => selectSample(sampleId));
+    elements.viewportEmpty.append(retry);
     elements.meshState.textContent = "加载失败"; elements.sampleMeta.textContent = "请重新选择样本重试。";
+    updateNavigation();
     showToast("动作或标注读取失败，请重试。");
   }
 }
@@ -515,9 +523,8 @@ function updateFrame(frame) {
 async function ensureSmplMesh() {
   if (smplGeometry) return;
   if (!smplTopologyPromise) smplTopologyPromise = (async () => {
-    const response = await fetch("/api/smplh/topology");
-    if (!response.ok) throw new Error(`网格初始化失败（${response.status}）`);
-    const indices=new Uint32Array(await response.arrayBuffer());
+    const response = await requestData("/api/smplh/topology",{kind:"buffer",timeoutMs:45000,retries:1});
+    const indices=new Uint32Array(response.body);
     if (indices.length!==Number(response.headers.get("X-SMPLH-Faces"))*3) throw new Error("网格结构不完整");
     smplGeometry=new THREE.BufferGeometry(); smplGeometry.setIndex(new THREE.BufferAttribute(indices,1));
     smplMesh=new THREE.Mesh(smplGeometry,new THREE.MeshStandardMaterial({color:0xa6bbd7,roughness:.8,side:THREE.DoubleSide}));
@@ -540,9 +547,8 @@ async function processSmplQueue() {
     try {
       await ensureSmplMesh();
       if (!current()) continue;
-      const response=await fetch(`/api/smplh/mesh/${request.dataset}/${encodeURIComponent(request.id)}/${request.frame}`);
-      if (!response.ok) throw new Error(`网格读取失败（${response.status}）`);
-      const vertices=new Float32Array(await response.arrayBuffer());
+      const response=await requestData(`/api/smplh/mesh/${request.dataset}/${encodeURIComponent(request.id)}/${request.frame}`,{kind:"buffer",timeoutMs:45000,retries:1});
+      const vertices=new Float32Array(response.body);
       if (!current()) continue;
       if (!vertices.length || vertices.length!==Number(response.headers.get("X-SMPLH-Vertices"))*3) throw new Error("网格数据尺寸不正确");
       const attribute=smplGeometry.getAttribute("position");
@@ -705,6 +711,7 @@ document.addEventListener("keydown",event => {
 });
 async function boot() {
   const wantedId=state.selectedId;
+  elements.serverDot.classList.remove("is-error","is-ready"); elements.serverStatus.textContent="连接中";
   elements.sampleSearch.value=state.query; elements.assetFilter.value=state.filter;
   updateDatasetMeta(); updateRootMode(); updateNavigation();
   try {
@@ -713,9 +720,9 @@ async function boot() {
     surface.disabled=!state.smplhAvailable; surface.title=state.smplhAvailable ? "按需加载 SMPL-H 重建" : "服务器暂无人体网格";
     elements.serverDot.classList.add("is-ready"); elements.serverStatus.textContent="已连接 Aistation";
     renderEvidence(); await loadSamples({wantedId});
-  } catch {
+  } catch (error) {
     elements.serverDot.classList.add("is-error"); elements.serverStatus.textContent="连接失败";
-    listMessage("服务暂时不可用","请刷新页面重试。"); showToast("无法连接数据服务，请稍后刷新。");
+    listMessage("服务暂时不可用",`${error.message}。`,() => boot()); showToast("无法连接数据服务，可以点击“重新加载”。");
   }
 }
 boot();
