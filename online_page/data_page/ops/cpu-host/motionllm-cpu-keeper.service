@@ -1,0 +1,8 @@
+[Unit]
+Description=Daily Aistation CPU website recovery through an isolated VPN
+
+[Service]
+Type=oneshot
+TimeoutStartSec=480
+ExecStart=/usr/bin/docker run --rm --init --name motionllm-cpu-recovery --runtime runc --env NVIDIA_VISIBLE_DEVICES=void --cap-add NET_ADMIN --device /dev/net/tun --cpus 0.5 --memory 384m --pids-limit 96 --mount type=bind,source=%h/.config/motionllm-cpu-keeper/config.json,target=/config/config.json,readonly --mount type=bind,source=%h/.config/motionllm-cpu-keeper/credentials.json,target=/config/credentials.json,readonly --mount type=bind,source=%h/.local/state/motionllm-cpu-keeper,target=/state motionllm-cpu-keeper:20261021 --config /config/config.json --credentials /config/credentials.json --execute
+ExecStopPost=/bin/sh -c '/usr/bin/docker stop --timeout 10 motionllm-cpu-recovery >/dev/null 2>&1 || true'

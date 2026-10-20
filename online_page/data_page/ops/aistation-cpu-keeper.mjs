@@ -107,10 +107,17 @@ function curlJson(url, { method = "GET", body, headers = {}, timeout = 30 } = {}
 class Aistation {
   constructor(config) { this.config = config; this.token = ""; }
   async request(endpoint, options = {}) {
-    const value = await curlJson(this.config.baseUrl + endpoint, {
-      ...options, headers: { "X-Accept-Language": "zh-cn", "X-Time-Zone": "8",
-        ...(this.token ? { "X-Auth-Token": this.token } : {}) },
-    });
+    let value;
+    try {
+      value = await curlJson(this.config.baseUrl + endpoint, {
+        ...options, headers: { "X-Accept-Language": "zh-cn", "X-Time-Zone": "8",
+          ...(this.token ? { "X-Auth-Token": this.token } : {}) },
+      });
+    } catch (error) {
+      const phase = endpoint.split("?")[0].split("/").at(-1).replace(/[^a-z]/g, "_").toUpperCase();
+      const reason = /^[A-Z][A-Z0-9_]+$/.test(error.message) ? error.message : "REQUEST_FAILED";
+      throw new Error(reason + "_" + (phase || "WORKSPACE"));
+    }
     if (value.flag === false)
       throw new Error("API_" + String(value.errCode || "REJECTED").replace(/[^A-Za-z0-9_-]/g, "").slice(0,50));
     return value.resData === undefined ? value : value.resData;

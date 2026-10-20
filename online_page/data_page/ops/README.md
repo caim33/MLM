@@ -1,7 +1,7 @@
 # Viewer 自动启动与故障恢复
 
 容器内使用 Linux/Python 标准库管理网站后端与 Cloudflare Tunnel；
-外部 Windows/Node 检查器负责普通 CPU 环境到期后的重新启动。
+外部 Linux/Node 检查器负责普通 CPU 环境到期后的重新启动。
 不加载 CUDA、不启动 GPU 保活、不重建数据索引。原始数据、模型和索引由已有部署提供。
 
 ## 已部署入口
@@ -80,18 +80,25 @@ CPU 服务并能访问同一数据目录。当前账号无常驻服务部署权�
 名称仍为 `auto4gpu_20261020141820`，属于历史名称；平台内存字段保留 `0`，
 没有确认独立 4 GiB 限额。当前环境 ID 由状态文件和平台查询获取，不写死在源码。
 
-`aistation-cpu-keeper.mjs` 是外部检查器；`invoke-cpu-keeper.ps1` 提供文件锁与
-登录信息加载。生产动作默认关闭，必须指定 `-Execute`。检查器只恢复已登记的
+`aistation-cpu-keeper.mjs` 是外部检查器；当前由 `cpu-host/` 的 Linux 定时器及
+独立 VPN 容器调用。`invoke-cpu-keeper.ps1` 保留为已停用的 Windows 备用入口。
+生产动作默认关闭，必须指定 `--execute`（Windows 为 `-Execute`）。检查器只恢复已登记的
 同名 CPU 环境，拒绝 GPU、资源或启动命令变化，不修改数据、镜像或挂载。
 
-已启用当前对话的 Codex 自动任务 `aistation-cpu`，每 5 分钟运行一次：
+当前部署在常驻服务器 `192.168.0.5`，每天北京时间 08:00 检查一次，
+每次独立连接学校 VPN 并在结束后断开。用户级定时器已启用、`Linger=yes`，
+不依赖 Windows 或 Codex。实测服务器独立完成登录和查询，返回 `HEALTHY / Running`。
+操作方式、目录和资源限制见 [服务器部署说明](cpu-host/README.md)。
+
+原 Codex 自动任务 `aistation-cpu` 已暂停，Windows 配置 `enabled=false`。
+以下仅为备用手工入口，不要与服务器定时器同时启用：
 
 ```powershell
 & 'D:\MotionLLM\MLM_site_update\online_page\data_page\ops\invoke-cpu-keeper.ps1' `
   -Config 'D:\MotionLLM\.codex_tmp\viewer-cpu-keeper\config.json' -Execute
 ```
 
-### 参数与配置
+### Windows 备用参数与配置
 
 - 省略 `-Execute`：检查及预演；仍更新本地状态，不创建/重启环境。
 - `-Refresh`：强制查询平台。正常在线时每小时刷新平台信息；到期前十分钟或
@@ -107,7 +114,7 @@ CPU 服务并能访问同一数据目录。当前账号无常驻服务部署权�
 
 本机部署配置/状态在 `D:\MotionLLM\.codex_tmp\viewer-cpu-keeper\`，
 SM2 依赖在 `D:\MotionLLM\.codex_tmp\viewer-test-deps\`。这些是自动任务依赖，
-不要作为临时文件清理。停止自动恢复：暂停 Codex 任务，或设置 `enabled=false`。
+保留用于回退。当前自动恢复的开关在服务器定时器；Windows 配置只控制备用入口。
 
 ### 行为与限制
 
@@ -117,8 +124,10 @@ SM2 依赖在 `D:\MotionLLM\.codex_tmp\viewer-test-deps\`。这些是自动任�
 状态文件记录当前 ID、到期时间、健康检查和操作时间；提交前落盘，未知结果采用
 20 分钟冷却，避免重复请求。标准输出仅为动作/错误类别，不含认证内容。
 
-电脑须开机、Codex 应用运行且 Cisco VPN 可用；到期后会有检查周期加排队/启动
-时间的中断，容量不足或登录验证会延迟恢复。容器启动后仍由原 bootstrap/supervisor
+当前需要常驻服务器开机及网络可用；每天一次检查意味着到期后可能等待接近
+24 小时，再加排队/启动时间，容量不足或登录验证会延迟恢复。
+只有切回 Windows 备用入口才依赖本机、Codex 和 Cisco VPN。
+容器启动后仍由原 bootstrap/supervisor
 恢复网站，无需 SSH 登录。人工转换 CPU 配置并真实重启已验证成功，公网页面、
 健康和动作接口返回 200，CPU 网格读取成功；尚未等待完整 72 小时到期实测。
 
@@ -128,9 +137,11 @@ SM2 依赖在 `D:\MotionLLM\.codex_tmp\viewer-test-deps\`。这些是自动任�
 python3 test_supervisor.py
 bash -n viewer-bootstrap.sh start-public-viewer.sh
 node --test aistation-cpu-keeper.test.mjs
+python3 cpu-host/test_run.py
 ```
 
 两项 Linux 集成测试使用独立临时目录和 HTTP 子进程，验证并发重复启动、
 崩溃恢复和卡死恢复，不读真实数据。真实网站的后端和隧道恢复另做上线检查。
 7 项 Node 测试覆盖到期/未知时长判断、重复环境、配置变化、挂载保留、预演、
 容量不足、并发替换和请求结果不明，不执行真实资源申请。
+4 项 Linux 包装器测试验证凭据注入、禁用主动演练、预演和一次性网络重试。

@@ -1,0 +1,11 @@
+[Unit]
+Description=Check the Aistation CPU website daily at 08:00 Beijing time
+
+[Timer]
+OnCalendar=*-*-* 08:00:00 Asia/Shanghai
+Persistent=true
+AccuracySec=1min
+Unit=motionllm-cpu-keeper.service
+
+[Install]
+WantedBy=timers.target
