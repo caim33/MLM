@@ -1,86 +1,67 @@
 <!doctype html>
 <html lang="zh-CN">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#07111f" />
-    <title>Motion Viewer</title>
-    <meta name="description" content="HumanML3D、SONIC、MotionX 视频、SMPL-H 与文本数据浏览器" />
-    <link rel="stylesheet" href="/static/viewer.css?v=20260902-1" />
-  </head>
-  <body>
-    <header class="appbar">
-      <div class="brand"><span class="brand-icon" aria-hidden="true"><i></i><i></i><i></i></span><div><strong>Motion Viewer</strong><small>VIDEO · SMPL-H · TEXT</small></div></div>
-      <div class="server-state"><i id="serverDot" aria-hidden="true"></i><span id="serverStatus">Connecting</span></div>
-      <nav><a href="https://caim33.github.io/MLM/dataset-page/">Statistics</a><a href="/">Data Atlas</a><span>Live Dataset</span></nav>
-    </header>
-
-    <main class="viewer-shell">
-      <aside class="data-sidebar">
-        <div class="panel-heading"><div><span>01</span><h1>Data</h1></div><strong id="resultCount">—</strong></div>
-        <div class="dataset-switch" role="tablist" aria-label="Dataset">
-          <button class="dataset-button is-active" type="button" data-dataset="humanml3d" role="tab" aria-selected="true">HumanML3D</button>
-          <button class="dataset-button" type="button" data-dataset="sonic" role="tab" aria-selected="false">SONIC</button>
-          <button class="dataset-button" type="button" data-dataset="motionx" role="tab" aria-selected="false">MotionX</button>
-        </div>
-        <div class="dataset-meta"><strong id="datasetTotal">—</strong><span id="datasetDuration">—</span></div>
-        <div class="data-tools">
-          <label class="search-box"><span class="sr-only">Search sample ID</span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-4-4"></path></svg><input id="sampleSearch" type="search" autocomplete="off" placeholder="Search sample ID" /></label>
-          <label class="filter-box"><span>Show</span><select id="assetFilter"><option value="all">All motions</option><option value="text">With text</option><option value="video">With video</option><option value="cot">With CoT</option></select></label>
-        </div>
-        <div class="sample-list" id="sampleList" aria-live="polite"><div class="list-state">Loading server index…</div></div>
-        <button class="load-more" id="loadMore" type="button">Load more</button>
-      </aside>
-
-      <section class="motion-stage">
-        <header class="stage-header">
-          <div><span class="dataset-kicker" id="activeDataset">HUMANML3D</span><h2 id="activeSample">Select a sample</h2><p id="sampleMeta">Choose server data from the left panel.</p></div>
-          <div class="stage-actions"><span class="mesh-state" id="meshState">No motion</span><div class="view-switch" role="group" aria-label="3D render mode"><button class="view-button is-active" type="button" data-mode="skeleton" aria-pressed="true">Skeleton</button><button class="view-button" type="button" data-mode="surface" aria-pressed="false">SMPL-H</button></div></div>
-        </header>
-
-        <div class="viewport" id="viewport">
-          <div class="viewport-empty" id="viewportEmpty"><span class="orbit-mark" aria-hidden="true"></span><strong>Choose server data</strong><p>Skeleton and SMPL-H will render here.</p></div>
-          <div class="viewport-badges" id="viewportBadges"><span>263D</span><span>22 Joints</span><span>Y-up</span></div>
-          <div class="camera-tools" role="group" aria-label="Camera presets"><button type="button" data-camera="front">Front</button><button type="button" data-camera="side">Side</button><button type="button" data-camera="top">Top</button><button type="button" id="resetCamera">Reset</button></div>
-          <div class="interaction-hint">Drag to rotate · Right-drag to pan · Scroll to zoom</div>
-        </div>
-
-        <div class="timeline">
-          <button class="step-button" id="prevFrame" type="button" aria-label="Previous frame">−1</button>
-          <button class="play-button" id="playToggle" type="button" aria-label="Play"><svg class="play-icon" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7Z"></path></svg><svg class="pause-icon" viewBox="0 0 24 24"><path d="M7 5h4v14H7zm6 0h4v14h-4z"></path></svg></button>
-          <button class="step-button" id="nextFrame" type="button" aria-label="Next frame">+1</button>
-          <span class="frame-count" id="frameCount">000 / 000</span>
-          <input id="frameSlider" type="range" min="0" max="0" value="0" aria-label="Motion frame" />
-          <label class="speed-control">Speed<select id="speedSelect"><option value="0.25">0.25×</option><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select></label>
-          <label class="loop-control"><input id="loopToggle" type="checkbox" checked />Loop</label>
-        </div>
-
-        <div class="motion-facts" id="motionFacts"><div><span>Representation</span><strong>263D</strong></div><div><span>Frames</span><strong>—</strong></div><div><span>Duration</span><strong>—</strong></div><div><span>Render</span><strong>—</strong></div></div>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#f7f8fa" />
+  <title>Motion Viewer · 动作数据浏览</title>
+  <meta name="description" content="浏览 HumanML3D、Motion-X、SONIC，查看动作位移、根节点轨迹、文本与视频。" />
+  <link rel="stylesheet" href="/static/viewer.css?v=20261020-2" />
+</head>
+<body>
+  <header class="appbar">
+    <a class="brand" href="/viewer">Motion Viewer<span>动作数据浏览</span></a>
+    <div class="appbar-right"><span class="server-state"><i id="serverDot"></i><span id="serverStatus">连接中</span></span><a href="https://caim33.github.io/MLM/" target="_blank" rel="noreferrer">项目总览 ↗</a></div>
+  </header>
+  <main class="viewer-shell">
+    <aside class="data-sidebar" aria-label="数据集与样本">
+      <div class="sidebar-heading"><h1>样本</h1><span id="resultCount">—</span></div>
+      <div class="dataset-switch" role="group" aria-label="选择数据集">
+        <button class="dataset-button is-active" type="button" data-dataset="humanml3d" aria-pressed="true">HumanML3D</button>
+        <button class="dataset-button" type="button" data-dataset="motionx" aria-pressed="false">Motion-X</button>
+        <button class="dataset-button" type="button" data-dataset="sonic" aria-pressed="false">SONIC</button>
+      </div>
+      <div class="search-row"><label class="search-box"><span class="sr-only">搜索样本 ID</span><input id="sampleSearch" type="search" autocomplete="off" maxlength="120" placeholder="搜索样本 ID…" /></label><button id="clearSearch" class="quiet-button" type="button" title="清空搜索和筛选" aria-label="清空搜索和筛选">清空</button></div>
+      <div class="filter-row"><label><span class="sr-only">媒体筛选</span><select id="assetFilter"><option value="all">全部样本</option><option value="text">有文本</option><option value="video">有视频</option><option value="cot">有 CoT</option></select></label><button id="randomSample" type="button">随机一条</button></div>
+      <div class="sample-list" id="sampleList" aria-label="样本列表" aria-busy="true"><div class="list-state">正在读取数据…</div></div>
+      <div class="pagination"><button id="prevPage" type="button" aria-label="上一页">‹</button><label><span class="sr-only">页码</span><input id="pageNumber" type="number" min="1" value="1" inputmode="numeric" /><span id="pageTotal">/ 1 页</span></label><button id="nextPage" type="button" aria-label="下一页">›</button></div>
+      <p class="keyboard-hint"><kbd>J</kbd> / <kbd>K</kbd> 切换样本 · <kbd>/</kbd> 搜索</p>
+    </aside>
+    <section class="motion-stage" aria-label="动作查看">
+      <header class="stage-header"><div class="sample-heading"><span id="activeDataset" class="eyebrow">HumanML3D</span><h2 id="activeSample">选择样本</h2><p id="sampleMeta">从左侧选择一条动作。</p></div><div class="sample-actions"><button id="prevSample" type="button" aria-label="上一条样本" title="上一条（K）">←</button><button id="nextSample" type="button" aria-label="下一条样本" title="下一条（J）">→</button><button id="copyLink" type="button">复制链接</button></div></header>
+      <div class="view-toolbar">
+        <div class="segmented" role="group" aria-label="动作显示"><button class="view-button is-active" type="button" data-mode="skeleton" aria-pressed="true">骨架</button><button class="view-button" type="button" data-mode="surface" aria-pressed="false">人体网格</button></div>
+        <label class="root-select"><span>Root</span><select id="rootMode"><option value="world">真实位移</option><option value="inplace">原地查看</option></select></label>
+        <label class="check-control"><input id="showTrajectory" type="checkbox" checked />轨迹</label>
+        <label class="check-control"><input id="followRoot" type="checkbox" />镜头跟随</label>
+        <button id="fitMotion" type="button" class="quiet-button" title="把整段动作放入视野">全程视野</button>
+      </div>
+      <div class="viewport" id="viewport">
+        <div class="viewport-empty" id="viewportEmpty" role="status"><strong>选择一条动作</strong><p>动作与根节点轨迹会显示在这里。</p></div>
+        <div class="viewport-status"><span id="meshState">等待样本</span><span id="rootReadout"></span></div>
+        <div class="camera-tools" role="group" aria-label="相机视角"><button type="button" data-camera="front">正面</button><button type="button" data-camera="side">侧面</button><button type="button" data-camera="top">俯视</button><button type="button" id="resetCamera">重置</button></div>
+        <div class="interaction-hint">拖动旋转 · 右键平移 · 滚轮缩放</div>
+      </div>
+      <div class="timeline">
+        <button class="play-button" id="playToggle" type="button" aria-label="播放" title="播放 / 暂停（空格）"><span class="play-icon">▶</span><span class="pause-icon">Ⅱ</span></button>
+        <button id="prevFrame" class="step-button" type="button" aria-label="上一帧">−1</button><button id="nextFrame" class="step-button" type="button" aria-label="下一帧">+1</button>
+        <div class="scrubber"><input id="frameSlider" type="range" min="0" max="0" value="0" aria-label="动作帧" /><div><span id="frameCount">0 / 0 帧</span><span id="timeCount">0.00 / 0.00 s</span></div></div>
+        <label><span class="sr-only">播放速度</span><select id="speedSelect" title="播放速度"><option value="0.25">0.25×</option><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select></label><label class="check-control"><input id="loopToggle" type="checkbox" checked />循环</label>
+      </div>
+      <div class="motion-footer"><span id="rootNote">以首帧为原点，保留 root 平移、高度变化与转向。</span><span id="rootDistance">—</span></div>
+    </section>
+    <aside class="inspector" aria-label="文本、视频与样本信息">
+      <section class="inspector-card text-panel">
+        <header><h2>文本标注 <small id="textState">—</small></h2><div><button id="copyText" type="button" class="quiet-button">复制</button><button id="expandText" type="button" class="quiet-button">展开</button></div></header>
+        <div class="text-tabs" role="group" aria-label="标注类型"><button class="text-tab is-active" type="button" data-text="base" aria-pressed="true">描述</button><button class="text-tab" type="button" data-text="clip" aria-pressed="false">片段</button><button class="text-tab" type="button" data-text="cot" aria-pressed="false">CoT</button></div>
+        <label class="text-search"><span class="sr-only">搜索当前文本</span><input id="textSearch" type="search" autocomplete="off" placeholder="查找当前样本的文本…" /></label>
+        <div class="text-content" id="textContent"><p class="empty-note">选择样本后查看标注。</p></div>
       </section>
-
-      <aside class="inspector">
-        <section class="inspector-card video-panel">
-          <header><div><span>02</span><h2>Video</h2></div><small id="videoState">NO SOURCE</small></header>
-          <div class="video-wrap"><video id="sourceVideo" controls preload="metadata" playsinline></video><div class="media-empty" id="videoEmpty"><strong>No source video</strong><span>HumanML3D and SONIC are motion–text datasets.</span></div></div>
-          <p class="sync-note" id="syncNote">Video and motion use independent controls until temporal zero-point is verified.</p>
-        </section>
-
-        <section class="inspector-card text-panel">
-          <header><div><span>03</span><h2>Text</h2></div><div class="text-header-actions"><small id="textState">NO SAMPLE</small><button id="expandText" type="button">Expand</button></div></header>
-          <div class="text-tabs" role="tablist" aria-label="Text data"><button class="text-tab is-active" type="button" data-text="base" role="tab" aria-selected="true">Main</button><button class="text-tab" type="button" data-text="clip" role="tab" aria-selected="false" disabled>Clip</button><button class="text-tab" type="button" data-text="cot" role="tab" aria-selected="false" disabled>CoT</button></div>
-          <div class="text-tools"><label><span class="sr-only">Search text</span><input id="textSearch" type="search" autocomplete="off" placeholder="Search current text" /></label><button id="copyText" type="button">Copy</button></div>
-          <div class="text-content" id="textContent"><div class="media-empty"><strong>No text selected</strong><span>Select a motion record to inspect its annotations.</span></div></div>
-        </section>
-
-        <section class="inspector-card evidence-panel">
-          <header><div><span>04</span><h2>Evidence</h2></div></header>
-          <dl id="evidenceList"><div><dt>Motion</dt><dd>Waiting</dd></div><div><dt>Video</dt><dd>Waiting</dd></div><div><dt>SMPL-H</dt><dd>Waiting</dd></div><div><dt>Text</dt><dd>Waiting</dd></div></dl>
-          <p>SMPL-H is a neutral-shape derived mesh. It is not source ground truth.</p>
-        </section>
-      </aside>
-    </main>
-
-    <div class="toast" id="toast" role="status" aria-live="polite"></div>
-    <script type="module" src="/static/viewer.js?v=20260902-1"></script>
-  </body>
+      <details class="inspector-card video-panel" id="videoPanel"><summary>关联视频 <span id="videoState">无视频</span></summary><div class="video-wrap is-empty"><video id="sourceVideo" controls preload="metadata" playsinline></video><p id="videoEmpty" class="empty-note">该样本没有关联视频。</p></div><p class="sync-note" id="syncNote">视频与动作分别播放。</p></details>
+      <details class="inspector-card evidence-panel"><summary>数据说明</summary><dl id="evidenceList"></dl><p class="note">263D 恢复为 22 个关节。Root 位移相对首帧，轨迹投影在地面；坐标经过数据预处理，不代表原始拍摄场景的绝对位置。人体网格为中性形体的 SMPL-H 重建，不代表原始人体形状。</p><p class="note">空格：播放 / 暂停<br>← / →：逐帧 · J / K：下一条 / 上一条</p></details>
+    </aside>
+  </main>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script type="module" src="/static/viewer.js?v=20261020-2"></script>
+</body>
 </html>

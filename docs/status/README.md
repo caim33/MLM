@@ -90,3 +90,27 @@ Transformers 4.57.3、PEFT 0.18.0、Accelerate 1.14.0、PyAV 12.3.0，并使用
 ## Web layout update (2026-09-27)
 
 Motion Data Atlas source moved from dataset/data_page/ to online_page/data_page/. The former directory now contains only data/index.sqlite and summary JSON files. Python dependencies moved to runtime/cloudflare-viewer/deps/. The existing viewer startup script points to the new source and the loopback health endpoint was verified. GitHub Pages now stages an explicit static allowlist, excluding the dynamic server and private index.
+
+## Viewer update (2026-10-20)
+
+- `/viewer` now defaults to root displacement relative to the first frame,
+  with an in-place toggle, floor trajectory, path length/net displacement,
+  camera follow, and whole-clip fit. Skeleton and SMPL-H share the same
+  horizontal displacement; height and yaw remain intact.
+- The light layout separates sample browsing, motion, and annotations. Added
+  server pagination, page jump, cross-page previous/next sample, random sampling
+  across filtered results, shareable sample links, frame stepping, and shortcuts.
+  Videos are collapsed when absent; annotation timestamps can seek the motion.
+- Verification for this frontend change: 8 coordinate/navigation unit tests
+  passed, JavaScript syntax and whitespace checks passed, and 7 DOM/API
+  simulation groups covered startup, root display, mesh placement, pagination,
+  random selection, stale responses, and dataset/empty states.
+- Real browser rendering and visual inspection were not performed because
+  local browser automation was disabled. The DOM simulation used real Three.js
+  geometry with a mocked renderer; it does not validate WebGL rendering.
+- Backend data decoding, source datasets, and API contracts are unchanged.
+  This frontend verification does not update the historical model test results.
+- Deployed to the existing Aistation service without restarting the backend.
+  All 14 public checks returned HTTP 200: HTML/assets, health/summary, second
+  sample pages and decoded motion from all three datasets, and SMPL-H topology
+  and mesh. Module MIME types and deployed asset contents were verified.
