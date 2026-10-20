@@ -1,5 +1,17 @@
 # 当前状态
 
+## 网站恢复更新（2026-10-21）
+
+- 已部署 `online_page/data_page/ops/` 的网站专用 bootstrap 与 supervisor；
+  环境启动后自动恢复网站，SSH 登录提供补启动入口。
+- 在新容器第一次 SSH 登录前已验证公网健康检查 HTTP 200；实际终止后端和隧道后
+  约 12 秒自动恢复。并发启动、崩溃和卡死恢复的 2 项 Linux 集成测试通过。
+- 已查平台配置：GPU 空闲检查周期 240 分钟、阈值 1%，最长运行 72 小时。
+  前一环境运行约 4 小时后停止与该规则吻合；无权限读取逐次操作审计日志。
+- 整个 workspace Halt 时内部 supervisor 同样停止。全天在线仍需常驻部署；
+  此次没有改变平台回收策略或启动 GPU 保活。详见
+  [网站运行说明](../../online_page/data_page/ops/README.md)。
+
 更新日期：2026-09-02
 
 ## 已完成
@@ -31,8 +43,8 @@
 - 已核对 `dataset/qwen_qa/training` 自包含训练包：SFT/GRPO 的 V、M、VM、V+VM
   split 均与 manifest 行数一致，841 个 video 与 841 个 motion 物理文件齐全；
   SFT 旧 motion anchor 可生成带 SHA receipt 的只读兼容视图。
-- 完整 Motion Viewer 已通过固定域名 `viewer.caimeng.online` 对外提供；本机自动占卡
-  程序会在新的 AIStation 环境可连接后恢复 Viewer 与 Cloudflare Tunnel。
+- 完整 Motion Viewer 已通过固定域名 `viewer.caimeng.online` 对外提供；环境启动命令
+  必须保留网站 bootstrap。自动分配程序继承模板命令，空命令模板不会恢复网站。
 
 ## 本机验证结果
 
