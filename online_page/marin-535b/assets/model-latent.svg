@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="t d">
+<title id="t">LatentMoE 与专家路由的中文数据流</title><desc id="d">6144维输入分成router、3072维latent路由专家支路与2个共享专家支路，最终合并为6144维输出。</desc>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 8 4 0 8" fill="none" stroke="#50706a" stroke-width="1.5"/></marker></defs>
+<rect width="1280" height="720" rx="28" fill="#f5f4ed"/>
+<g font-family="Microsoft YaHei, Noto Sans SC, sans-serif" fill="#173b38">
+<text x="48" y="57" font-size="30" font-weight="700">同一个 token：先压缩，再把激活送到专家所在 GPU</text><text x="48" y="91" font-size="17" fill="#65726c">中文重绘 · 初始模型数据流 · T 代表 token 数，所有专家的输出仍需返回来源 GPU</text>
+<g fill="#fff" stroke="#b5c5b7" stroke-width="1.5"><rect x="45" y="286" width="180" height="118" rx="15"/><rect x="286" y="140" width="250" height="102" rx="15"/><rect x="286" y="294" width="250" height="102" rx="15"/><rect x="602" y="294" width="280" height="102" rx="15"/><rect x="943" y="294" width="285" height="102" rx="15"/><rect x="286" y="473" width="320" height="100" rx="15"/><rect x="943" y="473" width="285" height="100" rx="15"/></g>
+<g fill="#e8eee3" stroke="#b5c5b7" stroke-width="1.5"><rect x="592" y="140" width="290" height="102" rx="15"/><rect x="286" y="620" width="942" height="56" rx="12"/></g>
+<g text-anchor="middle"><text x="135" y="323" font-size="22" font-weight="700">输入 x</text><text x="135" y="358" font-size="23">[T, 6,144]</text><text x="135" y="387" font-size="16" fill="#65726c">归一化后的表示</text>
+<text x="411" y="179" font-size="22" font-weight="700">Router 读全宽 x</text><text x="411" y="212" font-size="18">QB balancing · top-8 / 384</text><text x="737" y="179" font-size="22" font-weight="700">选中专家及合并权重</text><text x="737" y="212" font-size="18">sigmoid 后归一到总和 2.5</text>
+<text x="411" y="332" font-size="22" font-weight="700">降维 + latent RMSNorm</text><text x="411" y="366" font-size="20">[T, 3,072]</text><text x="742" y="332" font-size="22" font-weight="700">Dispatch → 专家 SwiGLU</text><text x="742" y="366" font-size="18">激活跨 GPU · 每 token 8 份</text><text x="1085" y="332" font-size="22" font-weight="700">Return → 加权 Combine</text><text x="1085" y="366" font-size="18">latent 输出 → 升维 6,144</text>
+<text x="446" y="510" font-size="22" font-weight="700">2 个共享专家 · 每 token 都运行</text><text x="446" y="544" font-size="18">[T, 6,144] → width 3,072 → [T, 6,144]</text><text x="1085" y="510" font-size="22" font-weight="700">路由输出 + 共享输出</text><text x="1085" y="544" font-size="18">再加残差，得到下一层表示</text><text x="757" y="655" font-size="20">通信宽度减半：6,144 → 3,072；压缩后的 token 表示，不是压缩文本 token 数量。</text></g>
+<g stroke="#50706a" stroke-width="2.5" fill="none" marker-end="url(#arrow)"><path d="M225 332H280"/><path d="M225 316H252V190H280"/><path d="M225 375H252V523H280"/><path d="M536 190H585"/><path d="M536 345H595"/><path d="M882 345H936"/><path d="M737 242V286"/><path d="M1085 396V466"/><path d="M606 523H936"/></g>
+<text x="621" y="436" font-size="16" fill="#65726c">EP 保持专家权重不动，搬运低维激活；共享专家不走该路由通信。</text>
+</g></svg>

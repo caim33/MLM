@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="850" viewBox="0 0 1280 850" role="img" aria-labelledby="t d">
+<title id="t">Marin 535B 初始架构中文总览</title><desc id="d">128256词表，6144维token表示，48层注意力与MoE，每4层全局注意力，其余2048窗口，384路由专家选8个及2共享专家，最终词表预测。</desc>
+<defs><marker id="a" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 8 4 0 8" fill="none" stroke="#52716d" stroke-width="1.5"/></marker></defs>
+<rect width="1280" height="850" rx="28" fill="#f5f4ed"/>
+<g font-family="Microsoft YaHei, Noto Sans SC, sans-serif" fill="#173b38">
+<text x="55" y="61" font-size="31" font-weight="700">535B 的容量，约 23B 的逐 token 计算路径</text><text x="55" y="94" font-size="17" fill="#62716a">中文重绘 · 初始运行配置 commit 12d8b6f · 教学总览，省略若干局部算子</text>
+<g stroke="#b6c9bc" stroke-width="1.5" fill="#ffffff">
+<rect x="60" y="140" width="290" height="90" rx="14"/><rect x="60" y="283" width="290" height="122" rx="14"/><rect x="60" y="458" width="290" height="122" rx="14"/><rect x="60" y="633" width="290" height="100" rx="14"/>
+<rect x="425" y="140" width="790" height="592" rx="20" fill="#e9efe7"/>
+<rect x="465" y="218" width="330" height="174" rx="14"/><rect x="845" y="218" width="330" height="174" rx="14"/>
+<rect x="465" y="450" width="330" height="200" rx="14"/><rect x="845" y="450" width="330" height="200" rx="14"/>
+</g>
+<g text-anchor="middle"><text x="205" y="176" font-size="22" font-weight="700">文本 → token IDs</text><text x="205" y="206" font-size="17">词表 128,256</text>
+<text x="205" y="320" font-size="22" font-weight="700">Embedding + Norm / Gate</text><text x="205" y="350" font-size="18">token 表示宽度 6,144</text><text x="205" y="379" font-size="16" fill="#62716a">输入与输出权重不共享</text>
+<text x="205" y="501" font-size="24" font-weight="700">Transformer block × 48</text><text x="205" y="535" font-size="17">Attention + 残差</text><text x="205" y="560" font-size="17">MoE + 残差</text>
+<text x="205" y="674" font-size="22" font-weight="700">Final Norm / Gate → LM head</text><text x="205" y="708" font-size="18">输出下一个 token 的概率</text>
+<text x="630" y="260" font-size="23" font-weight="700">局部注意力层</text><text x="630" y="298" font-size="18">窗口 2,048 · 48 个 query heads</text><text x="630" y="330" font-size="18">12 个 KV heads · half RoPE</text><text x="630" y="363" font-size="16" fill="#62716a">head dim = 128 · 其余层使用此配置</text>
+<text x="1010" y="260" font-size="23" font-weight="700">全局注意力层</text><text x="1010" y="298" font-size="18">完整因果注意力 · 48 个 query heads</text><text x="1010" y="330" font-size="18">6 个 KV heads · NoPE</text><text x="1010" y="363" font-size="16" fill="#62716a">每 4 层及最后一层</text>
+<text x="630" y="495" font-size="23" font-weight="700">路由专家分支</text><text x="630" y="533" font-size="19">384 个专家，每 token 选 8 个</text><text x="630" y="570" font-size="18">6,144 → latent 3,072 → 6,144</text><text x="630" y="607" font-size="18">专家 SwiGLU 中间宽度 3,072</text><text x="630" y="634" font-size="16" fill="#62716a">专家权重用 EP 分片</text>
+<text x="1010" y="495" font-size="23" font-weight="700">共享专家分支</text><text x="1010" y="533" font-size="19">2 个共享专家，每 token 都运行</text><text x="1010" y="570" font-size="18">全宽输入 6,144 · 中间宽度 3,072</text><text x="1010" y="607" font-size="18">与路由分支相加，再走残差</text><text x="1010" y="634" font-size="16" fill="#62716a">共享专家主要用 FSDP 分片</text></g>
+<text x="465" y="183" font-size="24" font-weight="700">放大看一个 block：注意力负责取上下文，专家负责变换表示</text>
+<g stroke="#52716d" stroke-width="2.5" fill="none" marker-end="url(#a)"><path d="M205 230V280"/><path d="M205 405V455"/><path d="M205 580V630"/><path d="M350 518H421"/><path d="M630 392V445"/><path d="M1010 392V445"/></g>
+<text x="55" y="795" font-size="19" fill="#62716a">535.3B total / 22.76B active：active 包含注意力、共享专家等，不能直接用 8 ÷ 384 估算。</text>
+</g></svg>

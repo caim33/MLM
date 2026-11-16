@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="425" viewBox="0 0 1120 425" role="img" aria-label="Initial MuonH AdamH and Adam parameter groups"><title>Initial MuonH AdamH and Adam parameter groups</title><rect width="100%" height="100%" fill="#f7fafc"/><style>text{font-family:Arial,'Microsoft YaHei',sans-serif;fill:#17334a}.title{font-size:24px;font-weight:700}.label{font-size:18px}.small{font-size:14px}.muted{fill:#536d81}.line{stroke:#a7bdca;stroke-width:1}.box{fill:#fff;stroke:#bed3df;stroke-width:1.5}</style>
+<text x="45" y="44" class="title">同一个模型，三组参数采用不同更新方式</text>
+<text x="45" y="74" class="small muted">这是首发版本的参数分组。范数约束、学习率、梯度裁剪和计算精度需要分别理解。</text>
+<rect x="45" y="105" width="328" height="240" rx="14" class="box"/>
+<rect x="395" y="105" width="328" height="240" rx="14" class="box"/>
+<rect x="745" y="105" width="328" height="240" rx="14" class="box"/>
+<text x="68" y="143" class="title" style="fill:#117c87">MuonH</text>
+<text x="68" y="179" class="label">attention、MoE、shared</text><text x="68" y="207" class="label">latent、GatedNorm 矩阵</text>
+<text x="68" y="245" class="small">动量 → Newton–Schulz 方向</text><text x="68" y="272" class="small">→ 更新后投影回原 Frobenius 范数</text><text x="68" y="316" class="small muted">初始 LR ≈ 0.003291</text>
+<text x="418" y="143" class="title" style="fill:#91651a">AdamH</text>
+<text x="418" y="179" class="label">lm_head / output_proj</text><text x="418" y="207" class="label">输出读出矩阵</text>
+<text x="418" y="245" class="small">Adam moments 给出更新方向</text><text x="418" y="272" class="small">→ 同类范数保持投影</text><text x="418" y="316" class="small muted">使用 MuonH 组学习率</text>
+<text x="768" y="143" class="title" style="fill:#7454a6">Adam</text>
+<text x="768" y="179" class="label">embedding、router、gate</text><text x="768" y="207" class="label">norm gain、ShortConv</text>
+<text x="768" y="245" class="small">使用 Adam moments 更新</text><text x="768" y="272" class="small">没有前两组的 hyperball 投影</text><text x="768" y="316" class="small muted">初始 LR ≈ 0.000759</text>
+<text x="45" y="389" class="small muted">MuonH / AdamH 首发配置不加 decoupled weight decay；这不等于整个训练后续没有任何正则或裁剪调整。</text></svg>

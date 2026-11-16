@@ -51,6 +51,7 @@ known_hosts
 *.npy
 *.npz
 *.mp4
+!/online_page/marin-535b/assets/*.mp4
 *.avi
 *.mov
 

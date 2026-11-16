@@ -14,6 +14,7 @@ PUBLIC_ENTRIES = (
     "dataset-page",
     "guide",
     "motionllm-page",
+    "marin-535b",
 )
 
 

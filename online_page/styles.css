@@ -76,6 +76,7 @@ h1 em { color: var(--lime); font-style: normal; }
 .workspace-card--cyan { border-top-color: rgba(115, 230, 211, 0.58); }
 .workspace-card--orange { border-top-color: rgba(255, 180, 107, 0.58); }
 .workspace-card--violet { border-top-color: rgba(199, 166, 255, 0.58); }
+.workspace-card--wide { grid-column: 1 / -1; min-height: 290px; }
 .card-index { color: var(--muted); font: 600 10px/1 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: 0.12em; }
 .card-icon { position: absolute; top: 25px; right: 25px; width: 68px; height: 68px; display: grid; place-items: center; border: 1px solid var(--line); }
 .card-icon svg { width: 34px; height: 34px; }
