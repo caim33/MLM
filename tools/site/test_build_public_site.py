@@ -1,4 +1,4 @@
-"""Check the public staging boundary when adding the Marin study report."""
+"""Check the public staging boundary for static learning reports."""
 
 import tempfile
 import unittest
@@ -13,7 +13,9 @@ class PublicReportStagingTest(unittest.TestCase):
             base = Path(temporary)
             source = base / "online_page"
             source.mkdir()
-            directories = {"dataset-page", "guide", "motionllm-page", "marin-535b"}
+            directories = {
+                "dataset-page", "guide", "motionllm-page", "marin-535b", "deepseek"
+            }
             for name in PUBLIC_ENTRIES:
                 target = source / name
                 if name in directories:
@@ -24,6 +26,12 @@ class PublicReportStagingTest(unittest.TestCase):
             assets = source / "marin-535b" / "assets"
             assets.mkdir()
             (assets / "routing.mp4").write_bytes(b"animation-fixture")
+            deepseek_assets = source / "deepseek" / "assets"
+            deepseek_assets.mkdir()
+            (deepseek_assets / "architecture.png").write_bytes(b"figure-fixture")
+            (source / "deepseek" / "deepseek-study-report.pdf").write_bytes(
+                b"report-fixture"
+            )
             private = source / "data_page"
             private.mkdir()
             (private / "server.py").write_text("private-service", encoding="utf-8")
@@ -40,6 +48,14 @@ class PublicReportStagingTest(unittest.TestCase):
             )
             self.assertFalse((output / "data_page").exists())
             self.assertFalse((output / ".env").exists())
+            self.assertEqual(
+                (output / "deepseek" / "assets" / "architecture.png").read_bytes(),
+                b"figure-fixture",
+            )
+            self.assertEqual(
+                (output / "deepseek" / "deepseek-study-report.pdf").read_bytes(),
+                b"report-fixture",
+            )
 
 
 if __name__ == "__main__":

@@ -15,6 +15,7 @@ PUBLIC_ENTRIES = (
     "guide",
     "motionllm-page",
     "marin-535b",
+    "deepseek",
 )
 
 

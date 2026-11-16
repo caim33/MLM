@@ -1,7 +1,13 @@
 # Caimeng Codebase Portal
 
 这是仓库的公开主网站目录。首页提供数据统计、数据可视化、Codebase
-使用说明、Paper Reading 和大模型训练图解五个入口。
+使用说明、Paper Reading、Marin 训练图解和 DeepSeek 技术学习六个入口。
+
+`deepseek/` 将本地 36 页 DeepSeek 学习报告整理为完整网页，包含 26 幅图的详细读图
+说明、33 项参考资料、三项交互教学示例及原 PDF 下载。入口为
+`https://caim33.github.io/MLM/deepseek/`。报告快照为 2026-10-26；2026-11-17 整理
+网页并复核关键一手来源。网页版新增版本澄清、V3/V4.1 recipe 对照和指标释义，
+原 PDF 保持原稿。FSDP＋EP 示例是教学拓扑，与 V3 的实际并行配置分开标注。
 
 `marin-535b/` 是 Marin 535B-A23B 中文学习报告，包含全部 29 幅图的详细读图说明、
 指标含义、3 段本地动画和离线交互数据。入口为
